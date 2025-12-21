@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小宁论坛 - 系统通知</title>
+    <meta name="keywords" content="小宁论坛,后台管理,系统通知">
+    <meta name="description" content="小宁论坛后台管理系统 - 系统通知页面">
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <style>
+        .notification-editor {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .notification-editor h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .editor-content {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .editor-text {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .editor-text textarea {
+            width: 100%;
+            border: none;
+            resize: vertical;
+            min-height: 120px;
+            font-size: 14px;
+            color: #1f2937;
+        }
+        .editor-text textarea:focus {
+            outline: none;
+        }
+        .editor-image {
+            padding: 15px;
+            background: #f9fafb;
+            min-height: 80px;
+        }
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .image-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-item .remove-img {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .editor-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn-add-image {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-add-image:hover {
+            background: #e5e7eb;
+        }
+        .btn-send {
+            background: #3b82f6;
+            border: 1px solid #3b82f6;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-send:hover {
+            background: #2563eb;
+        }
+        .btn-draft {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .btn-draft:hover {
+            background: #e5e7eb;
+        }
+        .notification-history {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .notification-history h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            border-top: none;
+        }
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .pagination li a {
+            display: block;
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            color: #6b7280;
+            text-decoration: none;
+            cursor: pointer;
+            background: white;
+        }
+        .pagination li.active a {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .pagination li.disabled a {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .pagination li a:hover {
+            background: #f3f4f6;
+        }
+        .pagination li.disabled a:hover {
+            background: white;
+        }
+        .btn-edit, .btn-delete {
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+            margin-right: 5px;
+        }
+        .btn-edit {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        .btn-delete {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        .table tbody tr {
+            cursor: pointer;
+        }
+        .table tbody tr.active {
+            background-color: #eff6ff;
+        }
+        .table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        .table tbody tr.active:hover {
+            background-color: #eff6ff;
+        }
+        .notification-detail {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        .notification-detail h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .detail-content {
+            line-height: 1.6;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        .detail-images {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .detail-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-meta {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .btn-add-image-edit {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-add-image-edit:hover {
+            background: #e5e7eb;
+        }
+        .image-preview-edit {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        #edit-notification-modal .editor-content {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #edit-notification-modal .editor-text {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        #edit-notification-modal .editor-text textarea {
+            width: 100%;
+            border: none;
+            resize: vertical;
+            min-height: 120px;
+            font-size: 14px;
+            color: #1f2937;
+        }
+        #edit-notification-modal .editor-text textarea:focus {
+            outline: none;
+        }
+        #edit-notification-modal .editor-image {
+            padding: 15px;
+            background: #f9fafb;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- 通知编辑区域 -->
+                <div class="notification-editor">
+                    <h3>发送系统通知</h3>
+                    <div class="editor-content">
+                        <div class="editor-title" style="padding: 15px; border-bottom: 1px solid #e5e7eb;">
+                            <input type="text" id="notification-title" placeholder="请输入通知标题..." style="width: 100%; border: none; font-size: 14px; color: #1f2937;">
+                        </div>
+                        <div class="editor-text">
+                            <textarea id="notification-content" placeholder="请输入通知内容..."></textarea>
+                        </div>
+                        <div class="editor-image">
+                            <div class="btn-add-image">
+                                <i class="fa fa-plus"></i>
+                                <span>添加图片</span>
+                                <input type="file" accept="image/*" multiple style="display: none;">
+                            </div>
+                            <div class="image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="editor-actions">
+                        <div></div>
+                        <div>
+                            <button class="btn-send">
+                                <i class="fa fa-paper-plane"></i>
+                                确定发送
+                            </button>
+                            <button class="btn-draft">
+                                <i class="fa fa-save"></i>
+                                保存草稿
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- 历史通知列表 -->
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <span class="text-muted small pull-right">最后更新：<i class="fa fa-clock-o"></i> 2025-12-14 12:00</span>
+                        <h2>历史通知</h2>
+                        <p>
+                            管理系统通知记录
+                        </p>
+                        <div class="clients-list">
+                            <ul class="nav nav-tabs">
+                                <span class="pull-right small text-muted" id="notification-count">0 条通知</span>
+                                <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-bell"></i> 系统通知</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="tab-1" class="tab-pane active">
+                                    <div class="full-height-scroll">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover" id="notification-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>通知标题</th>
+                                                        <th>通知内容</th>
+                                                        <th>发送时间</th>
+                                                        <th>发送人</th>
+                                                        <th>阅读量</th>
+                                                        <th>操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="notification-tbody">
+                                                    <!-- 表格内容将通过JavaScript动态生成 -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- 分页 -->
+                                    <ul class="pagination" id="notification-pagination">
+                                        <!-- 分页按钮将通过JavaScript动态生成 -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑通知模态框 -->
+    <div class="modal fade" id="edit-notification-modal" tabindex="-1" role="dialog" aria-labelledby="edit-notification-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="edit-notification-label">编辑系统通知</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="editor-content">
+                        <div class="editor-title" style="padding: 15px; border-bottom: 1px solid #e5e7eb; margin-bottom: 0;">
+                            <input type="text" id="edit-notification-title" placeholder="请输入通知标题..." style="width: 100%; border: none; font-size: 14px; color: #1f2937;">
+                        </div>
+                        <div class="editor-text">
+                            <textarea id="edit-notification-content" placeholder="请输入通知内容..."></textarea>
+                        </div>
+                        <div class="editor-image">
+                            <div class="btn-add-image-edit">
+                                <i class="fa fa-plus"></i>
+                                <span>添加图片</span>
+                                <input type="file" accept="image/*" multiple style="display: none;">
+                            </div>
+                            <div class="image-preview-edit"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-edit-notification">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/content.js?v=1.0.0"></script>
+
+    <script>
+        // 模拟数据
+        let notifications = [
+            {id: 1, title: '系统维护通知', content: '系统将于今晚22:00-24:00进行维护升级，期间可能无法访问，请提前做好准备。', time: '2025-12-14 10:30', sender: '管理员', views: 1250, images: []},
+            {id: 2, title: '新功能上线', content: '我们很高兴地宣布，新版本已经上线，包含多项功能优化和bug修复。', time: '2025-12-13 15:20', sender: '管理员', views: 890, images: []},
+            {id: 3, title: '社区规则更新', content: '为了维护良好的社区环境，我们对社区规则进行了更新，请各位用户仔细阅读。', time: '2025-12-12 09:15', sender: '管理员', views: 2100, images: []},
+            {id: 4, title: '活动通知', content: '本周将举办线上活动，参与即可获得丰厚奖励，欢迎大家踊跃参加！', time: '2025-12-11 14:45', sender: '管理员', views: 1560, images: []},
+            {id: 5, title: '重要公告', content: '关于近期用户反馈的问题，我们已经进行了修复，感谢大家的支持。', time: '2025-12-10 11:30', sender: '管理员', views: 980, images: []},
+            {id: 6, title: '系统优化完成', content: '系统性能优化已完成，访问速度提升30%，用户体验得到显著改善。', time: '2025-12-09 16:20', sender: '管理员', views: 1120, images: []},
+            {id: 7, title: '安全提醒', content: '请各位用户注意账号安全，不要泄露密码，定期修改密码以确保账号安全。', time: '2025-12-08 10:00', sender: '管理员', views: 2340, images: []},
+            {id: 8, title: '功能更新', content: '新增了消息推送功能，可以及时收到重要通知，请在设置中开启。', time: '2025-12-07 13:25', sender: '管理员', views: 1450, images: []},
+            {id: 9, title: '感谢支持', content: '感谢大家一直以来的支持，我们会继续努力，为大家提供更好的服务。', time: '2025-12-06 09:50', sender: '管理员', views: 890, images: []},
+            {id: 10, title: '维护完成', content: '系统维护已完成，所有功能已恢复正常，感谢大家的耐心等待。', time: '2025-12-05 08:15', sender: '管理员', views: 1670, images: []},
+            {id: 11, title: '新版本预告', content: '下个版本将带来全新的界面设计和更多实用功能，敬请期待。', time: '2025-12-04 15:40', sender: '管理员', views: 1320, images: []},
+            {id: 12, title: '问题反馈', content: '如果您在使用过程中遇到任何问题，欢迎通过反馈功能联系我们。', time: '2025-12-03 11:20', sender: '管理员', views: 1080, images: []}
+        ];
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let editingId = null;
+
+        $(function () {
+            // 初始化
+            loadNotifications();
+            updatePagination();
+
+            // 图片上传功能
+            $('.btn-add-image').click(function() {
+                $(this).find('input[type="file"]').click();
+            });
+
+            // 编辑模态框图片上传功能
+            $(document).on('click', '.btn-add-image-edit', function() {
+                $(this).find('input[type="file"]').click();
+            });
+
+            // 图片选择事件
+            $('.btn-add-image input[type="file"]').change(function(e) {
+                handleImageUpload(e, $('.image-preview'));
+            });
+
+            // 编辑模态框图片选择事件
+            $(document).on('change', '.btn-add-image-edit input[type="file"]', function(e) {
+                handleImageUpload(e, $('.image-preview-edit'));
+            });
+
+            // 删除图片
+            $(document).on('click', '.remove-img', function() {
+                $(this).parent().remove();
+            });
+
+            // 发送通知按钮事件
+            $('.btn-send').click(function() {
+                const title = $('#notification-title').val().trim();
+                const content = $('#notification-content').val().trim();
+                
+                if (!title) {
+                    alert('请输入通知标题');
+                    return;
+                }
+                
+                if (!content) {
+                    alert('请输入通知内容');
+                    return;
+                }
+                
+                // 获取图片
+                const images = [];
+                $('.image-preview .image-item img').each(function() {
+                    images.push($(this).attr('src'));
+                });
+                
+                // 添加新通知
+                const newNotification = {
+                    id: notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) + 1 : 1,
+                    title: title,
+                    content: content,
+                    time: new Date().toLocaleString('zh-CN', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'}).replace(/\//g, '-'),
+                    sender: '管理员',
+                    views: 0,
+                    images: images
+                };
+                
+                notifications.unshift(newNotification);
+                
+                // 重置表单
+                $('#notification-title').val('');
+                $('#notification-content').val('');
+                $('.image-preview').empty();
+                
+                // 重新加载
+                currentPage = 1;
+                loadNotifications();
+                updatePagination();
+                
+                alert('通知发送成功！');
+            });
+
+            // 保存草稿按钮事件
+            $('.btn-draft').click(function() {
+                const title = $('#notification-title').val().trim();
+                const content = $('#notification-content').val().trim();
+                // 这里可以添加AJAX请求，保存草稿
+                alert('草稿保存成功！');
+            });
+
+            // 编辑按钮事件
+            $(document).on('click', '.btn-edit', function(e) {
+                e.stopPropagation();
+                const id = $(this).data('id');
+                const notification = notifications.find(n => n.id === id);
+                
+                if (notification) {
+                    editingId = id;
+                    $('#edit-notification-title').val(notification.title);
+                    $('#edit-notification-content').val(notification.content);
+                    $('.image-preview-edit').empty();
+                    
+                    // 加载图片
+                    if (notification.images && notification.images.length > 0) {
+                        notification.images.forEach(function(imgSrc) {
+                            const $imageItem = $('<div class="image-item"></div>');
+                            const $img = $('<img>').attr('src', imgSrc);
+                            const $remove = $('<span class="remove-img">&times;</span>');
+                            $imageItem.append($img);
+                            $imageItem.append($remove);
+                            $('.image-preview-edit').append($imageItem);
+                        });
+                    }
+                    
+                    $('#edit-notification-modal').modal('show');
+                }
+            });
+
+            // 删除按钮事件
+            $(document).on('click', '.btn-delete', function(e) {
+                e.stopPropagation();
+                if (confirm('确定要删除这条通知吗？')) {
+                    const id = $(this).data('id');
+                    notifications = notifications.filter(n => n.id !== id);
+                    
+                    // 重新计算分页
+                    const totalPages = Math.ceil(notifications.length / pageSize);
+                    if (currentPage > totalPages && totalPages > 0) {
+                        currentPage = totalPages;
+                    }
+                    
+                    loadNotifications();
+                    updatePagination();
+                    alert('删除成功！');
+                }
+            });
+
+            // 保存编辑
+            $('#save-edit-notification').click(function() {
+                const title = $('#edit-notification-title').val().trim();
+                const content = $('#edit-notification-content').val().trim();
+                
+                if (!title) {
+                    alert('请输入通知标题');
+                    return;
+                }
+                
+                if (!content) {
+                    alert('请输入通知内容');
+                    return;
+                }
+                
+                // 获取图片
+                const images = [];
+                $('.image-preview-edit .image-item img').each(function() {
+                    images.push($(this).attr('src'));
+                });
+                
+                // 更新通知
+                const index = notifications.findIndex(n => n.id === editingId);
+                if (index !== -1) {
+                    notifications[index].title = title;
+                    notifications[index].content = content;
+                    notifications[index].images = images;
+                }
+                
+                $('#edit-notification-modal').modal('hide');
+                loadNotifications();
+                alert('修改成功！');
+            });
+
+            // 分页点击事件
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                if ($(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) {
+                    return;
+                }
+                
+                const page = $(this).data('page');
+                if (page) {
+                    currentPage = page;
+                    loadNotifications();
+                    updatePagination();
+                }
+            });
+
+            // 模态框关闭时清空编辑ID
+            $('#edit-notification-modal').on('hidden.bs.modal', function() {
+                editingId = null;
+                $('#edit-notification-title').val('');
+                $('#edit-notification-content').val('');
+                $('.image-preview-edit').empty();
+            });
+        });
+
+        // 处理图片上传
+        function handleImageUpload(e, $preview) {
+            const files = e.target.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const $imageItem = $('<div class="image-item"></div>');
+                    const $img = $('<img>').attr('src', e.target.result);
+                    const $remove = $('<span class="remove-img">&times;</span>');
+                    
+                    $imageItem.append($img);
+                    $imageItem.append($remove);
+                    $preview.append($imageItem);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 加载通知列表
+        function loadNotifications() {
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = notifications.slice(start, end);
+            
+            const $tbody = $('#notification-tbody');
+            $tbody.empty();
+            
+            if (pageData.length === 0) {
+                $tbody.append('<tr><td colspan="6" style="text-align: center; padding: 20px;">暂无通知</td></tr>');
+                return;
+            }
+            
+            pageData.forEach(function(notification) {
+                const $tr = $('<tr></tr>');
+                $tr.append('<td>' + (notification.title || '无标题') + '</td>');
+                $tr.append('<td>' + (notification.content.length > 50 ? notification.content.substring(0, 50) + '...' : notification.content) + '</td>');
+                $tr.append('<td>' + notification.time + '</td>');
+                $tr.append('<td>' + notification.sender + '</td>');
+                $tr.append('<td>' + notification.views + '</td>');
+                $tr.append('<td>' +
+                    '<button class="btn-edit" data-id="' + notification.id + '">修改</button>' +
+                    '<button class="btn-delete" data-id="' + notification.id + '">删除</button>' +
+                    '</td>');
+                $tbody.append($tr);
+            });
+            
+            // 更新通知数量
+            $('#notification-count').text(notifications.length + ' 条通知');
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(notifications.length / pageSize);
+            const $pagination = $('#notification-pagination');
+            $pagination.empty();
+            
+            if (totalPages === 0) {
+                return;
+            }
+            
+            // 上一页
+            const $prev = $('<li class="' + (currentPage === 1 ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage - 1) + '">上一页</a></li>');
+            $pagination.append($prev);
+            
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const $li = $('<li class="' + (i === currentPage ? 'active' : '') + '"><a href="#" data-page="' + i + '">' + i + '</a></li>');
+                    $pagination.append($li);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const $li = $('<li class="disabled"><a href="#">...</a></li>');
+                    $pagination.append($li);
+                }
+            }
+            
+            // 下一页
+            const $next = $('<li class="' + (currentPage === totalPages ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage + 1) + '">下一页</a></li>');
+            $pagination.append($next);
+        }
+    </script>
+</body>
+</html>

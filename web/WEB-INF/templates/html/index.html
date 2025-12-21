@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>小宁论坛 - 管理员系统</title>
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    
+    <style>
+        /* ================= 现代简约浅色主题 V2.2 ================= */
+        
+        :root {
+            --primary: #3b82f6;       /* 主色蓝 */
+            --primary-light: #eff6ff; 
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --bg-body: #f3f4f6;
+            --bg-white: #ffffff;
+            --border-light: #e5e7eb;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        body.fixed-sidebar.full-height-layout.gray-bg {
+            background-color: var(--bg-body);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        /* 侧边栏优化 */
+        .navbar-default.navbar-static-side { background-color: #fff !important; border-right: 1px solid var(--border-light); }
+        .nav-header { background: #fff !important; padding: 25px; }
+        .nav > li > a { color: var(--text-sub); font-weight: 500; padding: 12px 20px; }
+        .nav > li.active > a { background-color: var(--primary-light) !important; color: var(--primary) !important; border-left: 4px solid var(--primary); font-weight: 600; }
+        .logo-element { color: var(--primary) !important; background: #fff !important; font-weight: 800; }
+        
+        /* 侧边栏箭头基础样式 */
+        span.fa.arrow {
+            float: right !important;
+            margin-top: 2px !important;
+            transition: transform 0.3s ease !important;
+            transform: rotate(0deg) !important;
+            display: inline-block !important;
+        }
+        
+        /* 箭头向下的旋转样式 */
+        span.fa.arrow.arrow-down {
+            transform: rotate(270deg) !important;
+        }
+        
+        .nav-second-level li a {
+            padding: 10px 15px 10px 35px;
+        }
+        
+        /* 顶部导航 */
+        .navbar-static-top { background: #fff !important; border-bottom: 1px solid var(--border-light) !important; margin-bottom: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
+        .navbar-minimalize { background-color: var(--primary) !important; border-color: var(--primary) !important; border-radius: 4px; }
+
+        /* 内容区域 */
+        #page-wrapper { margin-left: 220px; background: var(--bg-body); }
+        #content-main { height: calc(100% - 85px); overflow-y: auto; overflow-x: hidden; padding: 20px; }
+
+        /* --- Tab 样式优化 (滚动条支持) --- */
+        .content-tabs { background: #fff; border-bottom: 1px solid var(--border-light); height: 40px; line-height: 40px; }
+        
+        /* 1. 限制可视区域，隐藏溢出内容 */
+        .page-tabs {
+            overflow: hidden;
+            height: 40px;
+            width: 1000px; /* 初始宽度，JS会自动调整 */
+        }
+
+        /* 2. 让 tab 内容强制不换行，且支持 margin-left 移动 */
+        .page-tabs-content {
+            float: left;
+            width: auto;
+            white-space: nowrap; /* 核心：强制一行显示 */
+            transition: margin-left 0.3s ease; /* 添加平滑滚动动画 */
+        }
+
+        /* 3. 修正 tab 的显示模式 */
+        .page-tabs a { 
+            display: inline-block; /* 改为 inline-block 以便在一行 */
+            float: none; /* 取消浮动 */
+            margin-right: 0px;
+            padding: 0 15px;
+            color: var(--text-sub); 
+        }
+        
+        .page-tabs a.active { background: var(--primary) !important; color: #fff !important; border-radius: 20px; margin-top: 2px; height: 34px; line-height: 34px; border:none; }
+
+        /* 卡片 (iBox) */
+        .ibox { background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 20px; border: none; }
+        .ibox-title { border-bottom: 1px solid #f3f4f6; padding: 15px 20px; border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+        .ibox-title h5 { font-size: 15px; font-weight: 600; color: var(--text-main); margin: 0; }
+        .ibox-content { padding: 20px; border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); border-top: none; }
+
+        /* 列表优化 */
+        .list-group-item { border: none; border-bottom: 1px solid #f3f4f6; padding: 12px 0; }
+        .list-group-item:last-child { border-bottom: none; }
+        
+        /* 徽章与标签 */
+        .label { border-radius: 4px; padding: 3px 8px; font-weight: 500; font-size: 11px; }
+        .label-primary { background: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
+        
+        /* 通用辅助 */
+        .progress-bar { border-radius: 2px; }
+    </style>
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="nav-close"><i class="fa fa-times-circle"></i></div>
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="dropdown profile-element text-center">
+                            <span><img alt="image" class="img-circle" src="img/admin_avatar.png" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff'" style="width: 64px; height: 64px; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" /></span>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                                    <span class="block m-t-xs"><strong class="font-bold">管理员</strong></span>
+                                    <span class="text-muted text-xs block">系统管理员 <b class="caret"></b></span>
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a class="J_menuItem" onclick="openTab('profile_avatar', '修改头像')">修改头像</a></li>
+                                <li><a class="J_menuItem" onclick="openTab('profile_info', '个人资料')">个人资料</a></li>
+                                <li class="divider"></li>
+                                <li><a href="login.html">安全退出</a></li>
+                            </ul>
+                        </div>
+                        <div class="logo-element">小宁</div>
+                    </li>
+
+                    <li><a onclick="openTab('dashboard', '仪表盘')"><i class="fa fa-dashboard"></i> <span class="nav-label">数字大屏</span></a></li>
+                    
+                    <li>
+                        <a href="#"><i class="fa fa-users"></i> <span class="nav-label">用户管理</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a onclick="openTab('clients', '用户列表')">用户列表</a></li>
+                            <li><a onclick="openTab('permissions', '权限管理')">权限管理</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a onclick="openTab('report_pending', '举报管理')"><i class="fa fa-flag"></i> <span class="nav-label">举报管理</span><span class="label label-danger pull-right" id="reports-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">动态管理</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a onclick="openTab('all_posts', '所有帖子')">所有帖子<span class="label label-danger pull-right" id="posts-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                            <li><a onclick="openTab('classification_label', '分类标签管理')">分类标签管理</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-envelope"></i> <span class="nav-label">消息管理</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a onclick="openTab('msg_system', '系统通知')">系统通知</a></li>
+                            <li><a onclick="openTab('msg_send', '私信用户')">私信用户<span class="label label-danger pull-right" id="msg-unread-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                        </ul>
+                    </li>
+
+                    
+
+                    <li>
+                        <a href="#"><i class="fa fa-gear"></i> <span class="nav-label">系统管理</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a onclick="openTab('sys_settings', '系统设置')">系统设置</a></li>
+                            <li><a onclick="openTab('sys_admin', '管理员管理')">管理员管理</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
+                        <a class="navbar-brand" href="#" style="color: #3b82f6; font-weight: 700; margin-left: 15px; font-size: 18px;">
+                            小宁论坛管理后台
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <div class="row content-tabs">
+                <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-angle-left"></i></button>
+                <nav class="page-tabs J_menuTabs">
+                    <div class="page-tabs-content">
+                        <a href="javascript:;" class="active J_menuTab" data-id="dashboard">仪表盘</a>
+                    </div>
+                </nav>
+                <button class="roll-nav roll-right J_tabRight"><i class="fa fa-angle-right"></i></button>
+                <div class="btn-group roll-nav roll-right">
+                    <button class="dropdown J_tabClose" data-toggle="dropdown">操作 <span class="caret"></span></button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li class="J_tabCloseAll"><a>关闭全部</a></li>
+                        <li class="J_tabCloseOther"><a>关闭其他</a></li>
+                    </ul>
+                </div>
+                <a href="login.html" class="roll-nav roll-right J_tabExit"><i class="fa fa-sign-out"></i></a>
+            </div>
+
+            <div class="row J_mainContent" id="content-main">
+                <iframe id="main-iframe" src="dashboard.html" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+            </div>
+            
+            <div class="footer">
+                <div class="pull-right"> &copy; 2025 小宁论坛 </div>
+                <div class="pull-left"> V2.2 Professional </div>
+            </div>
+        </div>
+        </div>
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/hplus.js?v=4.1.0"></script>
+
+    <script>
+               // 创建一个隐藏的iframe用于获取未读数量
+        var unreadCountIframe = null;
+        
+        function initUnreadCountIframe() {
+            if (!unreadCountIframe) {
+                unreadCountIframe = document.createElement('iframe');
+                unreadCountIframe.src = 'msg_send.html';
+                unreadCountIframe.style.display = 'none';
+                unreadCountIframe.style.width = '0';
+                unreadCountIframe.style.height = '0';
+                document.body.appendChild(unreadCountIframe);
+                
+                // 监听iframe加载完成
+                unreadCountIframe.onload = function() {
+                    setTimeout(function() {
+                        try {
+                            if (unreadCountIframe.contentWindow) {
+                                unreadCountIframe.contentWindow.postMessage({ type: 'getUnreadCount' }, '*');
+                            }
+                        } catch (e) {
+                            // 跨域时忽略
+                        }
+                    }, 500);
+                };
+            }
+        }
+        
+        function requestUnreadCount() {
+            // 优先从主iframe获取
+            try {
+                var mainIframe = document.getElementById('main-iframe');
+                if (mainIframe && mainIframe.contentWindow && mainIframe.src.indexOf('msg_send.html') !== -1) {
+                    mainIframe.contentWindow.postMessage({ type: 'getUnreadCount' }, '*');
+                    return;
+                }
+            } catch (e) {
+                // 忽略错误
+            }
+            
+            // 如果主iframe没有加载msg_send.html，使用隐藏的iframe
+            if (unreadCountIframe && unreadCountIframe.contentWindow) {
+                try {
+                    unreadCountIframe.contentWindow.postMessage({ type: 'getUnreadCount' }, '*');
+                } catch (e) {
+                    // 跨域时忽略
+                }
+            } else {
+                // 如果隐藏iframe还没创建，先创建
+                initUnreadCountIframe();
+            }
+        }
+        
+        // 请求未审核帖子数量
+        function requestPendingPostsCount() {
+            try {
+                var mainIframe = document.getElementById('main-iframe');
+                if (mainIframe && mainIframe.contentWindow && mainIframe.src.indexOf('all_posts.html') !== -1) {
+                    mainIframe.contentWindow.postMessage({ type: 'getPendingPostsCount' }, '*');
+                    return;
+                }
+            } catch (e) {
+                // 忽略错误
+            }
+            
+            // 创建隐藏iframe用于获取未审核帖子数量
+            var pendingPostsIframe = document.createElement('iframe');
+            pendingPostsIframe.src = 'all_posts.html';
+            pendingPostsIframe.style.display = 'none';
+            pendingPostsIframe.style.width = '0';
+            pendingPostsIframe.style.height = '0';
+            document.body.appendChild(pendingPostsIframe);
+            
+            pendingPostsIframe.onload = function() {
+                setTimeout(function() {
+                    try {
+                        if (pendingPostsIframe.contentWindow) {
+                            pendingPostsIframe.contentWindow.postMessage({ type: 'getPendingPostsCount' }, '*');
+                        }
+                    } catch (e) {
+                        // 跨域时忽略
+                    }
+                }, 500);
+            };
+        }
+        
+        // 请求未处理举报数量
+        function requestPendingReportsCount() {
+            try {
+                var mainIframe = document.getElementById('main-iframe');
+                if (mainIframe && mainIframe.contentWindow && mainIframe.src.indexOf('report_pending.html') !== -1) {
+                    mainIframe.contentWindow.postMessage({ type: 'getPendingReportsCount' }, '*');
+                    return;
+                }
+            } catch (e) {
+                // 忽略错误
+            }
+            
+            // 创建隐藏iframe用于获取未处理举报数量
+            var pendingReportsIframe = document.createElement('iframe');
+            pendingReportsIframe.src = 'report_pending.html';
+            pendingReportsIframe.style.display = 'none';
+            pendingReportsIframe.style.width = '0';
+            pendingReportsIframe.style.height = '0';
+            document.body.appendChild(pendingReportsIframe);
+            
+            pendingReportsIframe.onload = function() {
+                setTimeout(function() {
+                    try {
+                        if (pendingReportsIframe.contentWindow) {
+                            pendingReportsIframe.contentWindow.postMessage({ type: 'getPendingReportsCount' }, '*');
+                        }
+                    } catch (e) {
+                        // 跨域时忽略
+                    }
+                }, 500);
+            };
+        }
+        
+        $(document).ready(function(){
+            $('#side-menu').metisMenu();
+            // 初始化隐藏的iframe用于获取未读数量
+            initUnreadCountIframe();
+            
+            // 页面加载后立即获取未读数量和未处理举报数量
+            setTimeout(function() {
+                requestUnreadCount();
+                requestPendingReportsCount();
+            }, 1000);
+            
+            // --- 修复功能 1：侧边栏箭头逻辑 ---
+            $('#side-menu').on('click', 'a[href="#"]', function(e) {
+                var $arrow = $(this).find('span.fa.arrow');
+                var $menuItem = $(this);
+                var menuLabel = $menuItem.find('.nav-label').text();
+                
+                if ($arrow.hasClass('arrow-down')) {
+                    $arrow.removeClass('arrow-down');
+                } else {
+                    $('#side-menu').find('span.fa.arrow').removeClass('arrow-down');
+                    $arrow.addClass('arrow-down');
+                                        
+                    // 如果展开的是"消息管理"菜单，立即获取未读数量
+                    if (menuLabel === '消息管理') {
+                        setTimeout(function() {
+                            requestUnreadCount();
+                        }, 100);
+                    }
+                    // 如果展开的是"动态管理"菜单，立即获取未审核帖子数量
+                    if (menuLabel === '动态管理') {
+                        setTimeout(function() {
+                            requestPendingPostsCount();
+                        }, 100);
+                    }
+                }
+            });
+        });
+
+        // --- 修复功能 2：多标签页滚动计算 ---
+        function calSumWidth(elements) {
+            var width = 0;
+            $(elements).each(function() {
+                width += $(this).outerWidth(true);
+            });
+            return width;
+        }
+
+        function scrollToTab(element) {
+            var marginLeftVal = calSumWidth($(element).prevAll()), 
+                marginRightVal = calSumWidth($(element).nextAll()); 
+
+            var visibleWidth = $(".content-tabs").outerWidth(true) - 80 - 40 - 40; 
+            
+            var scrollVal = 0;
+            if ($(".page-tabs-content").outerWidth() < visibleWidth) {
+                scrollVal = 0;
+            } else if (marginRightVal <= (visibleWidth - $(element).outerWidth(true) - $(element).next().outerWidth(true))) {
+                if ((visibleWidth - $(element).next().outerWidth(true)) > marginRightVal) {
+                    scrollVal = marginLeftVal;
+                    var tabElement = element;
+                    while ((scrollVal - $(tabElement).outerWidth()) > ($(".page-tabs-content").outerWidth() - visibleWidth)) {
+                        scrollVal -= $(tabElement).prev().outerWidth();
+                        tabElement = $(tabElement).prev();
+                    }
+                }
+            } else if (marginLeftVal > (visibleWidth - $(element).outerWidth(true) - $(element).prev().outerWidth(true))) {
+                scrollVal = marginLeftVal - $(element).prev().outerWidth(true);
+            }
+            
+            $('.page-tabs-content').animate({
+                marginLeft: 0 - scrollVal + 'px'
+            }, "fast");
+        }
+
+        // 左移按钮
+        $('.J_tabLeft').on('click', function() {
+            var marginLeftVal = Math.abs(parseInt($('.page-tabs-content').css('margin-left')));
+            var visibleWidth = $(".content-tabs").outerWidth(true) - 80 - 40 - 40;
+            var scrollVal = 0;
+            if ($(".page-tabs-content").width() < visibleWidth) {
+                return false;
+            } else {
+                var tabElement = $(".page-tabs-content a:first");
+                var offsetVal = 0;
+                while ((offsetVal + $(tabElement).outerWidth(true)) <= marginLeftVal) {
+                    offsetVal += $(tabElement).outerWidth(true);
+                    tabElement = $(tabElement).next();
+                }
+                offsetVal = 0;
+                if (calSumWidth($(tabElement).prevAll()) > visibleWidth) {
+                    while ((offsetVal + $(tabElement).outerWidth(true)) < (visibleWidth) && tabElement.length > 0) {
+                        offsetVal += $(tabElement).outerWidth(true);
+                        tabElement = $(tabElement).prev();
+                    }
+                    scrollVal = calSumWidth($(tabElement).prevAll());
+                }
+            }
+            $('.page-tabs-content').animate({
+                marginLeft: 0 - scrollVal + 'px'
+            }, "fast");
+        });
+
+        // 右移按钮
+        $('.J_tabRight').on('click', function() {
+            var marginLeftVal = Math.abs(parseInt($('.page-tabs-content').css('margin-left')));
+            var visibleWidth = $(".content-tabs").outerWidth(true) - 80 - 40 - 40;
+            var scrollVal = 0;
+            if ($(".page-tabs-content").width() < visibleWidth) {
+                return false;
+            } else {
+                var tabElement = $(".page-tabs-content a:first");
+                var offsetVal = 0;
+                while ((offsetVal + $(tabElement).outerWidth(true)) <= marginLeftVal) {
+                    offsetVal += $(tabElement).outerWidth(true);
+                    tabElement = $(tabElement).next();
+                }
+                offsetVal = 0;
+                while ((offsetVal + $(tabElement).outerWidth(true)) < (visibleWidth) && tabElement.length > 0) {
+                    offsetVal += $(tabElement).outerWidth(true);
+                    tabElement = $(tabElement).next();
+                }
+                scrollVal = calSumWidth($(tabElement).prevAll());
+                if (scrollVal > 0) {
+                    $('.page-tabs-content').animate({
+                        marginLeft: 0 - scrollVal + 'px'
+                    }, "fast");
+                }
+            }
+        });
+
+        // 打开 Tab
+        function openTab(pageId, title) {
+            var $existingTab = $('.page-tabs-content a[data-id="' + pageId + '"]');
+            
+            if ($existingTab.length > 0) {
+                activateTab(pageId);
+                scrollToTab($existingTab); 
+            } else {
+                $('.page-tabs-content .active').removeClass('active');
+                var tabHtml = '<a href="javascript:;" class="active J_menuTab" data-id="' + pageId + '">' + title + ' <i class="fa fa-times-circle"></i></a>';
+                $('.page-tabs-content').append(tabHtml);
+                activateTab(pageId);
+                scrollToTab($('.page-tabs-content a.active'));
+            }
+        }
+
+        // 激活 Tab
+        function activateTab(pageId) {
+            $('.page-tabs-content a').removeClass('active');
+            var $targetTab = $('.page-tabs-content a[data-id="' + pageId + '"]');
+            $targetTab.addClass('active');
+            $('#main-iframe').attr('src', pageId + '.html');
+            scrollToTab($targetTab);
+                        
+            // 如果打开的是私信用户页面，延迟获取未读数量
+            if (pageId === 'msg_send') {
+                setTimeout(function() {
+                    requestUnreadCount();
+                }, 500);
+            }
+            // 如果打开的是所有帖子页面，延迟获取未审核帖子数量
+            if (pageId === 'all_posts') {
+                setTimeout(function() {
+                    requestPendingPostsCount();
+                }, 500);
+            }
+            // 如果打开的是举报管理页面，延迟获取未处理举报数量
+            if (pageId === 'report_pending') {
+                setTimeout(function() {
+                    requestPendingReportsCount();
+                }, 500);
+            }
+        }
+
+        // 关闭单个 Tab
+        $(document).on('click', '.J_menuTab i', function(e) {
+            e.stopPropagation();
+            var $closeTab = $(this).parent();
+            var closeId = $closeTab.data('id');
+            var $prevTab = $closeTab.prev(); 
+            $closeTab.remove();
+            if ($closeTab.hasClass('active')) {
+                var prevId = $prevTab.data('id') || 'dashboard';
+                activateTab(prevId);
+            }
+        });
+
+        // 切换 Tab
+        $(document).on('click', '.J_menuTab', function() {
+            var pageId = $(this).data('id');
+            activateTab(pageId);
+        });
+
+        // 关闭全部
+        $('.J_tabCloseAll').on('click', function() {
+            $('.page-tabs-content a').not('[data-id="dashboard"]').remove();
+            activateTab('dashboard');
+            $('.page-tabs-content').css("margin-left", "0");
+        });
+
+        // 关闭其他
+        $('.J_tabCloseOther').on('click', function() {
+            $('.page-tabs-content a').not('[data-id="dashboard"]').not('.active').remove();
+            $('.page-tabs-content').css("margin-left", "0");
+            scrollToTab($('.page-tabs-content a.active'));
+        });
+        
+        // 监听来自iframe的消息，更新未读数量
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'updateUnreadCount') {
+                const count = event.data.count;
+                const $unreadBadge = $('#msg-unread-count');
+                if (count > 0) {
+                    $unreadBadge.text(count).show();
+                } else {
+                    $unreadBadge.hide();
+                }
+            } else if (event.data && event.data.type === 'updatePendingPostsCount') {
+                // 更新未审核帖子数量
+                const count = event.data.count;
+                const $pendingBadge = $('#posts-pending-count');
+                if (count > 0) {
+                    $pendingBadge.text(count).show();
+                } else {
+                    $pendingBadge.hide();
+                }
+            } else if (event.data && event.data.type === 'updatePendingReportsCount') {
+                // 更新未处理举报数量
+                const count = event.data.count;
+                const $pendingBadge = $('#reports-pending-count');
+                if (count > 0) {
+                    $pendingBadge.text(count).show();
+                } else {
+                    $pendingBadge.hide();
+                }
+            }
+        });
+
+        // 初始化未读数量（从iframe加载时获取）
+        $('#main-iframe').on('load', function() {
+            if (this.contentWindow) {
+                try {
+                    // 延迟一下，确保iframe内容已加载
+                    setTimeout(function() {
+                        var iframe = $('#main-iframe')[0];
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage({ type: 'getUnreadCount' }, '*');
+                        }
+                    }, 500);
+                } catch (e) {
+                    // 跨域时忽略
+                }
+            }
+        });
+    </script>
+</body>
+</html>

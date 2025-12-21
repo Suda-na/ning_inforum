@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>小宁论坛 - 分类标签管理</title>
+    <meta name="keywords" content="小宁论坛,后台管理,分类标签管理">
+    <meta name="description" content="小宁论坛后台管理系统 - 分类标签管理页面">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+
+    <style>
+        /* 页面标题样式 */
+        .page-title {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* 搜索栏样式 */
+        .search-bar {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 搜索表单样式 */
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-form .form-control {
+            border-radius: 4px;
+        }
+
+        .search-form select {
+            width: 150px;
+        }
+
+        /* 标签列表样式 */
+        .tag-list {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .tag-list table {
+            margin-bottom: 0;
+        }
+
+        .tag-list th, .tag-list td {
+            vertical-align: middle;
+            padding: 12px 15px;
+        }
+
+        .tag-list th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+
+        /* 编辑按钮样式 */
+        .btn-edit {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        /* 隐藏的多选框 */
+        .checkbox-col {
+            display: none;
+        }
+
+        .checkbox-col.visible {
+            display: table-cell;
+        }
+
+        /* 一键删除按钮 */
+        .batch-delete {
+            display: none;
+            margin: 15px 0;
+            text-align: right;
+        }
+
+        .batch-delete.visible {
+            display: block;
+        }
+
+        /* 分页样式统一为消息管理页面样式 */
+        .pagination-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 0;
+            border-top: none;
+        }
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .pagination li a {
+            display: block;
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            color: #6b7280;
+            text-decoration: none;
+            cursor: pointer;
+            background: white;
+        }
+        .pagination li.active a {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .pagination li.disabled a {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .pagination li a:hover {
+            background: #f3f4f6;
+        }
+        .pagination li.disabled a:hover {
+            background: white;
+        }
+
+        /* 编辑模态框样式 */
+        .modal-content {
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e5e7eb;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h3 class="m-b-sm page-title">分类标签管理</h3>
+                        
+                        <!-- 搜索栏 -->
+                        <div class="search-bar">
+                            <form class="search-form" id="search-form" style="display: flex; align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="text" class="form-control" placeholder="输入标签名称" style="width: 200px; border-radius: 4px 0 0 4px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select class="form-control" style="width: 150px; border-radius: 0;">
+                                            <option value="all">全部模块</option>
+                                            <option value="circle">圈子动态</option>
+                                            <option value="errand">跑腿</option>
+                                            <option value="second-hand">二手集市</option>
+                                            <option value="lost-found">失物招领</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" style="border-radius: 0 4px 4px 0; margin-left: -1px;">
+                                        <i class="fa fa-search"></i> 搜索
+                                    </button>
+                                </div>
+                            </form>
+                            <div>
+                                <button type="button" class="btn btn-white" id="multi-select-btn">
+                                    <i class="fa fa-check-square-o"></i> 多选
+                                </button>
+                                <button type="button" class="btn btn-primary" style="margin-left: 10px;">
+                                    <i class="fa fa-plus"></i> 添加标签
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 一键删除按钮 -->
+                        <div class="batch-delete" id="batch-delete">
+                            <button type="button" class="btn btn-danger">
+                                <i class="fa fa-trash"></i> 一键删除
+                            </button>
+                        </div>
+
+                        <!-- 标签列表 -->
+                        <!-- 美化标签样式 -->
+                        <style>
+                            /* 标签名称样式 */
+                            .tag-name {
+                                display: inline-block;
+                                padding: 4px 12px;
+                                background-color: #eff6ff;
+                                color: #3b82f6;
+                                border-radius: 16px;
+                                font-weight: 500;
+                                font-size: 13px;
+                            }
+                            
+                            /* 所属模块样式 */
+                            .module-badge {
+                                display: inline-block;
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: 500;
+                            }
+                            
+                            .module-circle { background-color: #ecfdf5; color: #10b981; }
+                            .module-errand { background-color: #fef3c7; color: #f59e0b; }
+                            .module-second-hand { background-color: #fdf2fb; color: #ec4899; }
+                            .module-lost-found { background-color: #e0e7ff; color: #6366f1; }
+                        </style>
+                        
+                        <!-- 标签列表 -->
+                        <div class="tag-list">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="checkbox-col" id="checkbox-header"></th>
+                                        <th>标签名称</th>
+                                        <th>所属模块</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 标签行 -->
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">美食</span></td>
+                                        <td><span class="module-badge module-circle">圈子动态</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">学习</span></td>
+                                        <td><span class="module-badge module-circle">圈子动态</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">健身</span></td>
+                                        <td><span class="module-badge module-circle">圈子动态</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">快递代取</span></td>
+                                        <td><span class="module-badge module-errand">跑腿</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">外卖代送</span></td>
+                                        <td><span class="module-badge module-errand">跑腿</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">二手手机</span></td>
+                                        <td><span class="module-badge module-second-hand">二手集市</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">二手书籍</span></td>
+                                        <td><span class="module-badge module-second-hand">二手集市</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">失物招领</span></td>
+                                        <td><span class="module-badge module-lost-found">失物招领</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
+                                        <td><span class="tag-name">寻物启事</span></td>
+                                        <td><span class="module-badge module-lost-found">失物招领</span></td>
+                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="pagination-container">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    <li class="disabled"><a href="#" data-page="prev">上一页</a></li>
+                                    <li class="active"><a href="#" data-page="1">1</a></li>
+                                    <li><a href="#" data-page="2">2</a></li>
+                                    <li><a href="#" data-page="3">3</a></li>
+                                    <li><a href="#" data-page="4">4</a></li>
+                                    <li><a href="#" data-page="5">5</a></li>
+                                    <li><a href="#" data-page="next">下一页</a></li>
+                                </ul>
+                            </nav>
+                            <div style="margin-left: 20px;">
+                                <span>共 12 条记录</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="edit-modal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="edit-modal-label">编辑标签</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="tag-name">标签名称</label>
+                            <input type="text" class="form-control" id="tag-name" placeholder="请输入标签名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="tag-module">所属模块</label>
+                            <select class="form-control" id="tag-module">
+                                <option value="circle">圈子动态</option>
+                                <option value="errand">跑腿</option>
+                                <option value="second-hand">二手集市</option>
+                                <option value="lost-found">失物招领</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-edit">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加标签模态框 -->
+    <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="add-modal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="add-modal-label">添加标签</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="add-tag-name">标签名称</label>
+                            <input type="text" class="form-control" id="add-tag-name" placeholder="请输入标签名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-tag-module">所属模块</label>
+                            <select class="form-control" id="add-tag-module">
+                                <option value="circle">圈子动态</option>
+                                <option value="errand">跑腿</option>
+                                <option value="second-hand">二手集市</option>
+                                <option value="lost-found">失物招领</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-add">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 多选按钮点击事件
+            $('#multi-select-btn').on('click', function() {
+                // 切换多选框显示
+                $('.checkbox-col').toggleClass('visible');
+                // 切换一键删除按钮显示
+                $('#batch-delete').toggleClass('visible');
+                // 切换按钮图标
+                var $icon = $(this).find('i');
+                if ($icon.hasClass('fa-check-square-o')) {
+                    $icon.removeClass('fa-check-square-o').addClass('fa-square-o');
+                    $(this).text(' 取消多选').prepend($icon);
+                } else {
+                    $icon.removeClass('fa-square-o').addClass('fa-check-square-o');
+                    $(this).text(' 多选').prepend($icon);
+                }
+            });
+            
+            // 添加标签按钮点击事件
+            $('button:contains(添加标签)').on('click', function() {
+                $('#add-modal').modal('show');
+            });
+            
+            // 保存添加标签
+            $('#save-add').on('click', function() {
+                // 这里可以添加保存逻辑
+                $('#add-modal').modal('hide');
+                // 可以添加保存成功的提示
+            });
+        });
+
+        // 编辑标签函数
+        function editTag(btn) {
+            // 找到当前行
+            var $row = $(btn).closest('tr');
+            // 获取当前标签信息
+            var tagName = $row.find('td:eq(1)').text();
+            var tagModuleText = $row.find('td:eq(2)').text();
+            
+            // 转换模块文本为对应的值
+            var tagModuleValue;
+            switch(tagModuleText) {
+                case '圈子动态':
+                    tagModuleValue = 'circle';
+                    break;
+                case '跑腿':
+                    tagModuleValue = 'errand';
+                    break;
+                case '二手集市':
+                    tagModuleValue = 'second-hand';
+                    break;
+                case '失物招领':
+                    tagModuleValue = 'lost-found';
+                    break;
+                default:
+                    tagModuleValue = 'circle';
+            }
+            
+            // 设置模态框表单值
+            $('#tag-name').val(tagName);
+            $('#tag-module').val(tagModuleValue);
+            
+            // 显示模态框
+            $('#edit-modal').modal('show');
+        }
+
+        // 保存编辑
+        $('#save-edit').on('click', function() {
+            // 这里可以添加保存逻辑
+            $('#edit-modal').modal('hide');
+            // 可以添加保存成功的提示
+        });
+    </script>
+</body>
+
+</html>
