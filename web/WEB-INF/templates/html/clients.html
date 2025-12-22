@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html  xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -10,12 +10,12 @@
     <title>小宁论坛 - 用户管理</title>
     <meta name="keywords" content="小宁论坛,后台管理,用户管理">
     <meta name="description" content="小宁论坛后台管理系统 - 用户管理页面">
-    <link rel="shortcut icon" href="favicon.ico"> 
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico"> 
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.css?v=4.4.0}" rel="stylesheet">
 
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
 
     <style>
         /* 仅针对本页的小范围美化，不影响整体框架 */
@@ -277,11 +277,11 @@
     </div>
 
     <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+    <script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
 
     <!-- 自定义js -->
-    <script src="js/content.js?v=1.0.0"></script>
+    <script th:src="@{/js/content.js?v=1.0.0}"></script>
 
     <script>
         $(function () {
