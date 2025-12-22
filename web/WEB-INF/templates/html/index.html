@@ -145,7 +145,7 @@
                     <li>
                         <a href="#"><i class="fa fa-users"></i> <span class="nav-label">用户管理</span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
-                            <li><a onclick="openTab('clients', '用户列表')">用户列表</a></li>
+                            <li><a onclick="openTab('/admin/clients', '用户列表')">用户列表</a></li>
                             <li><a onclick="openTab('permissions', '权限管理')">权限管理</a></li>
                         </ul>
                     </li>
@@ -500,7 +500,9 @@
             $('.page-tabs-content a').removeClass('active');
             var $targetTab = $('.page-tabs-content a[data-id="' + pageId + '"]');
             $targetTab.addClass('active');
-            $('#main-iframe').attr('src', pageId + '.html');
+            // 判断 pageId 是否是完整的 URL（以 / 开头），如果是则直接使用，否则加上 .html 后缀
+            var iframeSrc = (pageId.indexOf('/') === 0) ? pageId : (pageId + '.html');
+            $('#main-iframe').attr('src', iframeSrc);
             scrollToTab($targetTab);
                         
             // 如果打开的是私信用户页面，延迟获取未读数量
