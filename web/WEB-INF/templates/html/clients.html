@@ -200,6 +200,7 @@
                                                     <th>性别</th>
                                                     <th>电话号</th>
                                                     <th>邮箱</th>
+                                                    <th>密码</th>
                                                     <th>操作</th>
                                                     </tr>
                                             </thead>
@@ -250,6 +251,7 @@
                                         <p style="margin-bottom: 5px;"><strong>性别：</strong><span id="detailGender">-</span></p>
                                         <p style="margin-bottom: 5px;"><strong>电话：</strong><span id="detailPhone">-</span></p>
                                         <p style="margin-bottom: 5px;"><strong>邮箱：</strong><span id="detailEmail">-</span></p>
+                                        <p style="margin-bottom: 5px;"><strong>密码：</strong><span id="detailPassword">-</span></p>
                                         <p style="margin-bottom: 5px;"><strong>地址：</strong><span id="detailAddress">-</span></p>
                                         <p style="margin-bottom: 5px;"><strong>身份：</strong><span id="detailRole">-</span></p>
                                         <p style="margin-bottom: 5px;">
@@ -292,6 +294,7 @@
                     gender: '男',
                     phone: '13800000001',
                     email: 'xiaoming@example.com',
+                    password: '123456',
                     address: '浙江省杭州市西湖区',
                     role: '普通用户',
                     banned: false,
@@ -306,6 +309,7 @@
                     gender: '男',
                     phone: '13800000002',
                     email: 'runner01@example.com',
+                    password: 'runner123',
                     address: '浙江省杭州市滨江区',
                     role: '跑腿员',
                     banned: false,
@@ -320,6 +324,7 @@
                     gender: '女',
                     phone: '13800000003',
                     email: 'xiaohong@example.com',
+                    password: 'hong123',
                     address: '上海市浦东新区',
                     role: '普通用户',
                     banned: true,
@@ -334,6 +339,7 @@
                     gender: '男',
                     phone: '13800000004',
                     email: 'deliver02@example.com',
+                    password: 'deliver456',
                     address: '北京市海淀区',
                     role: '跑腿员',
                     banned: false,
@@ -348,6 +354,7 @@
                     gender: '女',
                     phone: '13800000005',
                     email: 'sunny@example.com',
+                    password: 'sunny789',
                     address: '南京市鼓楼区',
                     role: '普通用户',
                     banned: false,
@@ -362,6 +369,7 @@
                     gender: '男',
                     phone: '13800000006',
                     email: 'coffee@example.com',
+                    password: 'coffee123',
                     address: '广州市天河区',
                     role: '普通用户',
                     banned: false,
@@ -376,6 +384,7 @@
                     gender: '男',
                     phone: '13800000007',
                     email: 'runner02@example.com',
+                    password: 'runner789',
                     address: '成都市锦江区',
                     role: '跑腿员',
                     banned: false,
@@ -390,6 +399,7 @@
                     gender: '女',
                     phone: '13800000008',
                     email: 'alice@example.com',
+                    password: 'alice456',
                     address: '深圳市南山区',
                     role: '普通用户',
                     banned: false,
@@ -404,6 +414,7 @@
                     gender: '男',
                     phone: '13800000009',
                     email: 'banned01@example.com',
+                    password: 'banned123',
                     address: '武汉市洪山区',
                     role: '普通用户',
                     banned: true,
@@ -418,6 +429,7 @@
                     gender: '男',
                     phone: '13800000010',
                     email: 'runner03@example.com',
+                    password: 'runner321',
                     address: '天津市和平区',
                     role: '跑腿员',
                     banned: false,
@@ -432,6 +444,7 @@
                     gender: '女',
                     phone: '13800000011',
                     email: 'lucy@example.com',
+                    password: 'lucy123',
                     address: '杭州市拱墅区',
                     role: '普通用户',
                     banned: false,
@@ -446,6 +459,7 @@
                     gender: '男',
                     phone: '13800000012',
                     email: 'mark@example.com',
+                    password: 'mark456',
                     address: '苏州市姑苏区',
                     role: '普通用户',
                     banned: false,
@@ -460,6 +474,7 @@
                     gender: '女',
                     phone: '13800000013',
                     email: 'nancy@example.com',
+                    password: 'nancy789',
                     address: '重庆市渝中区',
                     role: '普通用户',
                     banned: false,
@@ -474,6 +489,7 @@
                     gender: '男',
                     phone: '13800000014',
                     email: 'helper01@example.com',
+                    password: 'helper123',
                     address: '青岛市市南区',
                     role: '跑腿员',
                     banned: false,
@@ -488,6 +504,7 @@
                     gender: '男',
                     phone: '13800000015',
                     email: 'silent@example.com',
+                    password: 'silent456',
                     address: '厦门市思明区',
                     role: '普通用户',
                     banned: true,
@@ -558,6 +575,7 @@
                         '<td>' + u.gender + '</td>' +
                         '<td>' + u.phone + '</td>' +
                         '<td>' + u.email + '</td>' +
+                        '<td>' + (u.password || '-') + '</td>' +
                         '<td>' +
                         '<select class="form-control input-sm user-operation">' +
                         operationOptions.join('') +
@@ -630,6 +648,7 @@
                 $('#detailGender').text(user.gender);
                 $('#detailPhone').text(user.phone);
                 $('#detailEmail').text(user.email);
+                $('#detailPassword').text(user.password || '-');
                 $('#detailAddress').text(user.address);
                 $('#detailRole').text(user.role);
                 $('#detailSignature').text(user.signature || '-');
@@ -651,6 +670,7 @@
                 $('#detailGender').text('-');
                 $('#detailPhone').text('-');
                 $('#detailEmail').text('-');
+                $('#detailPassword').text('-');
                 $('#detailAddress').text('-');
                 $('#detailRole').text('-');
                 $('#detailSignature').text('-');
@@ -818,6 +838,7 @@
                 var gender = $('#addGender').val();
                 var phone = $.trim($('#addPhone').val());
                 var email = $.trim($('#addEmail').val());
+                var password = $.trim($('#addPassword').val());
                 var address = $.trim($('#addAddress').val());
                 var roleVal = $('#addRole').val();
                 var signature = $.trim($('#addSignature').val());
@@ -836,6 +857,7 @@
                     gender: gender,
                     phone: phone || '未填写',
                     email: email || '未填写',
+                    password: password || '',
                     address: address || '未填写',
                     role: roleVal === 'runner' ? '跑腿员' : '普通用户',
                     banned: false,
@@ -996,6 +1018,14 @@
                                 <div class="form-group">
                                     <label>邮箱</label>
                                     <input type="email" id="addEmail" class="form-control" placeholder="请输入邮箱">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>密码</label>
+                                    <input type="text" id="addPassword" class="form-control" placeholder="请输入密码（明文）">
                                 </div>
                             </div>
                         </div>
