@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<mapper namespace="com.niit.dao.PostMapper">
+    <!-- Post结果集映射 -->
+    <resultMap id="PostMap" type="Post">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="deadline" column="deadline"/>
+        <result property="price" column="price"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="trendingLevel" column="trending_level"/>
+        <result property="review" column="review"/>
+        <result property="reviewTime" column="review_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- PostVO结果集映射 -->
+    <resultMap id="PostVOMap" type="PostVO">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="deadline" column="deadline"/>
+        <result property="price" column="price"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="trendingLevel" column="trending_level"/>
+        <result property="review" column="review"/>
+        <result property="reviewTime" column="review_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 根据ID查询帖子详情 -->
+    <select id="selectByPrimaryKey" resultMap="PostVOMap">
+        select p.*,
+               u.username,
+               u.avatar,
+               c.name as category_name
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        where p.post_id = #{postId}
+    </select>
+
+    <!-- 查询所有帖子 -->
+    <select id="selectAll" resultMap="PostVOMap">
+        select p.*,
+               u.username,
+               u.avatar,
+               c.name as category_name
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        where p.status NOT IN (2, 3)
+        order by p.create_time desc
+    </select>
+
+    <!-- 根据条件查询帖子 -->
+    <select id="selectByCondition" resultMap="PostVOMap" parameterType="map">
+        select p.*,
+               u.username,
+               u.avatar,
+               c.name as category_name
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        <where>
+            <if test="status != null">
+                and p.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'user'">
+                        and u.username like concat('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        and (p.title like concat('%', #{keyword}, '%')
+                        or p.content like concat('%', #{keyword}, '%'))
+                    </when>
+                    <otherwise>
+                        and (u.username like concat('%', #{keyword}, '%')
+                        or p.title like concat('%', #{keyword}, '%')
+                        or p.content like concat('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="date != null and date != ''">
+                and date(p.create_time) = #{date}
+            </if>
+            <if test="statusFilter != null and statusFilter != 'all'">
+                <choose>
+                    <when test="statusFilter == 'pending'">
+                        and p.status = 0
+                    </when>
+                    <when test="statusFilter == 'passed'">
+                        and p.status = 1
+                    </when>
+                    <when test="statusFilter == 'rejected'">
+                        and p.status = 4
+                    </when>
+                </choose>
+            </if>
+            and p.status NOT IN (2, 3)
+        </where>
+        order by p.create_time desc
+        <if test="start != null and size != null">
+            limit #{start}, #{size}
+        </if>
+    </select>
+
+    <!-- 根据条件统计帖子数量 -->
+    <select id="countByCondition" resultType="int" parameterType="map">
+        select count(*)
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        <where>
+            <if test="status != null">
+                and p.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'user'">
+                        and u.username like concat('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        and (p.title like concat('%', #{keyword}, '%')
+                        or p.content like concat('%', #{keyword}, '%'))
+                    </when>
+                    <otherwise>
+                        and (u.username like concat('%', #{keyword}, '%')
+                        or p.title like concat('%', #{keyword}, '%')
+                        or p.content like concat('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="date != null and date != ''">
+                and date(p.create_time) = #{date}
+            </if>
+            <if test="statusFilter != null and statusFilter != 'all'">
+                <choose>
+                    <when test="statusFilter == 'pending'">
+                        and p.status = 0
+                    </when>
+                    <when test="statusFilter == 'passed'">
+                        and p.status = 1
+                    </when>
+                    <when test="statusFilter == 'rejected'">
+                        and p.status = 4
+                    </when>
+                </choose>
+            </if>
+            and p.status NOT IN (2, 3)
+        </where>
+    </select>
+
+    <!-- 更新帖子状态 -->
+    <update id="updateStatus">
+        update post
+        set status = #{status},
+            review_time = #{reviewTime}
+        where post_id = #{postId}
+    </update>
+
+    <!-- 根据状态统计帖子数量 -->
+    <select id="countByStatus" resultType="int">
+        select count(*)
+        from post
+        where status = #{status}
+    </select>
+</mapper>
+

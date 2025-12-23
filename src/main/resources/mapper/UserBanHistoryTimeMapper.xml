@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.UserBanHistoryTimeDao">
+    <!-- 结果集映射 -->
+    <resultMap id="UserBanHistoryMap" type="com.niit.pojo.UserBanHistory">
+        <id property="historyId" column="history_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="actionType" column="action_type"/>
+        <result property="restrictionsBefore" column="restrictions_before"/>
+        <result property="restrictionsAfter" column="restrictions_after"/>
+        <result property="reason" column="reason"/>
+        <result property="durationDays" column="duration_days"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 查询过期的封禁记录（近1小时内结束的封禁） -->
+    <select id="selectExpiredBanRecords" resultMap="UserBanHistoryMap">
+        SELECT * FROM user_ban_history
+        WHERE end_time BETWEEN DATE_SUB(NOW(), INTERVAL 1 HOUR) AND NOW()
+        AND is_active = 1
+        AND action_type = '封禁'
+    </select>
+</mapper>
+

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<mapper namespace="com.niit.dao.UserBanHistoryMapper">
+    <!-- 结果集映射 -->
+    <resultMap id="UserBanHistoryMap" type="UserBanHistory">
+        <id property="historyId" column="history_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="actionType" column="action_type"/>
+        <result property="restrictionsBefore" column="restrictions_before"/>
+        <result property="restrictionsAfter" column="restrictions_after"/>
+        <result property="reason" column="reason"/>
+        <result property="durationDays" column="duration_days"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 插入封禁历史记录 -->
+    <insert id="insert" parameterType="UserBanHistory" useGeneratedKeys="true" keyProperty="historyId">
+        insert into user_ban_history(
+            user_id,
+            admin_id,
+            action_type,
+            restrictions_before,
+            restrictions_after,
+            reason,
+            duration_days,
+            start_time,
+            end_time,
+            is_active,
+            create_time
+        ) values (
+            #{userId},
+            #{adminId},
+            #{actionType},
+            #{restrictionsBefore},
+            #{restrictionsAfter},
+            #{reason},
+            #{durationDays},
+            #{startTime},
+            #{endTime},
+            #{isActive},
+            #{createTime}
+        )
+    </insert>
+</mapper>
