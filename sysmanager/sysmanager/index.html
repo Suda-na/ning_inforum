@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>小宁论坛 - 管理员系统</title>
+
+    <script>
+        if (window.top !== window.self) {
+            window.top.location = window.location;
+        }
+    </script>
+
+    <!-- ✅ ctxPath：支持 context-path，给 JS 拼接用 -->
+    <script th:inline="javascript">
+        var ctxPath = [[@{/}]];
+    </script>
+
+    <link th:href="@{/favicon.ico}" rel="shortcut icon">
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css?v=4.4.0}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #eff6ff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --bg-body: #f3f4f6;
+            --bg-white: #ffffff;
+            --border-light: #e5e7eb;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        body.fixed-sidebar.full-height-layout.gray-bg {
+            background-color: var(--bg-body);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .navbar-default.navbar-static-side {
+            background-color: #fff !important;
+            border-right: 1px solid var(--border-light);
+        }
+
+        .nav-header {
+            background: #fff !important;
+            padding: 25px;
+        }
+
+        .nav > li > a {
+            color: var(--text-sub);
+            font-weight: 500;
+            padding: 12px 20px;
+        }
+
+        .nav > li.active > a {
+            background-color: var(--primary-light) !important;
+            color: var(--primary) !important;
+            border-left: 4px solid var(--primary);
+            font-weight: 600;
+        }
+
+        .logo-element {
+            color: var(--primary) !important;
+            background: #fff !important;
+            font-weight: 800;
+        }
+
+        span.fa.arrow {
+            float: right !important;
+            margin-top: 2px !important;
+            transition: transform 0.3s ease !important;
+            transform: rotate(0deg) !important;
+            display: inline-block !important;
+        }
+
+        span.fa.arrow.arrow-down {
+            transform: rotate(270deg) !important;
+        }
+
+        .nav-second-level li a {
+            padding: 10px 15px 10px 35px;
+        }
+
+        .navbar-static-top {
+            background: #fff !important;
+            border-bottom: 1px solid var(--border-light) !important;
+            margin-bottom: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+
+        .navbar-minimalize {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+            border-radius: 4px;
+        }
+
+        #page-wrapper {
+            margin-left: 220px;
+            background: var(--bg-body);
+        }
+
+        #content-main {
+            height: calc(100% - 85px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .content-tabs {
+            background: #fff;
+            border-bottom: 1px solid var(--border-light);
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .page-tabs {
+            overflow: hidden;
+            height: 40px;
+            width: 1000px;
+        }
+
+        .page-tabs-content {
+            float: left;
+            width: auto;
+            white-space: nowrap;
+            transition: margin-left 0.3s ease;
+        }
+
+        .page-tabs a {
+            display: inline-block;
+            float: none;
+            margin-right: 0px;
+            padding: 0 15px;
+            color: var(--text-sub);
+        }
+
+        .page-tabs a.active {
+            background: var(--primary) !important;
+            color: #fff !important;
+            border-radius: 20px;
+            margin-top: 2px;
+            height: 34px;
+            line-height: 34px;
+            border:none;
+        }
+
+        .label {
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-weight: 500;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="nav-close"><i class="fa fa-times-circle"></i></div>
+        <div class="sidebar-collapse">
+            <ul class="nav" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element text-center">
+                        <span>
+                            <img alt="image" class="img-circle"
+                                 th:src="${session.loginUser.avatar != null && session.loginUser.avatar != ''} ?
+                                         @{/upload/{f}(f=${session.loginUser.avatar})} :
+                                         @{/img/default_avatar.png}"
+                                 th:attr="onerror=|this.onerror=null;this.src='@{/img/default_avatar.png}'|"
+                                 style="width: 64px; height: 64px; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); object-fit: cover;" />
+                        </span>
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear">
+                                <span class="block m-t-xs">
+                                    <strong class="font-bold"
+                                            th:text="${session.loginUser.realName != null ? session.loginUser.realName : session.loginUser.username}">管理员</strong>
+                                </span>
+                                <span class="text-muted text-xs block">
+                                    <span th:text="${session.loginUser.role == 0 ? '超级管理员' : '普通管理员'}">角色</span>
+                                    <b class="caret"></b>
+                                </span>
+                            </span>
+                        </a>
+
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a style="cursor:pointer" onclick="openTab('/user/avatar','修改头像')">修改头像</a></li>
+                            <li><a style="cursor:pointer" onclick="openTab('/user/profile','个人资料')">个人资料</a></li>
+                            <li class="divider"></li>
+                            <li><a th:href="@{/logout}">安全退出</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">小宁</div>
+                </li>
+
+                <li><a onclick="openTab('dashboard', '仪表盘')"><i class="fa fa-dashboard"></i> <span class="nav-label">数字大屏</span></a></li>
+
+                <li>
+                    <a href="#"><i class="fa fa-users"></i> <span class="nav-label">用户管理</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a onclick="openTab('/admin/clients', '用户列表')">用户列表</a></li>
+                        <li><a onclick="openTab('permissions', '权限管理')">权限管理</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a onclick="openTab('/admin/reports', '举报管理')"><i class="fa fa-flag"></i> <span class="nav-label">举报管理</span><span class="label label-danger pull-right" id="reports-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">动态管理</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a onclick="openTab('/admin/allposts', '所有帖子')">所有帖子<span class="label label-danger pull-right" id="posts-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                        <li><a onclick="openTab('/admin/classificationlabel', '分类标签管理')">分类标签管理</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-envelope"></i> <span class="nav-label">消息管理</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a onclick="openTab('msg_system', '系统通知')">系统通知</a></li>
+                        <li><a onclick="openTab('msg_send', '私信用户')">私信用户<span class="label label-danger pull-right" id="msg-unread-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#"><i class="fa fa-gear"></i> <span class="nav-label">系统管理</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a onclick="openTab('/system/settings', '系统设置')">系统设置</a></li>
+                        <li><a onclick="openTab('/system/admin_list', '管理员管理')">管理员管理</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
+                    <a class="navbar-brand" href="#" style="color: #3b82f6; font-weight: 700; margin-left: 15px; font-size: 18px;">
+                        小宁论坛管理后台
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="row content-tabs">
+            <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-angle-left"></i></button>
+            <nav class="page-tabs J_menuTabs">
+                <div class="page-tabs-content">
+                    <a href="javascript:;" class="active J_menuTab" data-id="dashboard">仪表盘</a>
+                </div>
+            </nav>
+            <button class="roll-nav roll-right J_tabRight"><i class="fa fa-angle-right"></i></button>
+            <div class="btn-group roll-nav roll-right">
+                <button class="dropdown J_tabClose" data-toggle="dropdown">操作 <span class="caret"></span></button>
+                <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                    <li class="J_tabCloseAll"><a>关闭全部</a></li>
+                    <li class="J_tabCloseOther"><a>关闭其他</a></li>
+                </ul>
+            </div>
+            <a th:href="@{/logout}" class="roll-nav roll-right J_tabExit"><i class="fa fa-sign-out"></i> 安全退出</a>
+        </div>
+
+        <div class="row J_mainContent" id="content-main">
+            <iframe id="main-iframe" th:src="@{/dashboard.html}" src="dashboard.html" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+        </div>
+
+        <div class="footer">
+            <div class="pull-right"> &copy; 2025 小宁论坛 </div>
+            <div class="pull-left"> V2.2 Professional </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+<script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/js/hplus.js?v=4.1.0}"></script>
+
+<script>
+    $(document).ready(function(){
+        $('#side-menu').metisMenu();
+
+        $('#side-menu').on('click', 'a[href="#"]', function(e) {
+            var $arrow = $(this).find('span.fa.arrow');
+            if ($arrow.hasClass('arrow-down')) {
+                $arrow.removeClass('arrow-down');
+            } else {
+                $('#side-menu').find('span.fa.arrow').removeClass('arrow-down');
+                $arrow.addClass('arrow-down');
+            }
+        });
+    });
+
+    function calSumWidth(elements) {
+        var width = 0;
+        $(elements).each(function() { width += $(this).outerWidth(true); });
+        return width;
+    }
+
+    function scrollToTab(element) {
+        var marginLeftVal = calSumWidth($(element).prevAll()),
+            marginRightVal = calSumWidth($(element).nextAll());
+        var visibleWidth = $(".content-tabs").outerWidth(true) - 80 - 40 - 40;
+        var scrollVal = 0;
+        if ($(".page-tabs-content").outerWidth() < visibleWidth) {
+            scrollVal = 0;
+        } else if (marginRightVal <= (visibleWidth - $(element).outerWidth(true) - $(element).next().outerWidth(true))) {
+            if ((visibleWidth - $(element).next().outerWidth(true)) > marginRightVal) {
+                scrollVal = marginLeftVal;
+                var tabElement = element;
+                while ((scrollVal - $(tabElement).outerWidth()) > ($(".page-tabs-content").outerWidth() - visibleWidth)) {
+                    scrollVal -= $(tabElement).prev().outerWidth();
+                    tabElement = $(tabElement).prev();
+                }
+            }
+        } else if (marginLeftVal > (visibleWidth - $(element).outerWidth(true) - $(element).prev().outerWidth(true))) {
+            scrollVal = marginLeftVal - $(element).prev().outerWidth(true);
+        }
+        $('.page-tabs-content').animate({ marginLeft: 0 - scrollVal + 'px' }, "fast");
+    }
+
+    function openTab(pageId, title) {
+        var $existingTab = $('.page-tabs-content a[data-id="' + pageId + '"]');
+
+        if ($existingTab.length > 0) {
+            activateTab(pageId);
+        } else {
+            $('.page-tabs-content .active').removeClass('active');
+            var tabHtml = '<a href="javascript:;" class="active J_menuTab" data-id="' + pageId + '">' + title + ' <i class="fa fa-times-circle"></i></a>';
+            $('.page-tabs-content').append(tabHtml);
+            activateTab(pageId);
+        }
+    }
+
+    function activateTab(pageId) {
+        $('.page-tabs-content a').removeClass('active');
+        var $targetTab = $('.page-tabs-content a[data-id="' + pageId + '"]');
+        $targetTab.addClass('active');
+        scrollToTab($targetTab);
+
+        var iframeSrc = (pageId.indexOf('/') === 0)
+            ? (ctxPath + pageId.substring(1))
+            : (ctxPath + pageId + '.html');
+
+        $('#main-iframe').attr('src', iframeSrc);
+    }
+
+    $(document).on('click', '.J_menuTab i', function(e) {
+        e.stopPropagation();
+        var $closeTab = $(this).parent();
+        var $prevTab = $closeTab.prev();
+
+        if ($closeTab.hasClass('active')) {
+            $closeTab.remove();
+            var prevId = $prevTab.data('id') || 'dashboard';
+            activateTab(prevId);
+        } else {
+            $closeTab.remove();
+        }
+    });
+
+    $(document).on('click', '.J_menuTab', function() {
+        var pageId = $(this).data('id');
+        activateTab(pageId);
+    });
+
+    $('.J_tabCloseAll').on('click', function() {
+        $('.page-tabs-content a').not('[data-id="dashboard"]').remove();
+        activateTab('dashboard');
+    });
+    $('.J_tabCloseOther').on('click', function() {
+        $('.page-tabs-content a').not('[data-id="dashboard"]').not('.active').remove();
+        scrollToTab($('.page-tabs-content a.active'));
+    });
+</script>
+</body>
+</html>

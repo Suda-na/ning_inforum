@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员管理</title>
+
+    <script th:inline="javascript">
+        var ctxPath = [[@{/}]];
+        /* 获取当前登录用户的角色 (超级管理员为 0) */
+        var currentUserRole = [[${session.loginUser != null ? session.loginUser.role : 0}]];
+    </script>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* 样式保持不变 */
+        :root { --primary: #3b82f6; --danger: #ef4444; --warning: #f59e0b; --text-main: #1f2937; --bg-body: #f3f4f6; }
+        body { background-color: var(--bg-body); padding: 20px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+        .page-header-box { background: #fff; padding: 20px 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-main); }
+        .header-title p { margin: 5px 0 0; color: #6b7280; font-size: 13px; }
+        .header-actions { display: flex; gap: 15px; }
+        .search-input { position: relative; width: 250px; }
+        .search-input input { border-radius: 20px; padding-left: 35px; border: 1px solid #e5e7eb; height: 36px; box-shadow: none; }
+        .search-input i { position: absolute; left: 12px; top: 10px; color: #9ca3af; }
+        .admin-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f3f4f6; margin-bottom: 25px; position: relative; }
+        .admin-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1); }
+        .card-bg { height: 80px; background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); position: relative; }
+        .card-bg.super { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .card-avatar { width: 72px; height: 72px; border-radius: 50%; border: 4px solid #fff; position: absolute; left: 50%; transform: translateX(-50%); bottom: -36px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); object-fit: cover; background: #fff; }
+        .card-body { padding: 45px 20px 20px; text-align: center; }
+        .admin-name { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 5px; }
+        .admin-role { font-size: 12px; color: #6b7280; background: #f3f4f6; padding: 2px 10px; border-radius: 10px; display: inline-block; margin-bottom: 15px; }
+        .info-list { text-align: left; margin-top: 15px; border-top: 1px dashed #e5e7eb; padding-top: 15px; }
+        .info-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #4b5563; }
+        .info-item i { width: 20px; text-align: center; color: #9ca3af; margin-right: 5px; }
+        .card-footer-btns { padding: 15px 20px; background: #f9fafb; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; min-height: 52px;}
+        .status-dot { position: absolute; top: 15px; right: 15px; padding: 4px 8px; background: rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; backdrop-filter: blur(4px); }
+        .modal-content { border-radius: 12px; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal-header { border-bottom: 1px solid #f3f4f6; padding: 20px 25px; }
+        .avatar-upload { text-align: center; margin-bottom: 20px; }
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; border: 2px solid #e5e7eb; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+
+<body class="gray-bg">
+
+<div class="page-header-box animated fadeInDown">
+    <div class="header-title">
+        <h2>管理员管理</h2>
+        <p>管理系统后台账号权限与安全性</p>
+    </div>
+    <div class="header-actions">
+        <div class="search-input">
+            <i class="fa fa-search"></i>
+            <input type="text" id="searchInput" class="form-control" placeholder="搜索用户名或手机号..." th:value="${keyword}">
+        </div>
+        <button type="button" class="btn btn-primary" id="btnAddAdmin" style="border-radius: 20px; padding: 6px 20px;">
+            <i class="fa fa-plus"></i> 添加管理
+        </button>
+    </div>
+</div>
+
+<div class="row animated fadeInUp" id="adminList">
+    <div class="col-md-3 col-sm-6 admin-item" th:each="admin : ${adminList}">
+        <div class="admin-card">
+            <div class="card-bg" th:classappend="${admin.role == 0} ? 'super' : ''">
+                <span class="status-dot">
+                    <i class="fa" th:classappend="${admin.status == 0} ? 'fa-check-circle' : 'fa-minus-circle'"></i>
+                    <span th:text="${admin.status == 0 ? '正常' : '冻结'}">正常</span>
+                </span>
+                <img th:src="${admin.avatar != null && admin.avatar != ''} ? @{/upload/{f}(f=${admin.avatar})} : @{/img/default_avatar.png}"
+                     class="card-avatar"
+                     th:attr="onerror=|this.onerror=null;this.src='@{/img/default_avatar.png}'|">
+            </div>
+
+            <div class="card-body">
+                <div class="admin-name" th:text="${admin.username}">Admin</div>
+                <div class="admin-role" th:text="${admin.role == 0 ? '超级管理员' : (admin.role == 1 ? '系统管理员' : '普通用户')}">角色</div>
+
+                <div class="info-list">
+                    <div class="info-item">
+                        <span><i class="fa fa-phone"></i> 手机</span>
+                        <span th:text="${admin.phone}">13800138000</span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fa fa-clock-o"></i> 创建</span>
+                        <span th:text="${#dates.format(admin.createTime, 'yyyy-MM-dd')}">2025-12-09</span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fa fa-shield"></i> 职责</span>
+                        <span class="text-navy" th:text="${admin.signature != null && admin.signature != '' ? admin.signature : '暂无描述'}">系统所有权</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer-btns">
+                <th:block th:if="${admin.role == 0}">
+                    <button class="btn btn-xs btn-white disabled"><i class="fa fa-lock"></i> 锁定</button>
+                    <button class="btn btn-xs btn-white disabled"><i class="fa fa-ban"></i> 不可删</button>
+                </th:block>
+
+                <th:block th:unless="${admin.role == 0}">
+                    <button class="btn btn-xs btn-info btn-outline btn-edit btn-action-check"
+                            th:data-id="${admin.userId}"
+                            th:data-username="${admin.username}"
+                            th:data-realname="${admin.realName}"
+                            th:data-phone="${admin.phone}"
+                            th:data-signature="${admin.signature}"
+                            th:data-avatar="${admin.avatar}">
+                        <i class="fa fa-pencil"></i> 编辑
+                    </button>
+
+                    <button class="btn btn-xs btn-danger btn-outline btn-delete btn-action-check"
+                            th:data-id="${admin.userId}">
+                        <i class="fa fa-trash"></i> 删除
+                    </button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addAdminModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加用户</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="addAdminForm">
+                    <div class="form-group">
+                        <div class="col-sm-12 avatar-upload">
+                            <div class="avatar-preview">
+                                <img src="/img/default_avatar.png" id="avatarPreview">
+                            </div>
+                            <p class="help-block small">默认头像</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">用户名</label>
+                        <div class="col-sm-8"><input type="text" name="username" class="form-control" id="addUsername"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">真实姓名</label>
+                        <div class="col-sm-8"><input type="text" name="realName" class="form-control" placeholder="请输入真实姓名"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">手机号</label>
+                        <div class="col-sm-8"><input type="text" name="phone" class="form-control" id="addPhone"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">密码</label>
+                        <div class="col-sm-8"><input type="password" name="password" placeholder="默认: 123456" class="form-control"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">角色权限</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" name="role" id="addRole">
+                                <option value="1">系统管理员</option>
+                                <option value="3">普通用户</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">职责/签名</label>
+                        <div class="col-sm-8"><textarea name="signature" class="form-control" rows="3" id="addSignature"></textarea></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="saveAddAdminBtn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editAdminModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">编辑用户</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="editAdminForm">
+                    <input type="hidden" id="editUserId" name="userId">
+                    <div class="form-group">
+                        <div class="col-sm-12 avatar-upload">
+                            <div class="avatar-preview">
+                                <img src="" id="editAvatarPreview">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">用户名</label>
+                        <div class="col-sm-8"><input type="text" id="editUsername" name="username" class="form-control" ></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">真实姓名</label>
+                        <div class="col-sm-8"><input type="text" id="editRealName" name="realName" class="form-control"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">手机号</label>
+                        <div class="col-sm-8"><input type="text" id="editPhone" name="phone" class="form-control"></div>
+                    </div>
+                    <div class="form-group" id="resetPwdGroup" style="display:none; border-top: 1px dashed #eee; padding-top: 15px; margin-top: 15px;">
+                        <label class="col-sm-3 control-label" style="color:#ef4444;">敏感操作</label>
+                        <div class="col-sm-8">
+                            <button type="button" class="btn btn-danger btn-outline btn-sm" id="btnShowResetPwd">
+                                <i class="fa fa-key"></i> 重置该用户密码
+                            </button>
+                            <div id="pwdInputArea" style="display:none; margin-top: 10px;">
+                                <input type="password" name="password" class="form-control" placeholder="请输入新密码" style="margin-bottom: 5px;">
+                                <p class="help-block small text-danger">注意：输入内容即会修改密码，留空则不修改。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">职责/签名</label>
+                        <div class="col-sm-8"><textarea id="editSignature" name="signature" class="form-control" rows="3"></textarea></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="saveEditAdminBtn">保存修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+
+<script>
+    $(document).ready(function(){
+
+        // 1. 搜索
+        $("#searchInput").on("keypress", function(e) {
+            if(e.which == 13) {
+                window.location.href = ctxPath + 'system/admin_list?keyword=' + $(this).val();
+            }
+        });
+
+        // =======================================================
+        // 核心权限检查函数：如果是普通用户，弹窗并返回 false
+        // =======================================================
+        function checkPermission() {
+            if (currentUserRole !== 0) { // 如果不是超级管理员
+                Swal.fire({
+                    icon: 'error',
+                    title: '权限不足',
+                    text: '只有超级管理员才可以进行此操作！'
+                });
+                return false;
+            }
+            return true;
+        }
+
+        // 2. 添加用户 (添加权限检查)
+        $('#btnAddAdmin').click(function() {
+            if (!checkPermission()) return; // 检查权限
+
+            $('#addAdminForm')[0].reset();
+            $('#addAdminModal').modal('show');
+        });
+
+        // 3. 删除 (添加权限检查)
+        $(document).on('click', '.btn-delete', function() {
+            if (!checkPermission()) return; // 检查权限
+
+            var btn = $(this);
+            var userId = btn.data('id');
+
+            Swal.fire({
+                title: '确认删除?',
+                text: "确定要删除该用户吗？",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: '删除',
+                cancelButtonText: '取消'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: ctxPath + 'system/admin/delete',
+                        type: 'POST',
+                        data: { id: userId },
+                        success: function(res) {
+                            if (res.success) {
+                                btn.closest('.admin-item').fadeOut(500, function(){ $(this).remove(); });
+                                Swal.fire('已删除!', '该账号已被移除。', 'success');
+                            } else {
+                                Swal.fire('删除失败', res.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire('网络错误', '状态码: ' + xhr.status, 'error');
+                        }
+                    });
+                }
+            })
+        });
+
+        // 4. 编辑 (添加权限检查)
+        $(document).on('click', '.btn-edit', function() {
+            if (!checkPermission()) return; // 检查权限
+
+            var btn = $(this);
+            var id = btn.data('id');
+            var avatar = btn.data('avatar') || 'default_avatar.png';
+            var username = btn.data('username');
+            var realName = btn.data('realname');
+            var phone = btn.data('phone');
+            var signature = btn.data('signature') === 'null' ? '' : btn.data('signature');
+
+            $('#editUserId').val(id);
+            var avatarPath = (avatar === 'default_avatar.png' || !avatar) ? (ctxPath + 'img/default_avatar.png') : (ctxPath + 'upload/' + avatar);
+            $('#editAvatarPreview').attr('src', avatarPath);
+
+            $('#editUsername').val(username);
+            $('#editRealName').val(realName);
+            $('#editPhone').val(phone);
+            $('#editSignature').val(signature);
+
+            // 如果是超管，显示重置密码 (这里其实已经是超管才进得来了，但保留逻辑也无妨)
+            $('#resetPwdGroup').show();
+            $('#pwdInputArea').hide();
+            $('#editAdminForm input[name="password"]').val('');
+
+            $('#editAdminModal').modal('show');
+        });
+
+        // 5. 重置密码按钮
+        $('#btnShowResetPwd').click(function(){
+            $(this).hide();
+            $('#pwdInputArea').slideDown();
+        });
+
+        // 6. 保存添加
+        $('#saveAddAdminBtn').click(function() {
+            $.ajax({
+                url: ctxPath + 'system/admin/add',
+                type: 'POST',
+                data: $('#addAdminForm').serialize(),
+                success: function(res) {
+                    if (res.success) {
+                        $('#addAdminModal').modal('hide');
+                        Swal.fire('成功', '添加成功', 'success').then(() => { location.reload(); });
+                    } else {
+                        Swal.fire('失败', res.message, 'error');
+                    }
+                }
+            });
+        });
+
+        // 7. 保存编辑
+        $('#saveEditAdminBtn').click(function() {
+            $.ajax({
+                url: ctxPath + 'system/admin/update',
+                type: 'POST',
+                data: $('#editAdminForm').serialize(),
+                success: function(res) {
+                    $('#editAdminModal').modal('hide');
+                    if (res.success) {
+                        Swal.fire('成功', res.message, 'success').then(() => { location.reload(); });
+                    } else {
+                        Swal.fire('失败', res.message, 'error');
+                    }
+                },
+                error: function() {
+                    $('#editAdminModal').modal('hide');
+                    Swal.fire('错误', '请求失败', 'error');
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
