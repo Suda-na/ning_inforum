@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小宁论坛 - 系统通知</title>
+    <meta name="keywords" content="小宁论坛,后台管理,系统通知">
+    <meta name="description" content="小宁论坛后台管理系统 - 系统通知页面">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}">
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css?v=4.4.0}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
+    <style>
+        .notification-editor {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .notification-editor h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .editor-content {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .editor-text {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .editor-text textarea {
+            width: 100%;
+            border: none;
+            resize: vertical;
+            min-height: 120px;
+            font-size: 14px;
+            color: #1f2937;
+        }
+        .editor-text textarea:focus {
+            outline: none;
+        }
+        .editor-image {
+            padding: 15px;
+            background: #f9fafb;
+            min-height: 80px;
+        }
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .image-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-item .remove-img {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .editor-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn-add-image {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-add-image:hover {
+            background: #e5e7eb;
+        }
+        .btn-send {
+            background: #3b82f6;
+            border: 1px solid #3b82f6;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-send:hover {
+            background: #2563eb;
+        }
+        .btn-draft {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .btn-draft:hover {
+            background: #e5e7eb;
+        }
+        .notification-history {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .notification-history h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            border-top: none;
+        }
+        .pagination li {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .pagination li a {
+            display: block;
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            color: #6b7280;
+            text-decoration: none;
+            cursor: pointer;
+            background: white;
+        }
+        .pagination li.active a {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .pagination li.disabled a {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .pagination li a:hover {
+            background: #f3f4f6;
+        }
+        .pagination li.disabled a:hover {
+            background: white;
+        }
+        .btn-edit, .btn-delete {
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+            margin-right: 5px;
+        }
+        .btn-edit {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        .btn-delete {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        .table tbody tr {
+            cursor: pointer;
+        }
+        .table tbody tr.active {
+            background-color: #eff6ff;
+        }
+        .table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        .table tbody tr.active:hover {
+            background-color: #eff6ff;
+        }
+        .notification-detail {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+        .notification-detail h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .detail-content {
+            line-height: 1.6;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        .detail-images {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .detail-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+        .detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-meta {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .btn-add-image-edit {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-add-image-edit:hover {
+            background: #e5e7eb;
+        }
+        .image-preview-edit {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        #edit-notification-modal .editor-content {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #edit-notification-modal .editor-text {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        #edit-notification-modal .editor-text textarea {
+            width: 100%;
+            border: none;
+            resize: vertical;
+            min-height: 120px;
+            font-size: 14px;
+            color: #1f2937;
+        }
+        #edit-notification-modal .editor-text textarea:focus {
+            outline: none;
+        }
+        #edit-notification-modal .editor-image {
+            padding: 15px;
+            background: #f9fafb;
+            min-height: 80px;
+        }
+
+        /* 模态框层级控制 */
+        /* 编辑模态框默认z-index */
+        #edit-notification-modal {
+            z-index: 1050;
+        }
+
+        /* 用户选择模态框的z-index更高，确保显示在编辑模态框上方 */
+        #select-user-modal {
+            z-index: 1060 !important;
+        }
+
+        /* 当有多个模态框时，确保用户选择模态框的背景遮罩层也在编辑模态框上方 */
+        body.modal-open .modal-backdrop {
+            z-index: 1040;
+        }
+
+        /* 确保用户选择模态框的背景遮罩层（最后一个）z-index更高 */
+        body.modal-open .modal-backdrop:last-of-type {
+            z-index: 1059 !important;
+        }
+        
+        /* 编辑接收用户模态框样式 */
+        #edit-receiver-users-modal .modal-body {
+            padding: 20px;
+        }
+        #edit-receiver-users-modal h5 {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        #edit-receiver-users-modal h5 i {
+            font-size: 16px;
+        }
+        #selected-receiver-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 6px;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        }
+        #edit-receiver-users-modal .table {
+            font-size: 13px;
+        }
+        #edit-receiver-users-modal .table thead th {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            padding: 10px 12px;
+        }
+        #edit-receiver-users-modal .table tbody td {
+            padding: 12px;
+            border-top: 1px solid #f3f4f6;
+            vertical-align: middle;
+            color: #4b5563;
+            word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #edit-receiver-users-modal .table {
+            table-layout: fixed;
+        }
+        #edit-receiver-users-modal .table th,
+        #edit-receiver-users-modal .table td {
+            text-align: left;
+        }
+        #edit-receiver-users-modal .table th:first-child,
+        #edit-receiver-users-modal .table td:first-child {
+            text-align: center;
+        }
+        #edit-receiver-users-modal .table-hover > tbody > tr:hover {
+            background-color: #f8fafc;
+        }
+        #edit-receiver-users-modal .btn-xs {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        #edit-receiver-users-modal .btn-primary.btn-xs {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        #edit-receiver-users-modal .btn-primary.btn-xs:hover {
+            background: #059669;
+            border-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+        #edit-receiver-users-modal .btn-danger.btn-xs {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+        #edit-receiver-users-modal .btn-danger.btn-xs:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+        #edit-receiver-users-modal #selected-receivers-tbody tr {
+            background: #fefefe;
+        }
+        #edit-receiver-users-modal #selected-receivers-tbody tr:hover {
+            background: #f0fdf4 !important;
+        }
+        #edit-receiver-users-modal #edit-available-users-tbody tr:hover {
+            background: #f0f9ff !important;
+        }
+        
+        /* 悬浮通知样式 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #fff;
+            animation: fadeInUp 0.25s ease-out;
+        }
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+        .toast-icon {
+            font-size: 18px;
+        }
+        .toast-close {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .toast-close:hover {
+            opacity: 1;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate3d(0, 10px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        /* 优雅确认弹窗 */
+        #confirm-modal .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        }
+        #confirm-modal .modal-header {
+            border-bottom: none;
+            padding: 16px 20px 0 20px;
+        }
+        #confirm-modal .modal-title {
+            font-weight: 700;
+            color: #111827;
+            font-size: 16px;
+        }
+        #confirm-modal .modal-body {
+            padding: 10px 20px 0 20px;
+            font-size: 14px;
+            color: #374151;
+        }
+        #confirm-modal .modal-footer {
+            border-top: none;
+            padding: 14px 20px 18px 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        #confirm-modal .btn-confirm {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            color: #fff;
+            min-width: 96px;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+        }
+        #confirm-modal .btn-confirm:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        #confirm-modal .btn-cancel {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            min-width: 96px;
+        }
+        #confirm-modal .btn-cancel:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+    <div class="toast-container" id="toastContainer"></div>
+    <!-- 通用确认弹窗 -->
+    <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-modal-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="confirm-modal-label">确认操作</h4>
+                </div>
+                <div class="modal-body" id="confirm-modal-message">确定要执行此操作吗？</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-confirm" id="confirm-modal-ok">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- 通知编辑区域 -->
+                <div class="notification-editor">
+                    <h3>发送系统通知</h3>
+                    <div class="editor-content">
+                        <div class="editor-title" style="padding: 15px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px;">
+                            <input type="text" id="notification-title" placeholder="请输入通知标题..." style="flex: 1; border: none; font-size: 14px; color: #1f2937;">
+                            <button type="button" class="btn-select-user" id="btn-select-user" style="background: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; white-space: nowrap;">
+                                <i class="fa fa-users"></i>
+                                <span id="selected-user-text">选择接收用户</span>
+                            </button>
+                        </div>
+                        <div style="padding: 10px 15px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;">
+                            <i class="fa fa-info-circle"></i>
+                            <span id="receiver-info">默认发送给所有用户</span>
+                        </div>
+                        <div class="editor-text">
+                            <textarea id="notification-content" placeholder="请输入通知内容..."></textarea>
+                        </div>
+                        <div class="editor-image">
+                            <button type="button" class="btn-add-image" onclick="attachImage()">
+                                <i class="fa fa-plus"></i>
+                                <span>添加图片</span>
+                            </button>
+                            <div class="image-preview"></div>
+                        </div>
+                    </div>
+                    <div class="editor-actions">
+                        <div></div>
+                        <div>
+                            <button class="btn-send">
+                                <i class="fa fa-paper-plane"></i>
+                                确定发送
+                            </button>
+                            <button class="btn-draft">
+                                <i class="fa fa-save"></i>
+                                保存草稿
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- 历史通知列表 -->
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <span class="text-muted small pull-right">最后更新：<i class="fa fa-clock-o"></i> 2025-12-14 12:00</span>
+                        <h2>历史通知</h2>
+                        <p>
+                            管理系统通知记录
+                        </p>
+                        <div class="clients-list">
+                            <ul class="nav nav-tabs">
+                                <span class="pull-right small text-muted" id="notification-count">0 条通知</span>
+                                <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-bell"></i> 系统通知</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="tab-1" class="tab-pane active">
+                                    <div class="full-height-scroll">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover" id="notification-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>通知标题</th>
+                                                        <th>通知内容</th>
+                                                        <th>发送时间</th>
+                                                        <th>发送人</th>
+                                                        <th>接收用户</th>
+                                                        <th>阅读量</th>
+                                                        <th>操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="notification-tbody">
+                                                    <!-- 表格内容将通过JavaScript动态生成 -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- 分页 -->
+                                    <ul class="pagination" id="notification-pagination">
+                                        <!-- 分页按钮将通过JavaScript动态生成 -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户选择模态框（用于新增和编辑时选择接收用户） -->
+    <div class="modal fade" id="select-user-modal" tabindex="-1" role="dialog" aria-labelledby="select-user-label">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="select-user-label">选择接收用户</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 15px;">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <input type="text" class="form-control" id="user-search-input" placeholder="搜索用户（用户名、姓名、邮箱、电话）..." style="width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <button type="button" class="btn btn-sm btn-default" id="btn-select-all" style="background: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280;">
+                                <i class="fa fa-check-square-o"></i> 全选
+                            </button>
+                            <button type="button" class="btn btn-sm btn-default" id="btn-clear-selection" style="background: #f3f4f6; border: 1px solid #e5e7eb; color: #6b7280;">
+                                <i class="fa fa-square-o"></i> 清空选择
+                            </button>
+                            <button type="button" class="btn btn-sm btn-default" id="btn-select-all-users" style="background: #3b82f6; border: 1px solid #3b82f6; color: white;">
+                                <i class="fa fa-users"></i> 发送给所有人
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #9ca3af;">
+                            <span id="selected-count">已选择: 0 个用户</span>
+                            <span style="margin-left: 15px;">共 <span id="total-user-count">0</span> 个用户</span>
+                        </div>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 10px;">
+                        <table class="table table-hover" style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">
+                                        <input type="checkbox" id="check-all-users">
+                                    </th>
+                                    <th>用户名</th>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>邮箱</th>
+                                    <th>电话号</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-list-tbody">
+                                <!-- 用户列表将通过JavaScript动态生成 -->
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
+                                        <i class="fa fa-spinner fa-spin"></i> 加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btn-confirm-selection">
+                        <i class="fa fa-check"></i> 确定选择
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑接收用户模态框 -->
+    <div class="modal fade" id="edit-receiver-users-modal" tabindex="-1" role="dialog" aria-labelledby="edit-receiver-users-label">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="edit-receiver-users-label">编辑接收用户</h4>
+                </div>
+                <div class="modal-body">
+                    <!-- 已选用户列表（显示在最前面，可以删除） -->
+                    <div style="margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px; font-weight: 600; color: #1f2937;">
+                            <i class="fa fa-check-circle" style="color: #10b981; margin-right: 8px;"></i>
+                            已选用户 <span id="selected-receiver-count" style="color: white; font-weight: 700;">0</span>
+                        </h5>
+                        <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 10px; background: #fff;">
+                            <table class="table table-hover" style="margin-bottom: 0; table-layout: fixed; width: 100%;">
+                                <colgroup>
+                                    <col style="width: 90px;">
+                                    <col style="width: 120px;">
+                                    <col style="width: 120px;">
+                                    <col style="width: 80px;">
+                                    <col style="width: 180px;">
+                                    <col style="width: 120px;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>操作</th>
+                                        <th>用户名</th>
+                                        <th>姓名</th>
+                                        <th>性别</th>
+                                        <th>邮箱</th>
+                                        <th>电话号</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="selected-receivers-tbody">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">暂无已选用户</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 搜索和添加用户 -->
+                    <div style="margin-bottom: 15px;">
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <input type="text" class="form-control" id="edit-user-search-input" placeholder="搜索用户（用户名、姓名、邮箱、电话）..." style="width: 100%; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px;">
+                        </div>
+                        <div style="font-size: 12px; color: #9ca3af;">
+                            共 <span id="edit-total-user-count">0</span> 个用户
+                        </div>
+                    </div>
+                    
+                    <!-- 未选用户列表 -->
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 4px; padding: 10px;">
+                        <table class="table table-hover" style="margin-bottom: 0; table-layout: fixed; width: 100%;">
+                            <colgroup>
+                                <col style="width: 90px;">
+                                <col style="width: 120px;">
+                                <col style="width: 120px;">
+                                <col style="width: 80px;">
+                                <col style="width: 180px;">
+                                <col style="width: 120px;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>操作</th>
+                                    <th>用户名</th>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>邮箱</th>
+                                    <th>电话号</th>
+                                </tr>
+                            </thead>
+                            <tbody id="edit-available-users-tbody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">
+                                        <i class="fa fa-spinner fa-spin"></i> 加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-receivers">
+                        <i class="fa fa-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑通知模态框 -->
+    <div class="modal fade" id="edit-notification-modal" tabindex="-1" role="dialog" aria-labelledby="edit-notification-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="edit-notification-label">编辑系统通知</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="editor-content">
+                        <div class="editor-title" style="padding: 15px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 10px; margin-bottom: 0;">
+                            <input type="text" id="edit-notification-title" placeholder="请输入通知标题..." style="flex: 1; border: none; font-size: 14px; color: #1f2937;">
+                        </div>
+                        <div class="editor-text">
+                            <textarea id="edit-notification-content" placeholder="请输入通知内容..."></textarea>
+                        </div>
+                        <div class="editor-image">
+                            <button type="button" class="btn-add-image-edit" onclick="attachImageEdit()">
+                                <i class="fa fa-plus"></i>
+                                <span>添加图片</span>
+                            </button>
+                            <div class="image-preview-edit"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-edit-notification">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+    <script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+    <script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+    <script th:src="@{/js/content.js?v=1.0.0}"></script>
+
+    <script>
+        // 数据变量
+        let notifications = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let editingId = null;
+
+        // 用户选择相关变量（新增时）
+        let allUsers = []; // 所有用户列表
+        let selectedUserIds = []; // 选中的用户ID列表（空数组表示发送给所有人）
+        let filteredUsers = []; // 过滤后的用户列表
+        
+        // 编辑接收用户相关变量
+        let editingReceiverMessageId = null; // 正在编辑接收用户的通知ID
+        let selectedReceiverUserIds = []; // 已选接收用户ID列表
+        let allAvailableUsers = []; // 所有可用用户列表（用于编辑接收用户）
+        let filteredAvailableUsers = []; // 过滤后的可用用户列表
+        let confirmCallback = null;
+
+        // 悬浮通知
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + (type === 'error' ? 'toast-error' : 'toast-success');
+
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon fa ' + (type === 'error' ? 'fa-times-circle' : 'fa-check-circle');
+
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            const close = document.createElement('span');
+            close.className = 'toast-close fa fa-times';
+            close.onclick = function () {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            };
+
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            toast.appendChild(close);
+            container.appendChild(toast);
+
+            setTimeout(function () {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 2500);
+        }
+
+        // 通用确认弹窗
+        function showConfirm(message, onConfirm) {
+            confirmCallback = onConfirm || null;
+            $('#confirm-modal-message').text(message || '确定要执行此操作吗？');
+            $('#confirm-modal').modal('show');
+        }
+
+        $('#confirm-modal-ok').on('click', function() {
+            $('#confirm-modal').modal('hide');
+            if (confirmCallback) {
+                confirmCallback();
+            }
+        });
+
+        $(function () {
+            // 初始化
+            loadNotifications();
+            updatePagination();
+
+            // 初始化用户选择相关事件
+            initUserSelection();
+
+            // 图片上传功能通过attachImage()和attachImageEdit()函数处理
+
+            // 删除图片
+            $(document).on('click', '.remove-img', function() {
+                $(this).closest('.image-item').remove();
+            });
+
+            // 发送通知按钮事件
+            $('.btn-send').click(function() {
+                const title = $('#notification-title').val().trim();
+                const content = $('#notification-content').val().trim();
+
+                if (!title) {
+                    showToast('请输入通知标题', 'error');
+                    return;
+                }
+
+                if (!content) {
+                    showToast('请输入通知内容', 'error');
+                    return;
+                }
+
+                // 获取图片URL（只支持一张图片，取第一张）
+                let imageUrl = '';
+                $('.image-preview .image-item').each(function() {
+                    const url = $(this).data('image-url');
+                    if (url) {
+                        imageUrl = url;
+                        return false; // 只取第一张
+                    }
+                });
+
+                // 获取接收者ID列表
+                let receiverIds = 'all'; // 默认发送给所有人
+                if (selectedUserIds && selectedUserIds.length > 0) {
+                    // 发送给选中的多个用户
+                    receiverIds = JSON.stringify(selectedUserIds);
+                }
+                
+                // 发送AJAX请求到后端（使用多接收者接口）
+                $.ajax({
+                    url: '/admin/api/msg_system/add_multiple',
+                    type: 'POST',
+                    data: {
+                        title: title,
+                        content: content,
+                        receiverIds: receiverIds, // 支持多接收者
+                        imageUrl: imageUrl || null
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('通知发送成功', 'success');
+
+                            // 重置表单
+                            $('#notification-title').val('');
+                            $('#notification-content').val('');
+                            $('.image-preview').empty();
+                            selectedUserIds = []; // 清空选中的用户
+                            updateReceiverInfo(); // 更新接收者信息显示
+
+                            // 重新加载通知列表
+                            currentPage = 1;
+                            loadNotifications();
+                        } else {
+                            showToast('发送失败：' + (response.message || '未知错误'), 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('发送通知失败:', error);
+                        showToast('发送失败，请稍后重试', 'error');
+                    }
+                });
+            });
+
+            // 保存草稿按钮事件
+            $('.btn-draft').click(function() {
+                const title = $('#notification-title').val().trim();
+                const content = $('#notification-content').val().trim();
+                // 这里可以添加AJAX请求，保存草稿
+                alert('草稿保存成功！');
+            });
+
+            // 编辑按钮事件
+            $(document).on('click', '.btn-edit', function(e) {
+                e.stopPropagation();
+                const id = $(this).data('id');
+                const notification = notifications.find(n => n.messageId === id);
+
+                if (notification) {
+                    editingId = id;
+                    $('#edit-notification-title').val(notification.title);
+                    $('#edit-notification-content').val(notification.content);
+                    $('.image-preview-edit').empty();
+
+                    // 加载图片（如果消息格式为图片类型且有图片URL）
+                    if (notification.msgFormat === 1 && notification.imageUrl) {
+                            const $imageItem = $('<div class="image-item"></div>');
+                        const $img = $('<img>').attr('src', notification.imageUrl);
+                            const $remove = $('<span class="remove-img">&times;</span>');
+                        $imageItem.data('image-url', notification.imageUrl); // 保存URL到data属性
+                            $imageItem.append($img);
+                            $imageItem.append($remove);
+                            $('.image-preview-edit').append($imageItem);
+                    }
+
+                    $('#edit-notification-modal').modal('show');
+                }
+            });
+
+            // 删除按钮事件
+            $(document).on('click', '.btn-delete', function(e) {
+                e.stopPropagation();
+            const id = $(this).data('id');
+            showConfirm('确定要删除这条通知吗？', function() {
+                $.ajax({
+                    url: '/admin/api/msg_system/delete',
+                    type: 'POST',
+                    data: { messageId: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('删除成功', 'success');
+                            // 重新加载通知列表
+                            // 优化分页：如果当前页只剩最后一条被删，回退一页
+                            if (notifications.length === 1 && currentPage > 1) {
+                                currentPage -= 1;
+                            }
+                            loadNotifications();
+                        } else {
+                            showToast('删除失败：' + (response.message || '未知错误'), 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('删除通知失败:', error);
+                        showToast('删除失败，请稍后重试', 'error');
+                    }
+                });
+            });
+            });
+
+            // 保存编辑
+            $('#save-edit-notification').click(function() {
+                const title = $('#edit-notification-title').val().trim();
+                const content = $('#edit-notification-content').val().trim();
+
+                if (!title) {
+                    showToast('请输入通知标题', 'error');
+                    return;
+                }
+
+                if (!content) {
+                    showToast('请输入通知内容', 'error');
+                    return;
+                }
+
+                // 获取图片URL（只支持一张图片，取第一张）
+                let imageUrl = '';
+                $('.image-preview-edit .image-item').each(function() {
+                    const url = $(this).data('image-url');
+                    if (url) {
+                        imageUrl = url;
+                        return false; // 只取第一张
+                    }
+                });
+
+                // 发送AJAX请求到后端，更新通知
+                $.ajax({
+                    url: '/admin/api/msg_system/update',
+                    type: 'POST',
+                    data: {
+                        messageId: editingId,
+                        title: title,
+                        content: content,
+                        receiverId: (notifications.find(n => n.messageId === editingId)?.receiverId) || null,
+                        imageUrl: imageUrl || null
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                        showToast('修改成功', 'success');
+                            // 关闭模态框并刷新列表
+                            $('#edit-notification-modal').modal('hide');
+                            loadNotifications();
+                    } else {
+                        showToast('修改失败：' + (response.message || '未知错误'), 'error');
+                    }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('修改通知失败:', error);
+                    showToast('修改失败，请稍后重试', 'error');
+                    }
+                });
+            });
+
+            // 分页点击事件
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                if ($(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) {
+                    return;
+                }
+
+                const page = $(this).data('page');
+                if (page) {
+                    currentPage = page;
+                    renderNotifications();
+                    updatePagination();
+                }
+            });
+
+            // 模态框关闭时清空编辑ID
+            $('#edit-notification-modal').on('hidden.bs.modal', function() {
+                editingId = null;
+                $('#edit-notification-title').val('');
+                $('#edit-notification-content').val('');
+                $('.image-preview-edit').empty();
+            });
+
+            // 点击接收用户列，打开编辑接收用户模态框
+            $(document).on('click', '.receiver-link', function(e) {
+                e.stopPropagation();
+                const messageId = $(this).data('message-id');
+                if (messageId) {
+                    editingReceiverMessageId = messageId;
+                    loadEditReceiverUsers(messageId);
+                    $('#edit-receiver-users-modal').modal('show');
+                }
+            });
+            
+            // 保存接收用户
+            $('#btn-save-receivers').click(function() {
+                saveReceiverUsers();
+            });
+        });
+
+        // 添加图片功能（新增通知）- 参考私信的图片上传功能
+        function attachImage() {
+            // 创建隐藏的文件输入元素
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            
+            // 监听文件选择事件
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                // 检查文件大小（5MB限制）
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    showToast('图片大小不能超过5MB', 'error');
+                    return;
+                }
+
+                // 检查文件类型
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('只支持JPG、PNG、GIF、BMP、WEBP格式的图片', 'error');
+                    return;
+                }
+
+                // 创建FormData对象上传文件
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // 上传图片到服务器（复用私信的上传接口）
+                $.ajax({
+                    url: '/admin/api/msg_send/uploadImage',
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // 告诉jQuery不要处理数据
+                    contentType: false, // 告诉jQuery不要设置Content-Type请求头
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.imageUrl) {
+                            // 立即显示上传成功提示
+                            showToast('图片上传成功！', 'success');
+                            
+                            // 创建预览（使用服务器URL）
+                    const $imageItem = $('<div class="image-item"></div>');
+                            const $img = $('<img>').attr('src', response.imageUrl);
+                    const $remove = $('<span class="remove-img">&times;</span>');
+                            $imageItem.data('image-url', response.imageUrl); // 保存URL到data属性
+
+                    $imageItem.append($img);
+                    $imageItem.append($remove);
+                            $('.image-preview').append($imageItem);
+                        } else {
+                            showToast(response.message || '图片上传失败', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('图片上传失败:', error);
+                        showToast('图片上传失败，请稍后重试', 'error');
+                    }
+                });
+            };
+            
+            // 触发文件选择对话框
+            fileInput.click();
+        }
+
+        // 添加图片功能（编辑通知）
+        function attachImageEdit() {
+            // 创建隐藏的文件输入元素
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            
+            // 监听文件选择事件
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                // 检查文件大小（5MB限制）
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    showToast('图片大小不能超过5MB', 'error');
+                    return;
+                }
+
+                // 检查文件类型
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('只支持JPG、PNG、GIF、BMP、WEBP格式的图片', 'error');
+                    return;
+                }
+
+                // 创建FormData对象上传文件
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // 上传图片到服务器（复用私信的上传接口）
+                $.ajax({
+                    url: '/admin/api/msg_send/uploadImage',
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // 告诉jQuery不要处理数据
+                    contentType: false, // 告诉jQuery不要设置Content-Type请求头
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.imageUrl) {
+                            // 立即显示上传成功提示
+                            showToast('图片上传成功！', 'success');
+                            
+                            // 创建预览（使用服务器URL）
+                            const $imageItem = $('<div class="image-item"></div>');
+                            const $img = $('<img>').attr('src', response.imageUrl);
+                            const $remove = $('<span class="remove-img">&times;</span>');
+                            $imageItem.data('image-url', response.imageUrl); // 保存URL到data属性
+
+                            $imageItem.append($img);
+                            $imageItem.append($remove);
+                            $('.image-preview-edit').append($imageItem);
+                        } else {
+                            showToast(response.message || '图片上传失败', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('图片上传失败:', error);
+                        showToast('图片上传失败，请稍后重试', 'error');
+            }
+                });
+            };
+            
+            // 触发文件选择对话框
+            fileInput.click();
+        }
+
+        // 从后端加载通知列表
+        function loadNotifications() {
+            $.ajax({
+                url: '/admin/api/msg_system/list',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        notifications = response.data || [];
+                        renderNotifications();
+                        updatePagination();
+                    } else {
+                        showToast('加载失败：' + (response.message || '未知错误'), 'error');
+                        $('#notification-tbody').html('<tr><td colspan="7" style="text-align: center; padding: 20px;">加载失败</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('加载通知列表失败:', error);
+                    showToast('加载失败，请稍后重试', 'error');
+                    $('#notification-tbody').html('<tr><td colspan="7" style="text-align: center; padding: 20px;">加载失败</td></tr>');
+                }
+            });
+        }
+
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // 渲染通知列表
+        function renderNotifications() {
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = notifications.slice(start, end);
+
+            const $tbody = $('#notification-tbody');
+            $tbody.empty();
+
+            if (pageData.length === 0) {
+                $tbody.append('<tr><td colspan="7" style="text-align: center; padding: 20px;">暂无通知</td></tr>');
+                return;
+            }
+
+            pageData.forEach(function(notification) {
+                // 格式化时间
+                const createTime = notification.createTime ?
+                    new Date(notification.createTime).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(/\//g, '-') : '';
+
+                const $tr = $('<tr></tr>');
+                $tr.append('<td>' + escapeHtml(notification.title || '无标题') + '</td>');
+                const content = notification.content || '';
+                
+                // 内容列：支持显示图片和文字
+                let contentCell = '';
+                if (notification.msgFormat === 1 && notification.imageUrl) {
+                    // 图片消息：显示图片和文字
+                    const imgHtml = '<img src="' + escapeHtml(notification.imageUrl) + '" alt="图片" style="max-width: 100px; max-height: 100px; border-radius: 4px; cursor: pointer; margin-right: 8px; vertical-align: middle;" onclick="window.open(\'' + escapeHtml(notification.imageUrl) + '\', \'_blank\')" />';
+                    const textHtml = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                    contentCell = '<div style="display: flex; align-items: center;">' + imgHtml + '<span>' + escapeHtml(textHtml || '') + '</span></div>';
+                } else {
+                    // 文本消息：只显示文字
+                    contentCell = content.length > 50 ? escapeHtml(content.substring(0, 50) + '...') : escapeHtml(content);
+                }
+                $tr.append('<td>' + contentCell + '</td>');
+                $tr.append('<td>' + createTime + '</td>');
+                $tr.append('<td>' + (notification.senderName || '管理员') + '</td>');
+
+                // 接收用户列（支持多接收者显示）
+                let receiverText = '';
+                let receiverClass = 'receiver-link';
+                if (notification.receiverName) {
+                    // receiverName 可能是 "所有用户"、"X个用户" 或单个用户名
+                    if (notification.receiverName === '所有用户') {
+                        receiverText = '<span style="color: #3b82f6; cursor: pointer;"><i class="fa fa-users"></i> 所有用户</span>';
+                    } else if (notification.receiverName.indexOf('个用户') > 0) {
+                        // 多个用户的情况，如 "3个用户"
+                        receiverText = '<span style="color: #3b82f6; cursor: pointer;"><i class="fa fa-users"></i> ' + notification.receiverName + '</span>';
+                    } else {
+                        // 单个用户
+                        receiverText = '<span style="color: #3b82f6; cursor: pointer;"><i class="fa fa-user"></i> ' + notification.receiverName + '</span>';
+                    }
+                } else if (notification.receiverId == null) {
+                    receiverText = '<span style="color: #3b82f6; cursor: pointer;"><i class="fa fa-users"></i> 所有用户</span>';
+                } else {
+                    receiverText = '<span style="color: #3b82f6; cursor: pointer;"><i class="fa fa-user"></i> 用户ID ' + notification.receiverId + '</span>';
+                }
+                $tr.append('<td class="' + receiverClass + '" data-message-id="' + notification.messageId + '" data-receiver-id="' + (notification.receiverId || 'null') + '">' + receiverText + '</td>');
+
+                // 阅读量暂时显示为已读数量（可以根据实际需求调整）
+                $tr.append('<td>' + (notification.isRead || 0) + '</td>');
+                $tr.append('<td>' +
+                    '<button class="btn-edit" data-id="' + notification.messageId + '">修改</button>' +
+                    '<button class="btn-delete" data-id="' + notification.messageId + '">删除</button>' +
+                    '</td>');
+                $tbody.append($tr);
+            });
+
+            // 更新通知数量
+            $('#notification-count').text(notifications.length + ' 条通知');
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(notifications.length / pageSize);
+            const $pagination = $('#notification-pagination');
+            $pagination.empty();
+
+            if (totalPages === 0) {
+                return;
+            }
+
+            // 上一页
+            const $prev = $('<li class="' + (currentPage === 1 ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage - 1) + '">上一页</a></li>');
+            $pagination.append($prev);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const $li = $('<li class="' + (i === currentPage ? 'active' : '') + '"><a href="#" data-page="' + i + '">' + i + '</a></li>');
+                    $pagination.append($li);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const $li = $('<li class="disabled"><a href="#">...</a></li>');
+                    $pagination.append($li);
+                }
+            }
+
+            // 下一页
+            const $next = $('<li class="' + (currentPage === totalPages ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage + 1) + '">下一页</a></li>');
+            $pagination.append($next);
+        }
+
+        // ==================== 用户选择相关功能 ====================
+
+        // 初始化用户选择功能
+        function initUserSelection() {
+            // 打开用户选择模态框（新增）
+            $('#btn-select-user').click(function() {
+                selectedUserIds = []; // 重置选择
+                $('#select-user-modal').modal('show');
+                loadUserList();
+            });
+
+            // 全选/取消全选
+            $('#check-all-users').change(function() {
+                const checked = $(this).prop('checked');
+                $('#user-list-tbody input[type="checkbox"]:not(#check-all-users)').prop('checked', checked);
+                updateSelectedUsers();
+            });
+
+            // 单个用户选择
+            $(document).on('change', '#user-list-tbody input[type="checkbox"]', function() {
+                updateSelectedUsers();
+                updateCheckAllState();
+            });
+
+            // 全选按钮
+            $('#btn-select-all').click(function() {
+                $('#user-list-tbody input[type="checkbox"]').prop('checked', true);
+                $('#check-all-users').prop('checked', true);
+                updateSelectedUsers();
+            });
+
+            // 清空选择按钮
+            $('#btn-clear-selection').click(function() {
+                $('#user-list-tbody input[type="checkbox"]').prop('checked', false);
+                $('#check-all-users').prop('checked', false);
+                selectedUserIds = [];
+                updateSelectedUsers();
+                updateReceiverInfo();
+            });
+
+            // 发送给所有人按钮
+            $('#btn-select-all-users').click(function() {
+                selectedUserIds = []; // 空数组表示所有人
+                $('#user-list-tbody input[type="checkbox"]').prop('checked', false);
+                $('#check-all-users').prop('checked', false);
+                updateReceiverInfo();
+                $('#select-user-modal').modal('hide');
+            });
+
+            // 确定选择按钮
+            $('#btn-confirm-selection').click(function() {
+                updateSelectedUsers();
+                updateReceiverInfo();
+                $('#select-user-modal').modal('hide');
+            });
+
+            // 用户搜索
+            $('#user-search-input').on('input', function() {
+                const keyword = $(this).val().toLowerCase();
+                filterUsers(keyword);
+            });
+        }
+
+        // 从后端加载用户列表
+        function loadUserList() {
+            $.ajax({
+                url: '/admin/api/msg_system/users',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        allUsers = response.data || [];
+                        filteredUsers = [...allUsers];
+                        renderUserList();
+                        updateSelectedUsers();
+                    } else {
+                        showToast('加载用户列表失败：' + (response.message || '未知错误'), 'error');
+                        $('#user-list-tbody').html('<tr><td colspan="5" style="text-align: center; padding: 20px; color: #9ca3af;">加载失败</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('加载用户列表失败:', error);
+                    showToast('加载用户列表失败，请稍后重试', 'error');
+                    $('#user-list-tbody').html('<tr><td colspan="5" style="text-align: center; padding: 20px; color: #9ca3af;">加载失败</td></tr>');
+                }
+            });
+        }
+
+        // 性别显示工具：支持 0/1/2 数值或字符串，也支持直接的“男/女”
+        function formatGender(value) {
+            if (value === null || value === undefined || value === '') return '未知';
+            const text = String(value).trim();
+            if (text === '男' || text === '女') return text;
+            const numVal = parseInt(text, 10);
+            if (!isNaN(numVal)) {
+                if (numVal === 1) return '男';
+                if (numVal === 2) return '女';
+            }
+            if (text === '1') return '男';
+            if (text === '2') return '女';
+            return '未知';
+        }
+
+        // 渲染用户列表
+        function renderUserList() {
+            const $tbody = $('#user-list-tbody');
+            $tbody.empty();
+
+            if (filteredUsers.length === 0) {
+                $tbody.append('<tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">暂无用户</td></tr>');
+                return;
+            }
+
+            filteredUsers.forEach(function(user) {
+                const isChecked = selectedUserIds.includes(user.userId);
+                const genderText = formatGender(user.gender);
+
+                const $tr = $('<tr></tr>');
+                $tr.append('<td><input type="checkbox" data-user-id="' + user.userId + '" ' + (isChecked ? 'checked' : '') + '></td>');
+                $tr.append('<td>' + (user.username || '') + '</td>');      // 用户名
+                $tr.append('<td>' + (user.realName || '') + '</td>');      // 姓名
+                $tr.append('<td>' + genderText + '</td>');                  // 性别
+                $tr.append('<td>' + (user.email || '') + '</td>');          // 邮箱
+                $tr.append('<td>' + (user.phone || '') + '</td>');          // 电话号
+                $tbody.append($tr);
+            });
+
+            $('#total-user-count').text(allUsers.length);
+            updateCheckAllState();
+        }
+
+        // 过滤用户（按用户名、姓名、邮箱、电话搜索）
+        function filterUsers(keyword) {
+            if (!keyword) {
+                filteredUsers = [...allUsers];
+            } else {
+                const lowerKeyword = keyword.toLowerCase();
+                filteredUsers = allUsers.filter(function(user) {
+                    return (user.username && user.username.toLowerCase().includes(lowerKeyword)) ||
+                           (user.realName && user.realName.toLowerCase().includes(lowerKeyword)) ||
+                           (user.email && user.email.toLowerCase().includes(lowerKeyword)) ||
+                           (user.phone && user.phone.includes(keyword));
+                });
+            }
+            renderUserList();
+        }
+
+        // 更新选中的用户
+        function updateSelectedUsers() {
+            selectedUserIds = [];
+            $('#user-list-tbody input[type="checkbox"]:checked').each(function() {
+                const userId = parseInt($(this).data('user-id'));
+                if (userId) {
+                    selectedUserIds.push(userId);
+                }
+            });
+            $('#selected-count').text('已选择: ' + selectedUserIds.length + ' 个用户');
+        }
+
+        // 更新全选状态
+        function updateCheckAllState() {
+            const total = $('#user-list-tbody input[type="checkbox"]:not(#check-all-users)').length;
+            const checked = $('#user-list-tbody input[type="checkbox"]:checked:not(#check-all-users)').length;
+            $('#check-all-users').prop('checked', total > 0 && total === checked);
+        }
+
+        // 更新新增时接收者信息显示
+        function updateReceiverInfo() {
+            const $receiverInfo = $('#receiver-info');
+            const $selectedUserText = $('#selected-user-text');
+
+            if (selectedUserIds.length === 0) {
+                $receiverInfo.html('<i class="fa fa-info-circle"></i> 默认发送给所有用户');
+                $selectedUserText.html('选择接收用户');
+            } else if (selectedUserIds.length === 1) {
+                const user = allUsers.find(u => u.userId === selectedUserIds[0]);
+                $receiverInfo.html('<i class="fa fa-user"></i> 发送给: ' + (user ? (user.realName || user.username) : '用户ID ' + selectedUserIds[0]));
+                $selectedUserText.html('已选择 1 个用户');
+            } else {
+                $receiverInfo.html('<i class="fa fa-users"></i> 发送给 ' + selectedUserIds.length + ' 个用户');
+                $selectedUserText.html('已选择 ' + selectedUserIds.length + ' 个用户');
+            }
+        }
+
+        // 加载编辑接收用户数据
+        function loadEditReceiverUsers(messageId) {
+            // 重置数据
+            selectedReceiverUserIds = [];
+            allAvailableUsers = [];
+            filteredAvailableUsers = [];
+            
+            // 先获取通知信息，判断是否是"所有用户"
+            const notification = notifications.find(n => n.messageId === messageId);
+            const isAllUsers = notification && (
+                notification.receiverName === '所有用户' || 
+                notification.receiverId == null
+            );
+            
+            // 先加载所有用户
+            $.ajax({
+                url: '/admin/api/msg_system/users',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        allAvailableUsers = response.data || [];
+                        
+                        // 如果是"所有用户"，直接全选所有用户
+                        if (isAllUsers) {
+                            selectedReceiverUserIds = allAvailableUsers.map(u => u.userId);
+                            renderSelectedReceivers();
+                            filterAvailableUsers();
+                            return;
+                        }
+                        
+                        // 否则加载当前通知的接收用户（使用新的多接收者接口）
+                        $.ajax({
+                            url: '/admin/api/msg_system/receivers_list',
+                            type: 'GET',
+                            data: { messageId: messageId },
+                            dataType: 'json',
+                            success: function(receiverResponse) {
+                                if (receiverResponse.success) {
+                                    const receivers = receiverResponse.data || [];
+                                    
+                                    // 从关联表获取的接收者列表
+                                    if (receivers && receivers.length > 0) {
+                                        selectedReceiverUserIds = receivers.map(u => u.userId);
+                                    } else {
+                                        // 如果没有接收者记录，可能是发送给所有人，全选所有用户
+                                        selectedReceiverUserIds = allAvailableUsers.map(u => u.userId);
+                                    }
+                                    
+                                    // 渲染已选用户和未选用户
+                                    renderSelectedReceivers();
+                                    filterAvailableUsers();
+                                } else {
+                                    showToast('加载接收用户失败：' + (receiverResponse.message || '未知错误'), 'error');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('加载接收用户失败:', error);
+                                showToast('加载接收用户失败，请稍后重试', 'error');
+                            }
+                        });
+                    } else {
+                        showToast('加载用户列表失败：' + (response.message || '未知错误'), 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('加载用户列表失败:', error);
+                    showToast('加载用户列表失败，请稍后重试', 'error');
+                }
+            });
+        }
+        
+        // 渲染已选用户列表
+        function renderSelectedReceivers() {
+            const $tbody = $('#selected-receivers-tbody');
+            $tbody.empty();
+            
+            if (selectedReceiverUserIds.length === 0) {
+                $tbody.append('<tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">暂无已选用户</td></tr>');
+                $('#selected-receiver-count').text('0');
+                return;
+            }
+            
+            $('#selected-receiver-count').text(selectedReceiverUserIds.length);
+            
+            selectedReceiverUserIds.forEach(function(userId) {
+                const user = allAvailableUsers.find(u => u.userId === userId);
+                if (user) {
+                    const genderText = formatGender(user.gender);
+                    
+                    const $tr = $('<tr></tr>');
+                    $tr.append('<td><button class="btn btn-xs btn-danger" onclick="removeSelectedReceiver(' + user.userId + ')"><i class="fa fa-times"></i> 删除</button></td>');
+                    $tr.append('<td>' + (user.username || '') + '</td>');
+                    $tr.append('<td>' + (user.realName || '') + '</td>');
+                    $tr.append('<td>' + genderText + '</td>');
+                    $tr.append('<td>' + (user.email || '') + '</td>');
+                    $tr.append('<td>' + (user.phone || '') + '</td>');
+                    $tbody.append($tr);
+                }
+            });
+        }
+        
+        // 删除已选用户
+        window.removeSelectedReceiver = function(userId) {
+            selectedReceiverUserIds = selectedReceiverUserIds.filter(id => id !== userId);
+            renderSelectedReceivers();
+            filterAvailableUsers();
+        };
+        
+        // 添加用户到已选列表
+        window.addSelectedReceiver = function(userId) {
+            if (!selectedReceiverUserIds.includes(userId)) {
+                selectedReceiverUserIds.push(userId);
+                renderSelectedReceivers();
+                filterAvailableUsers();
+            }
+        };
+        
+        // 过滤可用用户列表（排除已选用户）
+        function filterAvailableUsers() {
+            const keyword = $('#edit-user-search-input').val().toLowerCase();
+            
+            filteredAvailableUsers = allAvailableUsers.filter(function(user) {
+                // 排除已选用户
+                if (selectedReceiverUserIds.includes(user.userId)) {
+                    return false;
+                }
+                
+                // 如果有关键词，进行搜索
+                if (keyword) {
+                    return (user.username && user.username.toLowerCase().includes(keyword)) ||
+                           (user.realName && user.realName.toLowerCase().includes(keyword)) ||
+                           (user.email && user.email.toLowerCase().includes(keyword)) ||
+                           (user.phone && user.phone.includes(keyword));
+                }
+                
+                return true;
+            });
+            
+            renderAvailableUsers();
+        }
+        
+        // 渲染可用用户列表
+        function renderAvailableUsers() {
+            const $tbody = $('#edit-available-users-tbody');
+            $tbody.empty();
+            
+            $('#edit-total-user-count').text(filteredAvailableUsers.length);
+            
+            if (filteredAvailableUsers.length === 0) {
+                $tbody.append('<tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">暂无可用用户</td></tr>');
+                return;
+            }
+            
+            filteredAvailableUsers.forEach(function(user) {
+                const genderText = formatGender(user.gender);
+                
+                const $tr = $('<tr></tr>');
+                $tr.append('<td><button class="btn btn-xs btn-primary" onclick="addSelectedReceiver(' + user.userId + ')"><i class="fa fa-plus"></i> 添加</button></td>');
+                $tr.append('<td>' + (user.username || '') + '</td>');
+                $tr.append('<td>' + (user.realName || '') + '</td>');
+                $tr.append('<td>' + genderText + '</td>');
+                $tr.append('<td>' + (user.email || '') + '</td>');
+                $tr.append('<td>' + (user.phone || '') + '</td>');
+                $tbody.append($tr);
+            });
+        }
+        
+        // 保存接收用户
+        function saveReceiverUsers() {
+            if (!editingReceiverMessageId) {
+                showToast('通知ID不存在', 'error');
+                return;
+            }
+            
+            // 确定接收者ID列表
+            let receiverIds = 'all'; // 默认发送给所有人
+            if (selectedReceiverUserIds && selectedReceiverUserIds.length > 0) {
+                // 发送给选中的多个用户
+                receiverIds = JSON.stringify(selectedReceiverUserIds);
+            }
+            
+            // 调用更新接收者接口（使用新的多接收者接口）
+            $.ajax({
+                url: '/admin/api/msg_system/update_receivers',
+                type: 'POST',
+                data: {
+                    messageId: editingReceiverMessageId,
+                    receiverIds: receiverIds
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        showToast('接收用户修改成功', 'success');
+                        $('#edit-receiver-users-modal').modal('hide');
+                        loadNotifications();
+                    } else {
+                        showToast('修改失败：' + (response.message || '未知错误'), 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('修改接收用户失败:', error);
+                    showToast('修改失败，请稍后重试', 'error');
+                }
+            });
+        }
+        
+        // 编辑接收用户模态框的搜索功能
+        $('#edit-user-search-input').on('input', function() {
+            filterAvailableUsers();
+        });
+        
+        // 编辑接收用户模态框关闭时重置
+        $('#edit-receiver-users-modal').on('hidden.bs.modal', function() {
+            editingReceiverMessageId = null;
+            selectedReceiverUserIds = [];
+            allAvailableUsers = [];
+            filteredAvailableUsers = [];
+            $('#edit-user-search-input').val('');
+        });
+    </script>
+</body>
+</html>
