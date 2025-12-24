@@ -2,7 +2,7 @@ package com.niit.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.niit.dao.UserBanHistoryTimeDao;
-import com.niit.dao.UserMapper;
+import com.niit.dao.UserMapperWang;
 import com.niit.dao.UserPermissionMapper;
 import com.niit.pojo.UserBanHistory;
 import com.niit.service.UserBanHistoryService;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class UserBanHistoryServiceImpl implements UserBanHistoryService {
     private UserPermissionMapper userPermissionMapper;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserMapperWang userMapperWang;
 
     @Override
     public void recoverExpiredBanPermission() {
@@ -87,7 +86,7 @@ public class UserBanHistoryServiceImpl implements UserBanHistoryService {
                     
                     // 如果是封禁所有权限（登录权限），还需要恢复user表的status
                     if (isAllBanned) {
-                        userMapper.updateStatus(record.getUserId(), 0);
+                        userMapperWang.updateStatus(record.getUserId(), 0);
                     }
                 }
                 

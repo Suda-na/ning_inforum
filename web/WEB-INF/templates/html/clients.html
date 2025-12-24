@@ -148,7 +148,6 @@
             <div class="col-sm-8">
                 <div class="ibox">
                     <div class="ibox-content">
-                        <span class="text-muted small pull-right">最后更新：<i class="fa fa-clock-o"></i> 2015-09-01 12:00</span>
                         <h2>用户管理</h2>
                         <p>所有客户必须通过身份验证</p>
 
@@ -160,6 +159,9 @@
                             <span class="input-group-btn">
                                         <button type="button" id="searchBtn" class="btn btn-primary">
                                             <i class="fa fa-search"></i> 搜索
+                                        </button>
+                                        <button type="button" id="resetBtn" class="btn btn-default">
+                                            <i class="fa fa-refresh"></i> 重置
                                         </button>
                                 </span>
                                 </div>
@@ -283,236 +285,47 @@
     <!-- 自定义js -->
     <script th:src="@{/js/content.js?v=1.0.0}"></script>
 
-    <script>
+    <script th:inline="javascript">
         $(function () {
-            // 模拟用户数据
-            var users = [
-                {
-                    id: 1,
-                    username: 'xiaoming',
-                    realName: '小明',
-                    gender: '男',
-                    phone: '13800000001',
-                    email: 'xiaoming@example.com',
-                    password: '123456',
-                    address: '浙江省杭州市西湖区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '热爱生活，享受每一天。',
-                    avatar: 'img/a1.jpg'
-                },
-                {
-                    id: 2,
-                    username: 'runner01',
-                    realName: '张跑跑',
-                    gender: '男',
-                    phone: '13800000002',
-                    email: 'runner01@example.com',
-                    password: 'runner123',
-                    address: '浙江省杭州市滨江区',
-                    role: '跑腿员',
-                    banned: false,
-                    warnings: 1,
-                    signature: '风里雨里，我在路上。',
-                    avatar: 'img/a2.jpg'
-                },
-                {
-                    id: 3,
-                    username: 'xiaohong',
-                    realName: '小红',
-                    gender: '女',
-                    phone: '13800000003',
-                    email: 'xiaohong@example.com',
-                    password: 'hong123',
-                    address: '上海市浦东新区',
-                    role: '普通用户',
-                    banned: true,
-                    warnings: 3,
-                    signature: '安静的做个小透明。',
-                    avatar: 'img/a3.jpg'
-                },
-                {
-                    id: 4,
-                    username: 'deliver02',
-                    realName: '李快递',
-                    gender: '男',
-                    phone: '13800000004',
-                    email: 'deliver02@example.com',
-                    password: 'deliver456',
-                    address: '北京市海淀区',
-                    role: '跑腿员',
-                    banned: false,
-                    warnings: 2,
-                    signature: '城市的每个角落都有我的脚步。',
-                    avatar: 'img/a4.jpg'
-                },
-                {
-                    id: 5,
-                    username: 'sunny',
-                    realName: '孙阳',
-                    gender: '女',
-                    phone: '13800000005',
-                    email: 'sunny@example.com',
-                    password: 'sunny789',
-                    address: '南京市鼓楼区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '向阳而生，温柔以待。',
-                    avatar: 'img/a5.jpg'
-                },
-                {
-                    id: 6,
-                    username: 'coffee',
-                    realName: '周启',
-                    gender: '男',
-                    phone: '13800000006',
-                    email: 'coffee@example.com',
-                    password: 'coffee123',
-                    address: '广州市天河区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '咖啡与代码不可辜负。',
-                    avatar: 'img/a6.jpg'
-                },
-                {
-                    id: 7,
-                    username: 'runner02',
-                    realName: '王飞',
-                    gender: '男',
-                    phone: '13800000007',
-                    email: 'runner02@example.com',
-                    password: 'runner789',
-                    address: '成都市锦江区',
-                    role: '跑腿员',
-                    banned: false,
-                    warnings: 1,
-                    signature: '只要你需要，我就出现。',
-                    avatar: 'img/a7.jpg'
-                },
-                {
-                    id: 8,
-                    username: 'alice',
-                    realName: '艾丽丝',
-                    gender: '女',
-                    phone: '13800000008',
-                    email: 'alice@example.com',
-                    password: 'alice456',
-                    address: '深圳市南山区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '保持好奇，探索世界。',
-                    avatar: 'img/a8.jpg'
-                },
-                {
-                    id: 9,
-                    username: 'banned01',
-                    realName: '赵封封',
-                    gender: '男',
-                    phone: '13800000009',
-                    email: 'banned01@example.com',
-                    password: 'banned123',
-                    address: '武汉市洪山区',
-                    role: '普通用户',
-                    banned: true,
-                    warnings: 5,
-                    signature: '我会改正的。',
-                    avatar: 'img/a9.jpg'
-                },
-                {
-                    id: 10,
-                    username: 'runner03',
-                    realName: '周跑跑',
-                    gender: '男',
-                    phone: '13800000010',
-                    email: 'runner03@example.com',
-                    password: 'runner321',
-                    address: '天津市和平区',
-                    role: '跑腿员',
-                    banned: false,
-                    warnings: 0,
-                    signature: '守时是我的底线。',
-                    avatar: 'img/a10.jpg'
-                },
-                {
-                    id: 11,
-                    username: 'lucy',
-                    realName: '露西',
-                    gender: '女',
-                    phone: '13800000011',
-                    email: 'lucy@example.com',
-                    password: 'lucy123',
-                    address: '杭州市拱墅区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '读书、旅行和猫。',
-                    avatar: 'img/a1.jpg'
-                },
-                {
-                    id: 12,
-                    username: 'mark',
-                    realName: '马克',
-                    gender: '男',
-                    phone: '13800000012',
-                    email: 'mark@example.com',
-                    password: 'mark456',
-                    address: '苏州市姑苏区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: '简单才是真。',
-                    avatar: 'img/a2.jpg'
-                },
-                {
-                    id: 13,
-                    username: 'nancy',
-                    realName: '南希',
-                    gender: '女',
-                    phone: '13800000013',
-                    email: 'nancy@example.com',
-                    password: 'nancy789',
-                    address: '重庆市渝中区',
-                    role: '普通用户',
-                    banned: false,
-                    warnings: 1,
-                    signature: '偶尔发呆，也是一种浪漫。',
-                    avatar: 'img/a3.jpg'
-                },
-                {
-                    id: 14,
-                    username: 'helper01',
-                    realName: '帮帮',
-                    gender: '男',
-                    phone: '13800000014',
-                    email: 'helper01@example.com',
-                    password: 'helper123',
-                    address: '青岛市市南区',
-                    role: '跑腿员',
-                    banned: false,
-                    warnings: 0,
-                    signature: '帮助别人也是成就自己。',
-                    avatar: 'img/a4.jpg'
-                },
-                {
-                    id: 15,
-                    username: 'silent',
-                    realName: '寂静',
-                    gender: '男',
-                    phone: '13800000015',
-                    email: 'silent@example.com',
-                    password: 'silent456',
-                    address: '厦门市思明区',
-                    role: '普通用户',
-                    banned: true,
-                    warnings: 4,
-                    signature: '暂时离线。',
-                    avatar: 'img/a5.jpg'
+            // 从后端获取的用户数据
+            var users = /*[[${users}]]*/ [];
+            // 将后端数据转换为前端需要的格式
+            var formattedUsers = [];
+            users.forEach(function(user) {
+                // 转换性别：0未知, 1男, 2女
+                var gender = '未知';
+                if (user.gender === 1) {
+                    gender = '男';
+                } else if (user.gender === 2) {
+                    gender = '女';
                 }
-            ];
+                // 转换角色：0超级管理员, 1管理员, 2跑腿员, 3普通用户
+                var role = '普通用户';
+                if (user.role === 0) {
+                    role = '超级管理员';
+                } else if (user.role === 1) {
+                    role = '管理员';
+                } else if (user.role === 2) {
+                    role = '跑腿员';
+                }
+                // 转换状态：0正常, 1禁用, 2注销
+                var banned = user.status === 1;
+                formattedUsers.push({
+                    id: user.userId,
+                    username: user.username,
+                    realName: user.realName,
+                    gender: gender,
+                    phone: user.phone,
+                    email: user.email || '-',
+                    password: user.password,
+                    address: user.address || '-',
+                    role: role,
+                    banned: banned,
+                    warnings: user.warningCount || 0,
+                    signature: user.signature || '-',
+                    avatar: user.avatar || 'img/a2.jpg'
+                });
+            });
 
             var currentPage = 1;
             var pageSize = 10;
@@ -526,7 +339,7 @@
             function getFilteredUsers() {
                 var status = $('#statusFilter').val();
                 var keyword = $.trim($('#searchInput').val()).toLowerCase();
-                return users.filter(function (u) {
+                return formattedUsers.filter(function (u) {
                     if (status === 'normal' && u.banned) return false;
                     if (status === 'banned' && !u.banned) return false;
                     if (keyword) {
@@ -586,7 +399,7 @@
                     $tbody.append(tr);
                 });
 
-                $userCountText.text('共 ' + users.length + ' 个用户');
+                $userCountText.text('共 ' + formattedUsers.length + ' 个用户');
                 $recordText.text('共 ' + total + ' 条记录');
 
                 renderPagination(totalPage);
@@ -630,8 +443,8 @@
             }
 
             function findUserById(id) {
-                for (var i = 0; i < users.length; i++) {
-                    if (users[i].id === id) return users[i];
+                for (var i = 0; i < formattedUsers.length; i++) {
+                    if (formattedUsers[i].id === id) return formattedUsers[i];
                 }
                 return null;
             }
@@ -707,6 +520,13 @@
                 renderTable();
             });
 
+            // 重置搜索
+            $('#resetBtn').on('click', function () {
+                $('#searchInput').val('');
+                currentPage = 1;
+                renderTable();
+            });
+
             $('#searchInput').on('keyup', function (e) {
                 if (e.keyCode === 13) {
                     currentPage = 1;
@@ -734,7 +554,8 @@
                 if (action === 'view') {
                     updateDetail(id);
                 } else if (action === 'reset') {
-                    alert('已为该用户重置密码（模拟操作）。');
+                    // 重置密码，跳转到后端接口
+                    window.location.href = '/admin/clients/resetPassword?userId=' + id;
                 } else if (action === 'editName') {
                     var user = findUserById(id);
                     if (!user) return;
@@ -768,56 +589,42 @@
 
             // 修改用户名保存
             $('#saveUsernameBtn').on('click', function () {
-                var user = findUserById(currentOperateUserId);
-                if (!user) return;
+                var userId = currentOperateUserId;
                 var newName = $.trim($('#editUsernameNew').val());
                 if (!newName) {
                     alert('用户名不能为空');
                     return;
                 }
-                user.username = newName;
-                $('#editUsernameModal').modal('hide');
-                renderTable();
-                updateDetail(user.id);
+                // 发送请求到后端保存修改
+                window.location.href = '/admin/clients/editUsername?userId=' + userId + '&username=' + encodeURIComponent(newName);
             });
 
             // 修改身份保存
             $('#saveRoleBtn').on('click', function () {
-                var user = findUserById(currentOperateUserId);
-                if (!user) return;
+                var userId = currentOperateUserId;
                 var roleValue = $('#editRoleSelect').val();
-                user.role = roleValue === 'runner' ? '跑腿员' : '普通用户';
-                $('#editRoleModal').modal('hide');
-                renderTable();
-                updateDetail(user.id);
+                var roleNum = roleValue === 'runner' ? 2 : 3;
+                window.location.href = '/admin/clients/editRole?userId=' + userId + '&role=' + roleNum;
             });
 
             // 封禁/恢复确认
             $('#banConfirmBtn').on('click', function () {
                 var type = $(this).data('type');
-                var user = findUserById(currentOperateUserId);
-                if (!user && type !== 'delete') return;
+                var userId = currentOperateUserId;
+                var url = '';
+                
                 if (type === 'ban') {
-                    user.banned = true;
+                    url = '/admin/clients/ban?userId=' + userId;
                 } else if (type === 'unban') {
-                    user.banned = false;
+                    url = '/admin/clients/unban?userId=' + userId;
                 } else if (type === 'delete') {
-                    for (var i = 0; i < users.length; i++) {
-                        if (users[i].id === currentOperateUserId) {
-                            users.splice(i, 1);
-                            break;
-                        }
-                    }
-                    if (currentDetailUserId === currentOperateUserId) {
-                        clearDetail();
-                    }
-                    $('#banConfirmModal').modal('hide');
-                    renderTable();
-                    return;
+                    url = '/admin/clients/delete?userId=' + userId;
                 }
-                $('#banConfirmModal').modal('hide');
-                renderTable();
-                updateDetail(user.id);
+                
+                // 跳转到后端接口
+                if (url) {
+                    window.location.href = url;
+                }
             });
 
             // 添加用户头像预览
@@ -835,56 +642,72 @@
             $('#saveAddUserBtn').on('click', function () {
                 var username = $.trim($('#addUsername').val());
                 var realName = $.trim($('#addRealName').val());
-                var gender = $('#addGender').val();
+                var genderText = $('#addGender').val();
                 var phone = $.trim($('#addPhone').val());
                 var email = $.trim($('#addEmail').val());
                 var password = $.trim($('#addPassword').val());
                 var address = $.trim($('#addAddress').val());
                 var roleVal = $('#addRole').val();
                 var signature = $.trim($('#addSignature').val());
-                var avatarSrc = $('#addAvatarPreview').attr('src') || 'img/a2.jpg';
+                var avatarSrc = $('#addAvatarPreview').attr('src') || 'default_avatar.png';
 
+                // 验证必填字段
                 if (!username || !realName) {
                     alert('用户名和姓名不能为空');
                     return;
                 }
+                if (!phone) {
+                    alert('电话号不能为空');
+                    return;
+                }
+                if (!password) {
+                    alert('密码不能为空');
+                    return;
+                }
 
-                var newId = users.length ? (users[users.length - 1].id + 1) : 1;
-                users.push({
-                    id: newId,
-                    username: username,
-                    realName: realName,
-                    gender: gender,
-                    phone: phone || '未填写',
-                    email: email || '未填写',
-                    password: password || '',
-                    address: address || '未填写',
-                    role: roleVal === 'runner' ? '跑腿员' : '普通用户',
-                    banned: false,
-                    warnings: 0,
-                    signature: signature || '-',
-                    avatar: avatarSrc
-                });
+                // 转换性别：1代表男，2代表女
+                var gender = genderText === '男' ? 1 : 2;
+                
+                // 转换角色：2代表跑腿员，3代表普通用户
+                var role = roleVal === 'runner' ? 2 : 3;
 
-                $('#addUserModal').modal('hide');
-                $('#addUserForm')[0].reset();
-                $('#addAvatarPreview').attr('src', 'img/a2.jpg');
+                // 构建请求URL
+                var url = '/admin/clients/add?username=' + encodeURIComponent(username) +
+                         '&realName=' + encodeURIComponent(realName) +
+                         '&password=' + encodeURIComponent(password) +
+                         '&phone=' + encodeURIComponent(phone) +
+                         '&gender=' + gender +
+                         '&role=' + role;
+                
+                // 添加可选参数
+                if (email) {
+                    url += '&email=' + encodeURIComponent(email);
+                }
+                if (address) {
+                    url += '&address=' + encodeURIComponent(address);
+                }
+                if (signature) {
+                    url += '&signature=' + encodeURIComponent(signature);
+                }
+                if (avatarSrc && avatarSrc !== 'img/a2.jpg' && avatarSrc !== 'default_avatar.png') {
+                    url += '&avatar=' + encodeURIComponent(avatarSrc);
+                }
 
-                currentPage = Math.ceil(getFilteredUsers().length / pageSize);
-                renderTable();
+                // 提交到后端
+                window.location.href = url;
             });
 
             // 初始化
             renderTable();
 
-            // 发送消息按钮：跳转到消息管理-私信（示例：mailbox.html，可按实际路径调整）
+            // 发送消息按钮：跳转到消息管理-私信，并自动打开该用户的聊天框
             $('#sendMessageBtn').on('click', function () {
                 if (!currentDetailUserId) {
                     alert('请先选择一个用户');
                     return;
                 }
-                // 简单跳转，保证不报错
-                window.location.href = 'msg_send.html';
+                // 跳转到消息管理页面，并传递用户ID参数
+                window.location.href = '/admin/msg_send?userId=' + currentDetailUserId;
             });
         });
     </script>

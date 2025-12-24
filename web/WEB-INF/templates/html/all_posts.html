@@ -582,17 +582,27 @@
             return { text: '未知', class: '' };
         }
 
-        // 获取头像URL
+        // 获取头像URL（支持OSS URL和本地路径）
         function getAvatarUrl(avatar) {
-            if (avatar && avatar !== 'default_avatar.png') {
-                return '/img/' + avatar;
+            if (!avatar || avatar === 'default_avatar.png') {
+                return '/img/user.png';
             }
-            return '/img/user.png';
+            // 如果是完整的URL（OSS URL），直接返回
+            if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+                return avatar;
+            }
+            // 否则返回本地路径
+            return '/img/' + avatar;
         }
 
-        // 获取图片URL
+        // 获取图片URL（支持OSS URL和本地路径）
         function getImageUrl(image) {
             if (!image) return null;
+            // 如果是完整的URL（OSS URL），直接返回
+            if (image.startsWith('http://') || image.startsWith('https://')) {
+                return image;
+            }
+            // 否则返回本地路径
             return '/img/' + image;
         }
 

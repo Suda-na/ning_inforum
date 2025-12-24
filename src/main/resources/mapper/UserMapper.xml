@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 映射UserDao接口 -->
+<mapper namespace="com.niit.dao.UserDao">
+    <!-- 结果集映射 -->
+    <resultMap id="userResultMap" type="com.niit.pojo.User">
+        <id property="userId" column="user_id" />
+        <result property="username" column="username" />
+        <result property="realName" column="real_name" />
+        <result property="password" column="password" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="avatar" column="avatar" />
+        <result property="gender" column="gender" />
+        <result property="signature" column="signature" />
+        <result property="address" column="address" />
+        <result property="role" column="role" />
+        <result property="status" column="status" />
+        <result property="warningCount" column="warning_count" />
+        <result property="createTime" column="create_time" />
+        <result property="lastLoginTime" column="last_login_time" />
+    </resultMap>
+
+    <!-- 用户权限结果集映射 -->
+    <resultMap id="userPermissionResultMap" type="com.niit.pojo.UserPermission">
+        <id property="permissionId" column="permission_id" />
+        <result property="userId" column="user_id" />
+        <result property="canPost" column="can_post" />
+        <result property="canComment" column="can_comment" />
+        <result property="canLike" column="can_like" />
+        <result property="canFollow" column="can_follow" />
+        <result property="canMessage" column="can_message" />
+        <result property="canBuy" column="can_buy" />
+        <result property="canSell" column="can_sell" />
+        <result property="canRunErrand" column="can_run_errand" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <!-- 用户封禁历史结果集映射 -->
+    <resultMap id="userBanHistoryResultMap" type="com.niit.pojo.UserBanHistory">
+        <id property="historyId" column="history_id" />
+        <result property="userId" column="user_id" />
+        <result property="adminId" column="admin_id" />
+        <result property="actionType" column="action_type" />
+        <result property="restrictionsBefore" column="restrictions_before" />
+        <result property="restrictionsAfter" column="restrictions_after" />
+        <result property="reason" column="reason" />
+        <result property="durationDays" column="duration_days" />
+        <result property="startTime" column="start_time" />
+        <result property="endTime" column="end_time" />
+        <result property="isActive" column="is_active" />
+        <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <!-- 查询所有用户 -->
+    <select id="findAllUsers" resultMap="userResultMap">
+        SELECT * FROM user
+    </select>
+
+    <!-- 根据ID查询用户 -->
+    <select id="findUserById" parameterType="Integer" resultMap="userResultMap">
+        SELECT * FROM user WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据用户名查询用户 -->
+    <select id="findUserByUsername" parameterType="String" resultMap="userResultMap">
+        SELECT * FROM user WHERE username = #{username}
+    </select>
+
+    <!-- 插入用户 -->
+    <insert id="insertUser" parameterType="com.niit.pojo.User">
+        INSERT INTO user (
+            username, real_name, password, phone, email, avatar, 
+            gender, signature, address, role, status, warning_count, 
+            create_time, last_login_time
+        ) VALUES (
+            #{username}, #{realName}, #{password}, #{phone}, #{email}, #{avatar}, 
+            #{gender}, #{signature}, #{address}, #{role}, #{status}, #{warningCount}, 
+            #{createTime}, #{lastLoginTime}
+        )
+    </insert>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUser" parameterType="com.niit.pojo.User">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="warningCount != null">warning_count = #{warningCount},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 删除用户 -->
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM user WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 更新用户状态 -->
+    <update id="updateUserStatus">
+        UPDATE user
+        SET status = #{status}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 重置用户密码 -->
+    <update id="resetPassword">
+        UPDATE user
+        SET password = #{password}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 根据状态查询用户 -->
+    <select id="findUsersByStatus" parameterType="Integer" resultMap="userResultMap">
+        SELECT * FROM user WHERE status = #{status}
+    </select>
+
+    <!-- 根据用户ID查询权限 -->
+    <select id="findUserPermissionByUserId" parameterType="Integer" resultMap="userPermissionResultMap">
+        SELECT * FROM user_permission WHERE user_id = #{userId}
+    </select>
+
+    <!-- 更新用户发帖权限 -->
+    <update id="updateUserPostPermission">
+        UPDATE user_permission
+        SET can_post = #{canPost}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 更新用户评论权限 -->
+    <update id="updateUserCommentPermission">
+        UPDATE user_permission
+        SET can_comment = #{canComment}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 更新用户私信权限 -->
+    <update id="updateUserMessagePermission">
+        UPDATE user_permission
+        SET can_message = #{canMessage}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 插入封禁记录 -->
+    <insert id="insertBanHistory" parameterType="com.niit.pojo.UserBanHistory">
+        INSERT INTO user_ban_history (
+            user_id, admin_id, action_type, restrictions_before, 
+            restrictions_after, reason, duration_days, start_time, 
+            end_time, is_active, create_time
+        ) VALUES (
+            #{userId}, #{adminId}, #{actionType}, #{restrictionsBefore}, 
+            #{restrictionsAfter}, #{reason}, #{durationDays}, #{startTime}, 
+            #{endTime}, #{isActive}, #{createTime}
+        )
+    </insert>
+
+    <!-- 查询用户的封禁历史记录（只查询is_active=1的记录，用于计算封禁天数和状态显示） -->
+    <select id="findBanHistoryByUserId" parameterType="Integer" resultMap="userBanHistoryResultMap">
+        SELECT * FROM user_ban_history 
+        WHERE user_id = #{userId} 
+          AND is_active = 1
+        ORDER BY start_time DESC
+    </select>
+
+    <!-- 将指定用户的激活封禁记录设置为非激活状态 -->
+    <!-- 修复：只要restrictions_after中该权限为0，就应该被更新，不管restrictions_before的值 -->
+    <!-- 这样可以处理用户已经被封禁时再次封禁的情况 -->
+    <update id="deactivateActiveBanHistory">
+        UPDATE user_ban_history
+        SET is_active = 0
+        WHERE user_id = #{userId}
+          AND is_active = 1
+          AND action_type = '封禁'
+          <choose>
+            <when test="permissionType == 'post'">
+                AND (
+                    CAST(JSON_EXTRACT(restrictions_after, '$.can_post') AS UNSIGNED) = 0
+                    OR CAST(JSON_EXTRACT(restrictions_after, '$.canPost') AS UNSIGNED) = 0
+                )
+            </when>
+            <when test="permissionType == 'comment'">
+                AND (
+                    CAST(JSON_EXTRACT(restrictions_after, '$.can_comment') AS UNSIGNED) = 0
+                    OR CAST(JSON_EXTRACT(restrictions_after, '$.canComment') AS UNSIGNED) = 0
+                )
+            </when>
+            <when test="permissionType == 'message'">
+                AND (
+                    CAST(JSON_EXTRACT(restrictions_after, '$.can_message') AS UNSIGNED) = 0
+                    OR CAST(JSON_EXTRACT(restrictions_after, '$.canMessage') AS UNSIGNED) = 0
+                )
+            </when>
+          </choose>
+    </update>
+</mapper>

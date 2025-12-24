@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>私信用户</title>
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css?v=4.4.0}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
     <style>
         .msg-container {
             display: flex;
@@ -295,11 +295,32 @@
             flex-shrink: 0;
         }
         .msg-bubble {
-            max-width: 70%;
+            max-width: 160px; /* 约10个中文字符宽度 */
             padding: 10px 14px;
             border-radius: 18px;
             font-size: 14px;
             line-height: 1.4;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+        /* 图片消息气泡样式 */
+        .msg-bubble.has-image {
+            max-width: 300px;
+            padding: 8px;
+        }
+        /* 消息气泡中的图片样式 - 图片会在气泡内等比例缩小 */
+        .msg-bubble img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+        }
+        /* 图片消息中的文字样式 */
+        .msg-bubble .msg-text {
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            word-break: break-all;
         }
         .msg-item.received .msg-bubble {
             background: #f3f4f6;
@@ -320,9 +341,61 @@
         .msg-item.received .msg-time {
             text-align: left;
         }
+        /* 全局悬浮通知样式 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #fff;
+            animation: fadeInUp 0.25s ease-out;
+        }
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+        .toast-icon {
+            font-size: 18px;
+        }
+        .toast-close {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .toast-close:hover {
+            opacity: 1;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 10px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
     </style>
 </head>
 <body class="gray-bg">
+    <!-- 全局悬浮通知容器 -->
+    <div class="toast-container" id="toastContainer"></div>
     <div class="wrapper wrapper-content  animated fadeInRight">
         <h2>私信用户</h2>
         <p>选择用户进行私信交流</p>
@@ -370,43 +443,18 @@
         </div>
     </div>
 
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
-    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-    <script src="js/content.js?v=1.0.0"></script>
+    <script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+    <script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+    <script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+    <script th:src="@{/js/content.js?v=1.0.0}"></script>
 
     <script>
-        // 模拟用户数据
-        const users = [
-            { id: 1, name: '袁岳', email: 'gravida@qq.com', avatar: 'img/a2.jpg', unread: 5 },
-            { id: 2, name: '王利锋', email: 'rooney@sina.com', avatar: 'img/a3.jpg', unread: 0 },
-            { id: 3, name: '张有为', email: '13209009485', avatar: 'img/a4.jpg', unread: 3 },
-            { id: 4, name: '李全福', email: '15709758904', avatar: 'img/a5.jpg', unread: 0 },
-            { id: 5, name: '吴俭俭', email: '14790086438', avatar: 'img/a6.jpg', unread: 12 },
-            { id: 6, name: '萧志林', email: 'pacheco@163.com', avatar: 'img/a7.jpg', unread: 0 },
-            { id: 7, name: '沈家华', email: 'Simon@erta.com', avatar: 'img/a1.jpg', unread: 2 },
-            { id: 8, name: '张三', email: 'zhangsan@example.com', avatar: 'img/a2.jpg', unread: 0 },
-            { id: 9, name: '李四', email: 'lisi@example.com', avatar: 'img/a3.jpg', unread: 8 },
-            { id: 10, name: '王五', email: 'wangwu@example.com', avatar: 'img/a4.jpg', unread: 0 },
-            { id: 11, name: '赵六', email: 'zhaoliu@example.com', avatar: 'img/a5.jpg', unread: 1 },
-            { id: 12, name: '孙七', email: 'sunqi@example.com', avatar: 'img/a6.jpg', unread: 0 }
-        ];
-
-        // 模拟消息数据
-        const messages = {
-            1: [
-                { id: 1, content: '你好，有什么可以帮你的吗？', sender: 'admin', time: '2025-12-15 10:30' },
-                { id: 2, content: '您好，我想咨询一下如何修改个人资料。', sender: 'user', time: '2025-12-15 10:31' },
-                { id: 3, content: '您可以在个人中心页面修改个人资料。', sender: 'admin', time: '2025-12-15 10:32' }
-            ],
-            2: [
-                { id: 1, content: '王利锋您好，关于您的帖子审核问题...', sender: 'admin', time: '2025-12-14 15:45' }
-            ]
-        };
-
+        // 数据变量
+        let users = [];
+        let messages = {};
         let currentPage = 1;
         const usersPerPage = 5;
-        let filteredUsers = [...users];
+        let filteredUsers = [];
         let currentUserId = null;
 
         // 计算总未读数量
@@ -428,9 +476,7 @@
 
         // 初始化页面
         $(function() {
-            renderUsers();
-            renderPagination();
-            updateUnreadCount();
+            loadUsers();
 
             // 搜索功能 - 输入事件
             $('#userSearch').on('input', function() {
@@ -449,14 +495,187 @@
                 }
             });
         });
+
+        // 显示悬浮通知
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + (type === 'error' ? 'toast-error' : 'toast-success');
+
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon fa ' + (type === 'error' ? 'fa-times-circle' : 'fa-check-circle');
+
+            const text = document.createElement('span');
+            text.textContent = message;
+
+            const close = document.createElement('span');
+            close.className = 'toast-close fa fa-times';
+            close.onclick = function () {
+                container.removeChild(toast);
+            };
+
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            toast.appendChild(close);
+            container.appendChild(toast);
+
+            // 自动消失
+            setTimeout(function () {
+                if (container.contains(toast)) {
+                    container.removeChild(toast);
+                }
+            }, 2500);
+        }
+
+        // 从后端加载用户列表
+        function loadUsers() {
+            $.ajax({
+                url: '/admin/api/msg_send/users',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // 转换数据格式（性别：后端可能返回 0/1/2 或 '男'/'女'）
+                        users = (response.data || []).map(function(item) {
+                            let genderText = '未知';
+                            const g = item.gender;
+                            if (g !== null && g !== undefined) {
+                                const s = String(g).trim();
+                                if (s === '1' || s === '男') {
+                                    genderText = '男';
+                                } else if (s === '2' || s === '女') {
+                                    genderText = '女';
+                                }
+                            }
+                            return {
+                                id: item.senderId,
+                                name: item.senderName || '未知用户',
+                                realName: item.realName || '',
+                                gender: genderText,
+                                email: item.email || '',
+                                phone: item.phone || '',
+                                avatar: item.senderAvatar || 'img/user.png',
+                                unread: item.unreadCount || 0
+                            };
+                        });
+                        filteredUsers = [...users];
+                        renderUsers();
+                        renderPagination();
+                        updateUnreadCount();
+                        
+                        // 检查URL参数，如果有userId，自动打开该用户的聊天框
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const targetUserId = urlParams.get('userId');
+                        if (targetUserId) {
+                            const userId = parseInt(targetUserId, 10);
+                            const targetUser = users.find(u => u.id === userId);
+                            if (targetUser) {
+                                // 用户已在列表中，直接打开聊天框
+                                setTimeout(function() {
+                                    openMsg(userId, targetUser.name);
+                                }, 300);
+                            } else {
+                                // 如果用户不在列表中（可能是新用户，还没有私信记录）
+                                // 从后端获取用户真实信息
+                                $.ajax({
+                                    url: '/admin/api/msg_send/userInfo',
+                                    type: 'GET',
+                                    data: { userId: userId },
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if (response.success && response.data) {
+                                            const userData = response.data;
+                                            // 创建用户对象并添加到列表中
+                                            const tempUser = {
+                                                id: userData.userId,
+                                                name: userData.username || '用户' + userData.userId,
+                                                realName: userData.realName || '',
+                                                gender: userData.gender || '未知',
+                                                email: userData.email || '',
+                                                phone: userData.phone || '',
+                                                avatar: userData.avatar || 'img/user.png',
+                                                unread: 0
+                                            };
+                                            // 将用户添加到列表开头
+                                            users.unshift(tempUser);
+                                            filteredUsers = [...users];
+                                            renderUsers();
+                                            renderPagination();
+                                            // 打开聊天框，使用真实用户名
+                                            setTimeout(function() {
+                                                openMsg(userId, tempUser.name);
+                                            }, 300);
+                                        } else {
+                                            // 如果获取失败，使用默认信息
+                                            const tempUser = {
+                                                id: userId,
+                                                name: '用户' + userId,
+                                                realName: '',
+                                                gender: '未知',
+                                                email: '',
+                                                phone: '',
+                                                avatar: 'img/user.png',
+                                                unread: 0
+                                            };
+                                            users.unshift(tempUser);
+                                            filteredUsers = [...users];
+                                            renderUsers();
+                                            renderPagination();
+                                            setTimeout(function() {
+                                                openMsg(userId, tempUser.name);
+                                            }, 300);
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('获取用户信息失败:', error);
+                                        // 如果获取失败，使用默认信息
+                                        const tempUser = {
+                                            id: userId,
+                                            name: '用户' + userId,
+                                            realName: '',
+                                            gender: '未知',
+                                            email: '',
+                                            phone: '',
+                                            avatar: 'img/user.png',
+                                            unread: 0
+                                        };
+                                        users.unshift(tempUser);
+                                        filteredUsers = [...users];
+                                        renderUsers();
+                                        renderPagination();
+                                        setTimeout(function() {
+                                            openMsg(userId, tempUser.name);
+                                        }, 300);
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        alert('加载失败：' + (response.message || '未知错误'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('加载用户列表失败:', error);
+                    alert('加载失败，请稍后重试');
+                }
+            });
+        }
         
         // 搜索用户函数
         function searchUsers() {
             const searchTerm = $('#userSearch').val().toLowerCase();
-            filteredUsers = users.filter(user => 
-                user.name.toLowerCase().includes(searchTerm) || 
-                user.email.toLowerCase().includes(searchTerm)
-            );
+            filteredUsers = users.filter(user => {
+                const values = [
+                    user.name,
+                    user.realName,
+                    user.email,
+                    user.phone,
+                    user.gender
+                ].filter(Boolean).map(v => v.toLowerCase());
+                return values.some(v => v.includes(searchTerm));
+            });
             currentPage = 1;
             renderUsers();
             renderPagination();
@@ -479,13 +698,19 @@
             let html = '';
             pageUsers.forEach(user => {
                 const unreadBadge = user.unread > 0 ? `<span class="unread-badge">${user.unread}</span>` : '';
+                const infoLine = [
+                    user.realName,
+                    user.gender,
+                    user.email,
+                    user.phone
+                ].filter(Boolean).join(' · ');
                 html += `
                     <div class="user-item">
                         <div class="user-info">
                             <img src="${user.avatar}" alt="${user.name}" class="user-avatar">
                             <div class="user-details">
                                 <h4>${user.name}${unreadBadge}</h4>
-                                <p>${user.email}</p>
+                                <p>${infoLine}</p>
                             </div>
                         </div>
                         <button class="btn-msg" onclick="openMsg(${user.id}, '${user.name}')">私信此用户</button>
@@ -548,7 +773,7 @@
         function openMsg(userId, userName) {
             currentUserId = userId;
             $('#currentUserName').text(`私信 - ${userName}`);
-            renderMessages(userId);
+            loadMessages(userId);
             $('#msgDialog').show();
             
             // 清除未读数量
@@ -559,6 +784,48 @@
                 renderPagination();
                 updateUnreadCount();
             }
+        }
+
+        // 从后端加载消息
+        function loadMessages(userId) {
+            $.ajax({
+                url: '/admin/api/msg_send/messages',
+                type: 'GET',
+                data: { userId: userId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        messages[userId] = (response.data || []).map(function(item) {
+                            // 判断是否为管理员：如果接收者是当前用户，则发送者是管理员；如果发送者是当前用户，则发送者是用户
+                            const isAdmin = item.receiverId === userId;
+                            
+                            return {
+                                id: item.messageId,
+                                content: item.content || '',
+                                msgFormat: item.msgFormat || 0, // 0=文本，1=图片
+                                imageUrl: item.imageUrl || null,
+                                sender: isAdmin ? 'admin' : 'user',
+                                time: item.createTime ? 
+                                    new Date(item.createTime).toLocaleString('zh-CN', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) : '',
+                                senderAvatar: item.senderAvatar || 'img/user.png'
+                            };
+                        });
+                        renderMessages(userId);
+                    } else {
+                        alert('加载消息失败：' + (response.message || '未知错误'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('加载消息失败:', error);
+                    alert('加载消息失败，请稍后重试');
+                }
+            });
         }
 
         // 渲染消息
@@ -575,13 +842,34 @@
                     </div>
                 `;
             } else {
+                const currentUser = users.find(u => u.id === userId);
                 userMessages.forEach(msg => {
                     const isSent = msg.sender === 'admin';
+                    // 使用从后端返回的senderAvatar，如果没有则使用默认头像
+                    const avatar = isSent ? (msg.senderAvatar || 'img/user.png') : (msg.senderAvatar || currentUser?.avatar || 'img/user.png');
+                    const name = isSent ? '管理员' : (currentUser?.name || '用户');
+                    
+                    // 判断消息类型：图片消息或文本消息
+                    let messageContent = '';
+                    let bubbleClass = 'msg-bubble';
+                    if (msg.msgFormat === 1 && msg.imageUrl) {
+                        // 图片消息 - 图片会被气泡包裹并等比例缩小
+                        bubbleClass = 'msg-bubble has-image';
+                        const textContent = msg.content && msg.content.trim() 
+                            ? `<div class="msg-text">${escapeHtml(msg.content)}</div>` 
+                            : '';
+                        const imageHtml = `<img src="${escapeHtml(msg.imageUrl)}" alt="图片" onclick="window.open('${escapeHtml(msg.imageUrl)}', '_blank')" />`;
+                        messageContent = textContent + imageHtml;
+                    } else {
+                        // 文本消息 - 限制宽度为约10个字符
+                        messageContent = escapeHtml(msg.content);
+                    }
+                    
                     html += `
                         <div class="msg-item ${isSent ? 'sent' : 'received'}">
-                            <img src="${isSent ? 'img/admin_avatar.png' : users.find(u => u.id === userId).avatar}" alt="${isSent ? '管理员' : users.find(u => u.id === userId).name}" class="msg-avatar">
+                            <img src="${avatar}" alt="${name}" class="msg-avatar">
                             <div>
-                                <div class="msg-bubble">${msg.content}</div>
+                                <div class="${bubbleClass}">${messageContent}</div>
                                 <div class="msg-time">${msg.time}</div>
                             </div>
                         </div>
@@ -591,49 +879,81 @@
 
             $('#msgContent').html(html);
             // 滚动到底部
-            $('#msgContent').scrollTop($('#msgContent')[0].scrollHeight);
+            setTimeout(function() {
+                $('#msgContent').scrollTop($('#msgContent')[0].scrollHeight);
+            }, 100);
         }
+
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // 存储待发送的图片URL
+        let pendingImageUrl = null;
+        let pendingImagePreview = null;
 
         // 发送消息
         function sendMsg() {
             const content = $('#msgInput').val().trim();
-            if (!content) {
-                alert('请输入消息内容');
+            const hasContent = content && content.length > 0;
+            const hasImage = pendingImageUrl && pendingImageUrl.length > 0;
+
+            // 至少要有内容或图片之一
+            if (!hasContent && !hasImage) {
+                showToast('请输入消息内容或选择图片', 'error');
                 return;
             }
 
             if (!currentUserId) {
-                alert('请先选择用户');
+                showToast('请先选择用户', 'error');
                 return;
             }
 
-            // 模拟发送消息
-            const now = new Date();
-            const time = now.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            // 更新消息列表
-            if (!messages[currentUserId]) {
-                messages[currentUserId] = [];
+            // 构建请求数据
+            const requestData = {
+                userId: currentUserId
+            };
+            if (hasContent) {
+                requestData.content = content;
             }
-            messages[currentUserId].push({
-                id: messages[currentUserId].length + 1,
-                content: content,
-                sender: 'admin',
-                time: time
-            });
+            if (hasImage) {
+                requestData.imageUrl = pendingImageUrl;
+            }
 
-            // 渲染更新后的消息
-            renderMessages(currentUserId);
-            $('#msgInput').val('');
-            
-            // 更新未读数量（如果用户不在当前对话框，增加未读）
-            // 这里假设发送消息后用户会看到，所以不增加未读
+            $.ajax({
+                url: '/admin/api/msg_send/add',
+                type: 'POST',
+                dataType: 'json',
+                data: requestData,
+                success: function(response) {
+                    if (response.success) {
+                        // 清空输入和图片
+                    $('#msgInput').val('');
+                        pendingImageUrl = null;
+                        pendingImagePreview = null;
+                        // 移除图片预览
+                        $('#imagePreviewContainer').remove();
+                        // 重新加载消息
+                    loadMessages(currentUserId);
+                    showToast('私信发送成功', 'success');
+                    } else {
+                        showToast(response.message || '发送失败，请稍后重试', 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('发送消息失败:', error);
+                    showToast('发送失败，请稍后重试', 'error');
+                }
+            });
         }
 
         // 取消私信
@@ -641,6 +961,9 @@
             $('#msgDialog').hide();
             currentUserId = null;
             $('#msgInput').val('');
+            pendingImageUrl = null;
+            pendingImagePreview = null;
+            $('#imagePreviewContainer').remove();
         }
 
         // 发送图片功能
@@ -654,36 +977,93 @@
             // 监听文件选择事件
             fileInput.onchange = function(e) {
                 const file = e.target.files[0];
-                if (file) {
-                    // 这里可以添加图片上传逻辑
-                    // 目前只是模拟发送图片消息
-                    const now = new Date();
-                    const time = now.toLocaleString('zh-CN', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    // 更新消息列表，模拟发送图片消息
-                    if (!messages[currentUserId]) {
-                        messages[currentUserId] = [];
-                    }
-                    messages[currentUserId].push({
-                        id: messages[currentUserId].length + 1,
-                        content: `<img src="${URL.createObjectURL(file)}" alt="图片" style="max-width: 200px; max-height: 200px; border-radius: 8px;" />`,
-                        sender: 'admin',
-                        time: time
-                    });
-                    
-                    // 渲染更新后的消息
-                    renderMessages(currentUserId);
+                if (!file) {
+                    return;
                 }
+
+                // 检查文件大小（10MB限制）
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    showToast('图片大小不能超过10MB', 'error');
+                    return;
+                }
+
+                // 检查文件类型
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('只支持JPG、PNG、GIF、BMP、WEBP格式的图片', 'error');
+                    return;
+                }
+
+                // 创建FormData对象上传文件
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // 上传图片到服务器
+                $.ajax({
+                    url: '/admin/api/msg_send/uploadImage',
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // 告诉jQuery不要处理数据
+                    contentType: false, // 告诉jQuery不要设置Content-Type请求头
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.imageUrl) {
+                            // 保存图片URL
+                            pendingImageUrl = response.imageUrl;
+                            
+                            // 立即显示上传成功提示
+                            showToast('图片上传成功！点击发送按钮发送消息', 'success');
+                            
+                            // 创建预览URL（用于显示）
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                pendingImagePreview = e.target.result;
+                                showImagePreview(pendingImagePreview, pendingImageUrl);
+                            };
+                            reader.onerror = function() {
+                                // 预览失败时也显示预览（使用服务器URL）
+                                showImagePreview(response.imageUrl, pendingImageUrl);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            showToast(response.message || '图片上传失败', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('图片上传失败:', error);
+                        showToast('图片上传失败，请稍后重试', 'error');
+                }
+                });
             };
             
             // 触发文件选择对话框
             fileInput.click();
+        }
+
+        // 显示图片预览
+        function showImagePreview(previewUrl, imageUrl) {
+            // 移除已存在的预览
+            $('#imagePreviewContainer').remove();
+            
+            // 创建预览容器
+            const previewHtml = `
+                <div id="imagePreviewContainer" style="margin: 10px 0; padding: 10px; background: #f9fafb; border-radius: 8px; position: relative;">
+                    <button onclick="removeImagePreview()" style="position: absolute; top: 5px; right: 5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; line-height: 1;">×</button>
+                    <img src="${previewUrl}" alt="预览图片" style="max-width: 200px; max-height: 200px; border-radius: 8px; display: block;" />
+                    <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">图片已上传，点击发送按钮发送</div>
+                </div>
+            `;
+            
+            // 在输入框上方插入预览
+            $('#msgInput').before(previewHtml);
+        }
+
+        // 移除图片预览
+        function removeImagePreview() {
+            $('#imagePreviewContainer').remove();
+            pendingImageUrl = null;
+            pendingImagePreview = null;
         }
     </script>
 </body>

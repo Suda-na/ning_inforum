@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小宁论坛 - 综合运营指挥中心</title>
     
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css(v=3.3.6)}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.css(v=4.4.0)}" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css(v=4.1.0)}" rel="stylesheet">
 
     <style>
         /* ================= V4.0 旗舰版样式系统 ================= */
@@ -138,10 +138,6 @@
                 <h2>综合运营指挥中心</h2>
                 <small><i class="fa fa-map-marker"></i> 系统运行正常 | 数据同步于: <span id="updateTime">--:--</span></small>
             </div>
-            <div>
-                <button class="btn btn-white" onclick="location.reload()"><i class="fa fa-refresh"></i></button>
-                <button class="btn btn-primary"><i class="fa fa-cloud-download"></i> 导出周报</button>
-            </div>
         </div>
 
         <div class="row">
@@ -149,7 +145,7 @@
                 <div class="metric-card card-blue">
                     <div class="metric-trend"><i class="fa fa-arrow-up"></i> 12%</div>
                     <div class="metric-icon"><i class="fa fa-users"></i></div>
-                    <div class="metric-value">12,845</div>
+                    <div class="metric-value" id="userCountValue">加载中...</div>
                     <div class="metric-label">总用户数 (Total Users)</div>
                 </div>
             </div>
@@ -157,7 +153,7 @@
                 <div class="metric-card card-green">
                     <div class="metric-trend"><i class="fa fa-bolt"></i> +856</div>
                     <div class="metric-icon"><i class="fa fa-file-text-o"></i></div>
-                    <div class="metric-value">2,304</div>
+                    <div class="metric-value" id="todayPostCountValue">加载中...</div>
                     <div class="metric-label">今日内容发布 (Content)</div>
                 </div>
             </div>
@@ -165,7 +161,7 @@
                 <div class="metric-card card-orange">
                     <div class="metric-trend"><i class="fa fa-exclamation-triangle"></i> 需关注</div>
                     <div class="metric-icon"><i class="fa fa-flag"></i></div>
-                    <div class="metric-value">242</div>
+                    <div class="metric-value" id="pendingReportCountValue">加载中...</div>
                     <div class="metric-label">待处理举报 (Pending)</div>
                 </div>
             </div>
@@ -173,7 +169,7 @@
                 <div class="metric-card card-red">
                     <div class="metric-trend"><i class="fa fa-plus"></i> 5人</div>
                     <div class="metric-icon"><i class="fa fa-ban"></i></div>
-                    <div class="metric-value">212</div>
+                    <div class="metric-value" id="bannedUserCountValue">加载中...</div>
                     <div class="metric-label">累计封禁账号 (Banned)</div>
                 </div>
             </div>
@@ -185,8 +181,7 @@
                     <div class="chart-header">
                         <span class="chart-title"><i class="fa fa-line-chart text-primary"></i> 流量与活跃度趋势</span>
                         <div class="btn-group">
-                            <button class="btn btn-xs btn-white active">周</button>
-                            <button class="btn btn-xs btn-white">月</button>
+                            <button class="btn btn-xs btn-white active">最近7天</button>
                         </div>
                     </div>
                     <div id="mainTrendChart" style="height: 320px;"></div>
@@ -218,7 +213,7 @@
             </div>
             <div class="col-lg-4">
                 <div class="chart-box" style="height: 300px;">
-                    <div class="chart-header"><span class="chart-title">举报处理结果</span></div>
+                    <div class="chart-header"><span class="chart-title">动态状态统计</span></div>
                     <div id="resultBarChart" style="height: 220px;"></div>
                 </div>
             </div>
@@ -229,49 +224,46 @@
                 <div class="table-container">
                     
                     <ul class="nav nav-tabs nav-tabs-custom">
-                        <li class="active"><a data-toggle="tab" href="#tab-report"><i class="fa fa-gavel"></i> 举报处理 (Reports)</a></li>
-                        <li><a data-toggle="tab" href="#tab-user"><i class="fa fa-user-plus"></i> 最新用户 (New Users)</a></li>
-                        <li><a data-toggle="tab" href="#tab-content"><i class="fa fa-list-alt"></i> 违规内容日志 (Logs)</a></li>
+                        <li class="active"><a data-toggle="tab" href="#tab-user"><i class="fa fa-user-plus"></i> 最新用户 (New Users)</a></li>
+                        <li><a data-toggle="tab" href="#tab-ban"><i class="fa fa-ban"></i> 封禁记录 (Ban Records)</a></li>
                     </ul>
 
                     <div class="tab-content table-wrapper">
-                        
-                        <div id="tab-report" class="tab-pane active">
-                            <div class="row m-b-sm">
-                                <div class="col-sm-3">
-                                    <div class="input-group">
-                                        <input type="text" placeholder="搜索举报ID/内容..." class="form-control input-sm">
-                                        <span class="input-group-btn"><button class="btn btn-sm btn-primary">搜索</button></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr><th>ID</th><th>状态</th><th>类型</th><th>被举报内容</th><th>时间</th><th>结果</th><th>操作</th></tr>
-                                </thead>
-                                <tbody id="tableBody_report"></tbody>
-                            </table>
-                            <div class="pagination-box" id="pagination_report"></div>
-                        </div>
 
-                        <div id="tab-user" class="tab-pane">
+                        <div id="tab-user" class="tab-pane active">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr><th>用户ID</th><th>头像/昵称</th><th>手机号</th><th>注册时间</th><th>状态</th><th>操作</th></tr>
+                                    <tr>
+                                        <th>用户ID</th>
+                                        <th>头像/昵称</th>
+                                        <th>性别</th>
+                                        <th>手机号</th>
+                                        <th>邮箱</th>
+                                        <th>注册时间</th>
+                                        <th>状态</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="tableBody_user"></tbody>
                             </table>
                             <div class="pagination-box" id="pagination_user"></div>
                         </div>
 
-                        <div id="tab-content" class="tab-pane">
+                        <div id="tab-ban" class="tab-pane">
                             <table class="table table-hover">
                                 <thead>
-                                    <tr><th>日志ID</th><th>操作人</th><th>操作类型</th><th>详情描述</th><th>时间</th></tr>
+                                    <tr>
+                                        <th>记录ID</th>
+                                        <th>操作人</th>
+                                        <th>被封禁用户</th>
+                                        <th>封禁原因</th>
+                        <th>封禁权限</th>
+                        <th>封禁天数</th>
+                                        <th>创建时间</th>
+                                    </tr>
                                 </thead>
-                                <tbody id="tableBody_content"></tbody>
+                                <tbody id="tableBody_ban"></tbody>
                             </table>
-                            <div class="pagination-box" id="pagination_content"></div>
+                            <div class="pagination-box" id="pagination_ban"></div>
                         </div>
 
                     </div>
@@ -281,65 +273,221 @@
 
     </div>
 
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
-    <script src="js/echarts.min.js"></script>
+    <script th:src="@{/js/jquery.min.js(v=2.1.4)}"></script>
+    <script th:src="@{/js/bootstrap.min.js(v=3.3.6)}"></script>
+    <script th:src="@{/js/echarts.min.js}"></script>
 
     <script>
+        // 更新时间显示
+        function updateTimeDisplay() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var timeStr = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+            $('#updateTime').text(timeStr);
+        }
+
+        // 刷新大屏数据
+        function refreshDashboard() {
+            // 更新时间
+            updateTimeDisplay();
+            
+            // 重新加载所有数据
+            loadUserCount();
+            loadTodayPostCount();
+            loadPendingReportCount();
+            loadBannedUserCount();
+            loadChartData();
+            loadRiskChartData();
+            loadCategoryChartData();
+            loadUserGenderChartData();
+            loadPostStatusChartData();
+        }
+
         $(document).ready(function() {
             // 时间更新
-            var now = new Date();
-            $('#updateTime').text(now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes());
+            updateTimeDisplay();
 
-            // 初始化图表
-            initCharts();
+            // 先用空数据初始化主图，避免偶发未初始化导致刷新后不渲染
+            initCharts([], [], [], []);
             
             // 初始化三个表格的分页数据
             initAllTables();
 
+            // 获取用户数量
+            loadUserCount();
+            
+            // 获取当日内容发布数量
+            loadTodayPostCount();
+            
+            // 获取待处理举报数量
+            loadPendingReportCount();
+            
+            // 获取已封禁账号数量
+            loadBannedUserCount();
+            
+            // 加载图表数据
+            loadChartData();
+            
+            // 加载风险雷达图数据
+            loadRiskChartData();
+            
+            // 加载内容板块热度图数据
+            loadCategoryChartData();
+            
+            // 加载用户性别构成图数据
+            loadUserGenderChartData();
+            
+            // 加载动态状态统计图数据
+            loadPostStatusChartData();
+
             $(window).resize(function() { resizeCharts(); });
         });
 
-        // ================== 1. 通用分页逻辑系统 (核心功能) ==================
-        
-        // 模拟数据源
-        const db = {
-            reports: Array.from({length: 45}, (_, i) => ({
-                id: 1000 + i,
-                status: i % 3 === 0 ? 'wait' : 'done',
-                type: ['广告推广', '人身攻击', '色情低俗', '政治敏感'][i % 4],
-                content: `用户发布的第 ${i} 条内容涉嫌违规...`,
-                time: '2025-12-' + (10 + i%20),
-                result: i % 3 === 0 ? '等待审核' : (i % 5 === 0 ? '账号封禁' : '已删除'),
-            })),
-            users: Array.from({length: 30}, (_, i) => ({
-                uid: 8000 + i,
-                name: `User_${i}`,
-                avatar: `https://ui-avatars.com/api/?name=User+${i}&background=random`,
-                phone: `138${String(i).padStart(8, '0')}`,
-                regTime: '2025-12-' + (1 + i%15),
-                status: i % 10 === 0 ? 'banned' : 'active'
-            })),
-            logs: Array.from({length: 50}, (_, i) => ({
-                logId: 5000 + i,
-                admin: ['Admin', 'XiaoNing', 'System'][i % 3],
-                action: ['删除帖子', '封禁用户', '审核通过', '修改配置'][i % 4],
-                detail: `对 ID:${100+i} 进行了操作`,
-                time: `12-${10+i%20} 10:${i%60}`
-            }))
-        };
+        // 加载用户数量
+        function loadUserCount() {
+            $.ajax({
+                url: '/api/dashboard/userCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var count = response.count || 0;
+                        // 格式化数字，添加千位分隔符
+                        var formattedCount = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('#userCountValue').text(formattedCount);
+                    } else {
+                        $('#userCountValue').text('0');
+                        console.error('获取用户数量失败:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#userCountValue').text('0');
+                    console.error('获取用户数量请求失败:', error);
+                }
+            });
+        }
 
-        // 分页状态管理
+        // 加载当日内容发布数量
+        function loadTodayPostCount() {
+            $.ajax({
+                url: '/api/dashboard/todayPostCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var count = response.count || 0;
+                        // 格式化数字，添加千位分隔符
+                        var formattedCount = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('#todayPostCountValue').text(formattedCount);
+                    } else {
+                        $('#todayPostCountValue').text('0');
+                        console.error('获取当日内容发布数量失败:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#todayPostCountValue').text('0');
+                    console.error('获取当日内容发布数量请求失败:', error);
+                }
+            });
+        }
+
+        // 加载待处理举报数量
+        function loadPendingReportCount() {
+            $.ajax({
+                url: '/api/dashboard/pendingReportCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var count = response.count || 0;
+                        // 格式化数字，添加千位分隔符
+                        var formattedCount = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('#pendingReportCountValue').text(formattedCount);
+                    } else {
+                        $('#pendingReportCountValue').text('0');
+                        console.error('获取待处理举报数量失败:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#pendingReportCountValue').text('0');
+                    console.error('获取待处理举报数量请求失败:', error);
+                }
+            });
+        }
+
+        // 加载已封禁账号数量
+        function loadBannedUserCount() {
+            $.ajax({
+                url: '/api/dashboard/bannedUserCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var count = response.count || 0;
+                        // 格式化数字，添加千位分隔符
+                        var formattedCount = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        $('#bannedUserCountValue').text(formattedCount);
+                    } else {
+                        $('#bannedUserCountValue').text('0');
+                        console.error('获取已封禁账号数量失败:', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#bannedUserCountValue').text('0');
+                    console.error('获取已封禁账号数量请求失败:', error);
+                }
+            });
+        }
+
+        // ================== 1. 通用分页逻辑系统 (核心功能) ==================
+
+        // 通用时间格式化
+        function formatDateTime(val) {
+            if (!val) return '';
+            // 兼容 Date、字符串、时间戳
+            let dateObj;
+            if (val instanceof Date) {
+                dateObj = val;
+            } else if (typeof val === 'number') {
+                // MyBatis / Jackson 可能返回毫秒时间戳
+                dateObj = new Date(val);
+            } else {
+                // 尝试直接 new Date
+                dateObj = new Date(val);
+                if (isNaN(dateObj.getTime())) {
+                    // 如果是 "2025-12-24T13:32:17" 之类能解析的，已处理；否则返回原值
+                    return val;
+                }
+            }
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            const hh = String(dateObj.getHours()).padStart(2, '0');
+            const mm = String(dateObj.getMinutes()).padStart(2, '0');
+            const ss = String(dateObj.getSeconds()).padStart(2, '0');
+            return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+        }
+
+        // 封禁天数格式化（0 或 null 认为“永久”）
+        function formatDurationDays(val) {
+            if (val === null || val === undefined) return '';
+            const num = parseInt(val, 10);
+            if (isNaN(num)) return '';
+            if (num === 0) return '永久';
+            return num + ' 天';
+        }
+
+        // 分页状态管理（数据将通过接口从数据库加载）
         const pageState = {
-            report: { current: 1, size: 5, data: db.reports },
-            user: { current: 1, size: 5, data: db.users },
-            content: { current: 1, size: 5, data: db.logs }
+            user: { current: 1, size: 5, data: [] },
+            ban:  { current: 1, size: 5, data: [] }
         };
 
         function initAllTables() {
-            renderGenericTable('report');
-            renderGenericTable('user');
-            renderGenericTable('content');
+            // 初始化时先从后端加载数据
+            loadLatestUsers();
+            loadBanRecords();
         }
 
         // 通用渲染函数
@@ -354,48 +502,41 @@
 
             pageData.forEach(item => {
                 let html = '';
-                
+
                 // 根据类型渲染不同的行结构
-                if (type === 'report') {
-                    const statusBadge = item.status === 'wait' 
-                        ? '<span class="badge-status badge-wait">待处理</span>' 
-                        : '<span class="badge-status badge-done">已处理</span>';
-                    const resColor = item.result === '等待审核' ? 'text-warning' : (item.result.includes('封禁') ? 'text-danger' : 'text-success');
-                    
-                    html = `<tr>
-                        <td><b>#${item.id}</b></td>
-                        <td>${statusBadge}</td>
-                        <td><span class="label label-default">${item.type}</span></td>
-                        <td>${item.content}</td>
-                        <td>${item.time}</td>
-                        <td class="${resColor}">${item.result}</td>
-                        <td>
-                            <button class="btn btn-xs btn-white"><i class="fa fa-eye"></i></button>
-                            ${item.status === 'wait' ? '<button class="btn btn-xs btn-primary">处理</button>' : ''}
-                        </td>
-                    </tr>`;
-                } 
-                else if (type === 'user') {
-                    const statusBadge = item.status === 'active' 
+                if (type === 'user') {
+                    const statusBadge = (item.status === 0 || item.status === '0')
                         ? '<span class="badge-status badge-done">正常</span>' 
-                        : '<span class="badge-status badge-ban">封禁</span>';
-                    
+                        : '<span class="badge-status badge-ban">禁用</span>';
+
+                    const genderText = (function(g) {
+                        if (g === 1 || g === '1') return '男';
+                        if (g === 2 || g === '2') return '女';
+                        return '未知';
+                    })(item.gender);
+
+                    const avatar = item.avatar || 'default_avatar.png';
+                    const createTime = formatDateTime(item.createTime);
+                    const email = item.email || '';
+
                     html = `<tr>
-                        <td>${item.uid}</td>
-                        <td><img src="${item.avatar}" class="avatar-sm"> <b>${item.name}</b></td>
-                        <td>${item.phone}</td>
-                        <td>${item.regTime}</td>
+                        <td>${item.userId}</td>
+                        <td><img src="${avatar}" class="avatar-sm"> <b>${item.username}</b></td>
+                        <td>${genderText}</td>
+                        <td>${item.phone || ''}</td>
+                        <td>${email}</td>
+                        <td>${createTime}</td>
                         <td>${statusBadge}</td>
-                        <td><button class="btn btn-xs btn-white">详情</button></td>
                     </tr>`;
-                }
-                else if (type === 'content') {
+                } else if (type === 'ban') {
                     html = `<tr>
-                        <td class="text-muted">${item.logId}</td>
-                        <td><b>${item.admin}</b></td>
-                        <td><span class="text-navy">${item.action}</span></td>
-                        <td>${item.detail}</td>
-                        <td><i class="fa fa-clock-o"></i> ${item.time}</td>
+                        <td class="text-muted">${item.historyId}</td>
+                        <td><b>${item.adminName}</b></td>
+                        <td>${item.bannedUserName}</td>
+                        <td>${item.reason}</td>
+                        <td>${item.banPermissions || ''}</td>
+                        <td>${formatDurationDays(item.durationDays)}</td>
+                        <td>${formatDateTime(item.createTime)}</td>
                     </tr>`;
                 }
 
@@ -442,103 +583,821 @@
             renderGenericTable(type);
         }
 
+        // 从后端加载最新用户数据
+        function loadLatestUsers() {
+            $.ajax({
+                url: '/api/dashboard/latestUsers',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success && response.data) {
+                        // 按注册时间倒序
+                        pageState.user.data = (response.data || []).slice().sort(function(a, b) {
+                            const t1 = a.createTime ? new Date(a.createTime).getTime() : 0;
+                            const t2 = b.createTime ? new Date(b.createTime).getTime() : 0;
+                            return t2 - t1;
+                        });
+                        pageState.user.current = 1;
+                        renderGenericTable('user');
+                    } else {
+                        console.error('获取最新用户列表失败:', response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('获取最新用户列表请求失败:', error);
+                }
+            });
+        }
+
+        // 从后端加载封禁记录数据
+        function loadBanRecords() {
+            $.ajax({
+                url: '/api/dashboard/banRecords',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success && response.data) {
+                        // 按创建时间倒序
+                        pageState.ban.data = (response.data || []).slice().sort(function(a, b) {
+                            const t1 = a.createTime ? new Date(a.createTime).getTime() : 0;
+                            const t2 = b.createTime ? new Date(b.createTime).getTime() : 0;
+                            return t2 - t1;
+                        });
+                        pageState.ban.current = 1;
+                        renderGenericTable('ban');
+                    } else {
+                        console.error('获取封禁记录列表失败:', response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('获取封禁记录列表请求失败:', error);
+                }
+            });
+        }
+
         // ================== 2. 图表融合逻辑 ==================
         
         var charts = {};
 
-        function initCharts() {
+        // 加载图表数据
+        function loadChartData() {
+            // 同时加载新增用户、互动量和新增举报数据
+            $.when(
+                $.ajax({
+                    url: '/api/dashboard/last7DaysNewUsers',
+                    type: 'GET',
+                    dataType: 'json'
+                }),
+                $.ajax({
+                    url: '/api/dashboard/last7DaysInteractions',
+                    type: 'GET',
+                    dataType: 'json'
+                }),
+                $.ajax({
+                    url: '/api/dashboard/last7DaysNewReports',
+                    type: 'GET',
+                    dataType: 'json'
+                })
+            ).done(function(newUsersResponse, interactionsResponse, reportsResponse) {
+                var newUsersData = newUsersResponse[0].success ? newUsersResponse[0].data : [];
+                var interactionsData = interactionsResponse[0].success ? interactionsResponse[0].data : [];
+                var reportsData = reportsResponse[0].success ? reportsResponse[0].data : [];
+                console.log('新增用户数据:', newUsersData);
+                console.log('互动量数据:', interactionsData);
+                console.log('新增举报数据:', reportsData);
+                updateTrendChart(newUsersData, interactionsData, reportsData);
+            }).fail(function() {
+                console.error('加载图表数据失败');
+                initCharts([], [], [], []);
+            });
+        }
+
+        // 更新趋势图表
+        function updateTrendChart(newUsersData, interactionsData, reportsData) {
+            // 生成最近7天的日期数组（从6天前到今天）
+            var dates = [];
+            var newUserCounts = [];
+            var interactionCounts = [];
+            var reportCounts = [];
+            var today = new Date();
+            
+            // 创建日期到数量的映射
+            var newUserMap = {};
+            var interactionMap = {};
+            var reportMap = {};
+            
+            // 处理新增用户数据
+            if (newUsersData && newUsersData.length > 0) {
+                newUsersData.forEach(function(item) {
+                    var dateKey = String(item.date || item.DATE || item.Date || '').trim();
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    if (dateKey) {
+                        newUserMap[dateKey] = count;
+                    }
+                });
+            }
+            
+            // 处理互动量数据
+            if (interactionsData && interactionsData.length > 0) {
+                interactionsData.forEach(function(item) {
+                    var dateKey = String(item.date || item.DATE || item.Date || '').trim();
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    if (dateKey) {
+                        interactionMap[dateKey] = count;
+                    }
+                });
+            }
+            
+            // 处理新增举报数据
+            if (reportsData && reportsData.length > 0) {
+                reportsData.forEach(function(item) {
+                    var dateKey = String(item.date || item.DATE || item.Date || '').trim();
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    if (dateKey) {
+                        reportMap[dateKey] = count;
+                    }
+                });
+            }
+            
+            // 生成最近7天的日期和对应的数量
+            for (var i = 6; i >= 0; i--) {
+                var date = new Date(today);
+                date.setDate(date.getDate() - i);
+                var dateStr = (date.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                              date.getDate().toString().padStart(2, '0');
+                dates.push(dateStr);
+                newUserCounts.push(newUserMap[dateStr] || 0);
+                interactionCounts.push(interactionMap[dateStr] || 0);
+                reportCounts.push(reportMap[dateStr] || 0);
+            }
+            
+            console.log('最终日期数组:', dates);
+            console.log('最终新增用户数量:', newUserCounts);
+            console.log('最终互动量:', interactionCounts);
+            console.log('最终新增举报数量:', reportCounts);
+            
+            // 更新图表
+            initCharts(dates, newUserCounts, interactionCounts, reportCounts);
+        }
+
+        function initCharts(dates, newUserCounts, interactionCounts, reportCounts) {
             // Chart 1: 流量与互动趋势 (融合 stats_user 和 stats_content)
-            charts.main = echarts.init(document.getElementById('mainTrendChart'));
+            var mainChartDom = document.getElementById('mainTrendChart');
+            if (!mainChartDom) {
+                console.error('找不到mainTrendChart元素');
+                return;
+            }
+            // 如果图表已存在，先销毁
+            if (charts.main) {
+                charts.main.dispose();
+            }
+            charts.main = echarts.init(mainChartDom);
+            
+            // 如果没有数据，使用默认的最近7天日期
+            if (!dates || dates.length === 0) {
+                var today = new Date();
+                dates = [];
+                for (var i = 6; i >= 0; i--) {
+                    var date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    var dateStr = (date.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                                  date.getDate().toString().padStart(2, '0');
+                    dates.push(dateStr);
+                }
+                newUserCounts = [0, 0, 0, 0, 0, 0, 0];
+                interactionCounts = [0, 0, 0, 0, 0, 0, 0];
+                reportCounts = [0, 0, 0, 0, 0, 0, 0];
+            }
+            
+            // 如果没有提供互动量数据，使用默认值
+            if (!interactionCounts || interactionCounts.length === 0) {
+                interactionCounts = [0, 0, 0, 0, 0, 0, 0];
+            }
+            
+            // 如果没有提供新增举报数据，使用默认值
+            if (!reportCounts || reportCounts.length === 0) {
+                reportCounts = [0, 0, 0, 0, 0, 0, 0];
+            }
+            
             charts.main.setOption({
                 tooltip: { trigger: 'axis' },
-                legend: { data: ['活跃用户 (User)', '互动量 (Interaction)', '新增举报 (Report)'], bottom: 0 },
+                legend: { data: ['当日新增用户 (New Users)', '互动量 (Interaction)', '新增举报 (Report)'], bottom: 0 },
                 grid: { top: '10%', left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], boundaryGap: false },
-                yAxis: { type: 'value' },
+                xAxis: { type: 'category', data: dates, boundaryGap: false },
+                yAxis: { 
+                    type: 'value',
+                    min: 0,
+                    max: 10,
+                    interval: 1
+                },
                 series: [
                     {
-                        name: '活跃用户 (User)', type: 'line', smooth: true,
+                        name: '当日新增用户 (New Users)', type: 'line', smooth: true,
                         itemStyle: { color: '#4f46e5' },
                         areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{offset: 0, color: '#4f46e544'}, {offset: 1, color: '#4f46e500'}]) },
-                        data: [120, 132, 101, 134, 90, 230, 210]
+                        data: newUserCounts
                     },
                     {
                         name: '互动量 (Interaction)', type: 'line', smooth: true,
                         itemStyle: { color: '#10b981' },
-                        data: [220, 182, 191, 234, 290, 330, 310]
+                        data: interactionCounts
                     },
                     {
                         name: '新增举报 (Report)', type: 'bar', barWidth: 10,
                         itemStyle: { color: '#ef4444' },
-                        data: [12, 15, 8, 24, 10, 35, 20]
+                        data: reportCounts
                     }
                 ]
             });
 
             // Chart 2: 风险雷达 (来自 report_stats)
-            charts.risk = echarts.init(document.getElementById('riskChart'));
+            // 不在这里初始化，等数据加载完成后再初始化
+
+            // Chart 3: 内容板块饼图 (来自 content_stats)
+            // 不在这里初始化，等数据加载完成后再初始化
+
+            // Chart 4: 用户性别 (来自 user_stats)
+            // 不在这里初始化，等数据加载完成后再初始化
+
+            // Chart 5: 动态状态统计 (不在这里初始化，等数据加载完成后再初始化)
+        }
+
+        // 加载风险雷达图数据
+        function loadRiskChartData() {
+            $.ajax({
+                url: '/api/dashboard/reportTypeCounts',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        updateRiskChart(response.data);
+                    } else {
+                        console.error('获取各类型举报数量失败:', response.message);
+                        // 延迟初始化，确保DOM已准备好
+                        setTimeout(function() {
+                            initRiskChart();
+                        }, 200);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取各类型举报数量请求失败:', error);
+                    // 延迟初始化，确保DOM已准备好
+                    setTimeout(function() {
+                        initRiskChart();
+                    }, 200);
+                }
+            });
+        }
+
+        // 更新风险雷达图
+        function updateRiskChart(data) {
+            // 定义6种举报类型，按照六边形的顺序
+            var reportTypes = ['垃圾信息', '色情低俗', '违法违规', '欺诈', '侵权', '其他'];
+            var values = [];
+            
+            // 创建类型到数量的映射
+            var typeCountMap = {};
+            if (data && data.length > 0) {
+                data.forEach(function(item) {
+                    var type = String(item.reportType || item.report_type || item.REPORT_TYPE || '').trim();
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    if (type) {
+                        typeCountMap[type] = count;
+                    }
+                });
+            }
+            
+            // 按照顺序获取各类型的数量
+            reportTypes.forEach(function(type) {
+                values.push(typeCountMap[type] || 0);
+            });
+            
+            console.log('风险雷达图数据 - 类型:', reportTypes);
+            console.log('风险雷达图数据 - 数量:', values);
+            
+            // 计算最大值（用于设置雷达图的max值）
+            var maxValue = Math.max.apply(Math, values);
+            maxValue = maxValue > 0 ? Math.ceil(maxValue * 1.2) : 10; // 如果有数据，最大值增加20%的余量，否则默认为10
+            
+            initRiskChart(reportTypes, values, maxValue);
+        }
+
+        // 初始化风险雷达图
+        function initRiskChart(reportTypes, values, maxValue) {
+            // 默认值
+            if (!reportTypes || reportTypes.length === 0) {
+                reportTypes = ['垃圾信息', '色情低俗', '违法违规', '欺诈', '侵权', '其他'];
+            }
+            if (!values || values.length === 0) {
+                values = [0, 0, 0, 0, 0, 0];
+            }
+            if (!maxValue || maxValue <= 0) {
+                maxValue = 10;
+            }
+            
+            var riskChartDom = document.getElementById('riskChart');
+            if (!riskChartDom) {
+                console.error('找不到riskChart元素');
+                return;
+            }
+            
+            // 如果图表已存在，先销毁
+            if (charts.risk) {
+                charts.risk.dispose();
+            }
+            
+            charts.risk = echarts.init(riskChartDom);
             charts.risk.setOption({
                 tooltip: {},
                 radar: {
-                    indicator: [
-                        { name: '广告', max: 100 }, { name: '谩骂', max: 100 },
-                        { name: '涉黄', max: 100 }, { name: '涉政', max: 100 },
-                        { name: '灌水', max: 100 }
-                    ],
-                    radius: '65%', center: ['50%', '50%']
+                    indicator: reportTypes.map(function(type) {
+                        return { name: type, max: maxValue };
+                    }),
+                    radius: '65%',
+                    center: ['50%', '50%'],
+                    shape: 'polygon'
                 },
                 series: [{
                     type: 'radar',
                     data: [
-                        { value: [80, 50, 20, 10, 60], name: '本周违规分布', itemStyle: { color: '#ef4444' }, areaStyle: { opacity: 0.2 } }
+                        { 
+                            value: values, 
+                            name: '违规分布', 
+                            itemStyle: { color: '#ef4444' }, 
+                            areaStyle: { opacity: 0.2 } 
+                        }
                     ]
-                }]
-            });
-
-            // Chart 3: 内容板块饼图 (来自 content_stats)
-            charts.cat = echarts.init(document.getElementById('categoryChart'));
-            charts.cat.setOption({
-                tooltip: { trigger: 'item' },
-                color: ['#4f46e5', '#10b981', '#f59e0b', '#8b5cf6', '#6b7280'],
-                series: [{
-                    type: 'pie', radius: ['40%', '70%'],
-                    itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 2 },
-                    data: [
-                        { value: 1048, name: '校园动态' }, { value: 735, name: '二手集市' },
-                        { value: 580, name: '失物招领' }, { value: 484, name: '兼职' },
-                        { value: 300, name: '其他' }
-                    ]
-                }]
-            });
-
-            // Chart 4: 用户性别 (来自 user_stats)
-            charts.user = echarts.init(document.getElementById('userPieChart'));
-            charts.user.setOption({
-                tooltip: { trigger: 'item' },
-                color: ['#3b82f6', '#ec4899', '#9ca3af'],
-                series: [{
-                    type: 'pie', radius: '70%',
-                    data: [{ value: 735, name: '男' }, { value: 580, name: '女' }, { value: 100, name: '未知' }]
-                }]
-            });
-
-            // Chart 5: 处理结果 (来自 report_stats)
-            charts.res = echarts.init(document.getElementById('resultBarChart'));
-            charts.res.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { top: '10%', bottom: '15%', left: '15%' },
-                xAxis: { type: 'category', data: ['删帖', '封号', '驳回', '警告'] },
-                yAxis: { type: 'value' },
-                series: [{
-                    type: 'bar', data: [120, 20, 50, 80],
-                    itemStyle: { color: '#f59e0b', borderRadius: [4, 4, 0, 0] }
                 }]
             });
         }
 
+        // 加载内容板块热度图数据
+        function loadCategoryChartData() {
+            $.ajax({
+                url: '/api/dashboard/categoryPostCounts',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('内容板块热度图API响应:', response);
+                    if (response.success && response.data) {
+                        console.log('内容板块热度图原始数据:', response.data);
+                        updateCategoryChart(response.data);
+                    } else {
+                        console.error('获取各分类帖子数量失败:', response.message);
+                        // 延迟初始化，确保DOM已准备好
+                        setTimeout(function() {
+                            initCategoryChart();
+                        }, 200);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取各分类帖子数量请求失败:', error);
+                    console.error('响应内容:', xhr.responseText);
+                    // 延迟初始化，确保DOM已准备好
+                    setTimeout(function() {
+                        initCategoryChart();
+                    }, 200);
+                }
+            });
+        }
+
+        // 更新内容板块热度图
+        function updateCategoryChart(data) {
+            // 定义4个分类，按照顺序
+            var categories = ['动态', '跑腿', '二手集市', '失物招领'];
+            var chartData = [];
+            
+            // 创建分类名称到数量的映射
+            var categoryMap = {};
+            if (data && data.length > 0) {
+                data.forEach(function(item) {
+                    var categoryName = String(item.categoryName || item.category_name || item.CATEGORY_NAME || '').trim();
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    if (categoryName) {
+                        categoryMap[categoryName] = count;
+                    }
+                });
+            }
+            
+            // 按照顺序生成图表数据
+            categories.forEach(function(categoryName) {
+                chartData.push({
+                    value: categoryMap[categoryName] || 0,
+                    name: categoryName
+                });
+            });
+            
+            console.log('内容板块热度图数据:', chartData);
+            console.log('分类映射:', categoryMap);
+            
+            // 确保图表已初始化
+            if (!charts.cat) {
+                initCategoryChart(chartData);
+            } else {
+                // 更新现有图表
+                charts.cat.setOption({
+                    series: [{
+                        data: chartData
+                    }]
+                }, true); // 使用notMerge=true，完全替换配置
+            }
+        }
+
+        // 初始化内容板块热度图
+        function initCategoryChart(chartData) {
+            // 默认值
+            if (!chartData || chartData.length === 0) {
+                chartData = [
+                    { value: 0, name: '动态' },
+                    { value: 0, name: '跑腿' },
+                    { value: 0, name: '二手集市' },
+                    { value: 0, name: '失物招领' }
+                ];
+            }
+            
+            var categoryChartDom = document.getElementById('categoryChart');
+            if (!categoryChartDom) {
+                console.error('找不到categoryChart元素');
+                return;
+            }
+            
+            // 如果图表已存在，先销毁
+            if (charts.cat) {
+                charts.cat.dispose();
+            }
+            
+            // 初始化图表
+            charts.cat = echarts.init(categoryChartDom);
+            charts.cat.setOption({
+                tooltip: { trigger: 'item' },
+                color: ['#4f46e5', '#10b981', '#f59e0b', '#8b5cf6'],
+                series: [{
+                    type: 'pie', 
+                    radius: ['40%', '70%'],
+                    itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 2 },
+                    data: chartData
+                }]
+            }, true); // 使用notMerge=true，完全替换配置
+        }
+
+        // 加载用户性别构成图数据
+        function loadUserGenderChartData() {
+            $.ajax({
+                url: '/api/dashboard/userGenderCounts',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('用户性别构成图API响应:', response);
+                    if (response.success && response.data) {
+                        console.log('用户性别构成图原始数据:', response.data);
+                        updateUserGenderChart(response.data);
+                    } else {
+                        console.error('获取用户性别统计失败:', response.message);
+                        // 延迟初始化，确保DOM已准备好
+                        setTimeout(function() {
+                            initUserGenderChart();
+                        }, 200);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取用户性别统计请求失败:', error);
+                    console.error('响应内容:', xhr.responseText);
+                    // 延迟初始化，确保DOM已准备好
+                    setTimeout(function() {
+                        initUserGenderChart();
+                    }, 200);
+                }
+            });
+        }
+
+        // 更新用户性别构成图
+        function updateUserGenderChart(data) {
+            // 定义性别映射：0未知，1男，2女
+            var genderMap = {
+                0: { name: '未知', value: 0 },
+                1: { name: '男', value: 0 },
+                2: { name: '女', value: 0 }
+            };
+            
+            // 处理返回的数据
+            if (data && data.length > 0) {
+                data.forEach(function(item) {
+                    console.log('处理性别数据项:', item);
+                    var genderValue = item.gender !== undefined ? item.gender : 
+                                    (item.GENDER !== undefined ? item.GENDER : null);
+                    var countValue = item.count !== undefined ? item.count : 
+                                   (item.COUNT !== undefined ? item.COUNT : 
+                                   (item.Count !== undefined ? item.Count : 0));
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    
+                    console.log('解析后的性别值:', genderValue, '数量:', count);
+                    
+                    if (genderValue !== null && genderValue !== undefined) {
+                        var gender = parseInt(genderValue);
+                        if (genderMap.hasOwnProperty(gender)) {
+                            genderMap[gender].value = count;
+                            console.log('更新性别映射 - 性别:', gender, '数量:', count);
+                        } else {
+                            console.warn('未知的性别值:', gender);
+                        }
+                    }
+                });
+            } else {
+                console.warn('没有返回性别统计数据');
+            }
+            
+            // 转换为数组，按照：男、女、未知的顺序
+            var chartData = [
+                genderMap[1], // 男
+                genderMap[2], // 女
+                genderMap[0]  // 未知
+            ];
+            
+            console.log('用户性别构成图最终数据:', chartData);
+            console.log('性别映射对象:', genderMap);
+            
+            // 如果图表不存在，先初始化
+            if (!charts.user) {
+                console.log('图表不存在，初始化图表');
+                initUserGenderChart(chartData);
+            } else {
+                console.log('图表已存在，更新图表数据');
+                // 更新现有图表 - 使用完整的配置确保数据正确更新
+                charts.user.setOption({
+                    series: [{
+                        type: 'pie',
+                        radius: '70%',
+                        data: chartData
+                    }]
+                }, true); // 使用notMerge=true，完全替换配置
+            }
+        }
+
+        // 初始化用户性别构成图
+        function initUserGenderChart(chartData) {
+            // 默认值
+            if (!chartData || chartData.length === 0) {
+                chartData = [
+                    { value: 0, name: '男' },
+                    { value: 0, name: '女' },
+                    { value: 0, name: '未知' }
+                ];
+            }
+            
+            console.log('初始化用户性别构成图，数据:', chartData);
+            
+            // 如果图表已存在，先销毁
+            if (charts.user) {
+                charts.user.dispose();
+                charts.user = null;
+            }
+            
+            // 初始化图表
+            var chartDom = document.getElementById('userPieChart');
+            if (!chartDom) {
+                console.error('找不到userPieChart元素');
+                return;
+            }
+            
+            charts.user = echarts.init(chartDom);
+            charts.user.setOption({
+                tooltip: { trigger: 'item' },
+                color: ['#3b82f6', '#ec4899', '#9ca3af'],
+                series: [{
+                    type: 'pie', 
+                    radius: '70%',
+                    data: chartData,
+                    label: {
+                        show: true,
+                        formatter: '{b}: {c}'
+                    }
+                }]
+            }, true); // 使用notMerge=true，完全替换配置
+            
+            console.log('用户性别构成图初始化完成');
+        }
+
+        // 加载动态状态统计图数据
+        function loadPostStatusChartData() {
+            $.ajax({
+                url: '/api/dashboard/postStatusCounts',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('动态状态统计API响应:', response);
+                    if (response.success && response.data) {
+                        console.log('动态状态统计原始数据:', response.data);
+                        updatePostStatusChart(response.data);
+                    } else {
+                        console.error('获取动态状态统计失败:', response.message);
+                        // 延迟初始化，确保DOM已准备好
+                        setTimeout(function() {
+                            initPostStatusChart();
+                        }, 200);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取动态状态统计请求失败:', error);
+                    console.error('响应内容:', xhr.responseText);
+                    // 延迟初始化，确保DOM已准备好
+                    setTimeout(function() {
+                        initPostStatusChart();
+                    }, 200);
+                }
+            });
+        }
+
+        // 更新动态状态统计图
+        function updatePostStatusChart(data) {
+            // 定义状态映射：1已通过，0未审核，4未通过
+            var statusMap = {
+                1: { name: '已通过', value: 0, color: '#10b981' },
+                0: { name: '未审核', value: 0, color: '#f59e0b' },
+                4: { name: '未通过', value: 0, color: '#ef4444' }
+            };
+            
+            // 处理返回的数据
+            if (data && data.length > 0) {
+                console.log('开始处理动态状态数据，数据条数:', data.length);
+                data.forEach(function(item) {
+                    // 尝试多种可能的字段名（MyBatis可能返回不同的大小写格式）
+                    var statusValue = null;
+                    var countValue = 0;
+                    
+                    // 尝试获取status字段
+                    if (item.status !== undefined && item.status !== null) {
+                        statusValue = item.status;
+                    } else if (item.STATUS !== undefined && item.STATUS !== null) {
+                        statusValue = item.STATUS;
+                    } else if (item.Status !== undefined && item.Status !== null) {
+                        statusValue = item.Status;
+                    }
+                    
+                    // 尝试获取count字段
+                    if (item.count !== undefined && item.count !== null) {
+                        countValue = item.count;
+                    } else if (item.COUNT !== undefined && item.COUNT !== null) {
+                        countValue = item.COUNT;
+                    } else if (item.Count !== undefined && item.Count !== null) {
+                        countValue = item.Count;
+                    }
+                    
+                    var count = parseInt(countValue) || parseFloat(countValue) || 0;
+                    
+                    console.log('处理动态状态数据项:', JSON.stringify(item), '解析后 - status:', statusValue, 'count:', count);
+                    
+                    if (statusValue !== null && statusValue !== undefined) {
+                        var status = parseInt(statusValue);
+                        if (!isNaN(status) && statusMap.hasOwnProperty(status)) {
+                            statusMap[status].value = count;
+                            console.log('✓ 更新状态映射 - 状态:', status, '(' + statusMap[status].name + ')', '数量:', count);
+                        } else {
+                            console.warn('✗ 未知的状态值:', status, '或状态不在映射中');
+                        }
+                    } else {
+                        console.warn('✗ 无法解析status字段，数据项:', JSON.stringify(item));
+                    }
+                });
+            } else {
+                console.warn('没有返回动态状态统计数据或数据为空');
+            }
+            
+            console.log('状态映射最终结果:', statusMap);
+            
+            // 按照顺序生成图表数据：已通过、未审核、未通过
+            var categories = ['已通过', '未审核', '未通过'];
+            var values = [
+                statusMap[1].value,
+                statusMap[0].value,
+                statusMap[4].value
+            ];
+            var colors = [
+                statusMap[1].color,
+                statusMap[0].color,
+                statusMap[4].color
+            ];
+            
+            console.log('动态状态统计图最终数据:', { categories: categories, values: values });
+            
+            // 如果图表不存在，先初始化
+            if (!charts.res) {
+                initPostStatusChart(categories, values, colors);
+            } else {
+                // 更新现有图表
+                charts.res.setOption({
+                    xAxis: {
+                        data: categories
+                    },
+                    series: [{
+                        name: '动态数量',
+                        data: values.map(function(val, idx) {
+                            return {
+                                value: val,
+                                itemStyle: { 
+                                    color: colors[idx],
+                                    borderRadius: [4, 4, 0, 0]
+                                }
+                            };
+                        }),
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}'
+                        }
+                    }]
+                }, true);
+            }
+        }
+
+        // 初始化动态状态统计图
+        function initPostStatusChart(categories, values, colors) {
+            // 默认值
+            if (!categories || categories.length === 0) {
+                categories = ['已通过', '未审核', '未通过'];
+            }
+            if (!values || values.length === 0) {
+                values = [0, 0, 0];
+            }
+            if (!colors || colors.length === 0) {
+                colors = ['#10b981', '#f59e0b', '#ef4444'];
+            }
+            
+            var resultChartDom = document.getElementById('resultBarChart');
+            if (!resultChartDom) {
+                console.error('找不到resultBarChart元素');
+                return;
+            }
+            
+            // 如果图表已存在，先销毁
+            if (charts.res) {
+                charts.res.dispose();
+            }
+            
+            // 初始化图表
+            charts.res = echarts.init(resultChartDom);
+            charts.res.setOption({
+                tooltip: { 
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        var param = params[0];
+                        return param.name + '<br/>' + param.seriesName + ': ' + param.value;
+                    }
+                },
+                grid: { top: '10%', bottom: '15%', left: '15%', right: '10%' },
+                xAxis: { 
+                    type: 'category', 
+                    data: categories,
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 0
+                    }
+                },
+                yAxis: { type: 'value' },
+                series: [{
+                    name: '动态数量',
+                    type: 'bar', 
+                    data: values.map(function(val, idx) {
+                        return {
+                            value: val,
+                            itemStyle: { 
+                                color: colors[idx],
+                                borderRadius: [4, 4, 0, 0]
+                            }
+                        };
+                    }),
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '{c}'
+                    }
+                }]
+            }, true);
+        }
+
         function resizeCharts() {
             for (let key in charts) {
-                charts[key].resize();
+                if (charts[key] && typeof charts[key].resize === 'function') {
+                    try {
+                        charts[key].resize();
+                    } catch (e) {
+                        console.error('调整图表大小失败:', key, e);
+                    }
+                }
             }
         }
     </script>

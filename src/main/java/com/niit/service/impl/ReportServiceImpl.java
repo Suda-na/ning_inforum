@@ -2,9 +2,9 @@ package com.niit.service.impl;
 
 import com.niit.dao.ReportMapper;
 import com.niit.dao.UserBanHistoryMapper;
-import com.niit.dao.UserMapper;
+import com.niit.dao.UserMapperWang;
 import com.niit.dao.UserPermissionMapper;
-import com.niit.dao.MessageMapper;
+import com.niit.dao.MessageMapperWang;
 import com.niit.pojo.Report;
 import com.niit.pojo.ReportVO;
 import com.niit.pojo.UserBanHistory;
@@ -34,10 +34,10 @@ public  class ReportServiceImpl implements ReportService {
     private UserPermissionMapper userPermissionMapper;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserMapperWang userMapperWang;
 
     @Autowired
-    private MessageMapper messageMapper;
+    private MessageMapperWang messageMapperWang;
 
     @Override
     public ReportVO getReportById(Integer reportId) {
@@ -195,7 +195,7 @@ public  class ReportServiceImpl implements ReportService {
                 content = "您的举报已处理（结果：" + resultText + "）。感谢您的反馈，我们已完成审核。";
             }
             try {
-                messageMapper.insertMessage(adminId, reportVO.getReporterId(), content, processTime);
+                messageMapperWang.insertMessage(adminId, reportVO.getReporterId(), content, processTime);
             } catch (Exception e) {
                 System.err.println("[ProcessReport] insert message failed: " + e.getMessage());
                 e.printStackTrace();
@@ -252,7 +252,7 @@ public  class ReportServiceImpl implements ReportService {
             restrictionsAfter = "{\"can_buy\": 0, \"can_like\": 0, \"can_post\": 0, \"can_sell\": 0, \"can_follow\": 0, \"can_comment\": 0, \"can_message\": 0, \"can_run_errand\": 0}";
             userPermissionMapper.updatePermission(userId, 0, 0, 0, 0, 0, 0, 0, 0);
             // 同时更新user表的status字段为1（禁用）
-            userMapper.updateStatus(userId, 1);
+            userMapperWang.updateStatus(userId, 1);
         }
         
         banHistory.setRestrictionsBefore(restrictionsBefore);
@@ -262,7 +262,7 @@ public  class ReportServiceImpl implements ReportService {
         boolean historyInserted = userBanHistoryMapper.insert(banHistory) > 0;
         if (historyInserted) {
             try {
-                userMapper.incrementWarningCount(userId);
+                userMapperWang.incrementWarningCount(userId);
             } catch (Exception e) {
                 System.err.println("[BanUser] increment warning_count failed: " + e.getMessage());
             }

@@ -1,24 +1,19 @@
 package com.niit.dao;
 
-import org.apache.ibatis.annotations.Mapper;
+import com.niit.pojo.User;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
+import java.util.List;
 
-/**
- * 用户DAO接口
- */
-@Mapper
 public interface UserMapper {
-    /**
-     * 更新用户状态
-     * @param userId 用户ID
-     * @param status 状态：0正常, 1禁用, 2注销
-     * @return 更新的行数
-     */
-    @Update("UPDATE user SET status = #{status} WHERE user_id = #{userId}")
-    int updateStatus(@Param("userId") Integer userId, @Param("status") Integer status);
+    // 1. 通用查询：根据ID查用户 (管理员列表回显、个人中心回显 都用这个)
+    User selectUserById(@Param("userId") Integer userId);
 
-    @Update("UPDATE user SET warning_count = warning_count + 1 WHERE user_id = #{userId}")
-    int incrementWarningCount(@Param("userId") Integer userId);
+    // 2. 通用更新：更新用户信息 (管理员改人、用户自改 都用这个)
+    int updateUser(User user);
+
+    // 3. 你的其他现有方法 (保持不变)
+    List<User> selectAdminList(@Param("keyword") String keyword);
+    int insertUser(User user);
+    int deleteUserById(@Param("userId") Integer userId);
+    User selectUserByUsername(String username);
 }
-

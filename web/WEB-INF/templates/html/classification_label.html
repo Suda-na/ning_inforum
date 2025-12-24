@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -10,12 +10,12 @@
     <meta name="keywords" content="小宁论坛,后台管理,分类标签管理">
     <meta name="description" content="小宁论坛后台管理系统 - 分类标签管理页面">
 
-    <link rel="shortcut icon" href="favicon.ico"> 
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"> 
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.css?v=4.4.0}" rel="stylesheet">
 
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
 
     <style>
         /* 页面标题样式 */
@@ -147,20 +147,269 @@
 
         /* 编辑模态框样式 */
         .modal-content {
-            border-radius: 8px;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         }
 
         .modal-header {
-            background: #f9fafb;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
             border-bottom: 1px solid #e5e7eb;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 20px;
+        }
+        .modal-header .modal-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 18px;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+        .modal-body .form-group {
+            margin-bottom: 20px;
+        }
+        .modal-body .form-group label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .modal-body .form-control {
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .modal-body .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        /* 修复下拉框文字溢出 */
+        .modal-body select.form-control {
+            font-size: 13px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 8px 10px;
+        }
+        .modal-body select.form-control option {
+            font-size: 13px;
+            padding: 8px 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .modal-footer {
             border-top: 1px solid #e5e7eb;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 15px 25px;
+        }
+
+        /* 按钮美化 */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-white {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            border-radius: 6px;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+        }
+        .btn-white:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        /* 自定义确认弹窗样式 */
+        .custom-confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-confirm-overlay.show {
+            display: flex !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .custom-confirm-dialog {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .custom-confirm-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        }
+        .custom-confirm-header .confirm-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .custom-confirm-body {
+            padding: 24px;
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .custom-confirm-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f9fafb;
+        }
+
+        .confirm-btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 14px;
+        }
+        .confirm-btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+        .confirm-btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        .confirm-btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        .confirm-btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        /* 成功/错误提示样式 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 16px 20px;
+            min-width: 300px;
+            z-index: 10001;
+            animation: slideInRight 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        .toast i {
+            font-size: 20px;
+        }
+        .toast.success i {
+            color: #10b981;
+        }
+        .toast.error i {
+            color: #ef4444;
+        }
+        .toast-message {
+            flex: 1;
+            color: #374151;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -178,10 +427,10 @@
                             <form class="search-form" id="search-form" style="display: flex; align-items: center;">
                                 <div style="display: flex; align-items: center;">
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <input type="text" class="form-control" placeholder="输入标签名称" style="width: 200px; border-radius: 4px 0 0 4px;">
+                                        <input type="text" class="form-control" id="search-tag-name" placeholder="输入标签名称" style="width: 200px; border-radius: 4px 0 0 4px;">
                                     </div>
                                     <div class="form-group" style="margin-bottom: 0;">
-                                        <select class="form-control" style="width: 150px; border-radius: 0;">
+                                        <select class="form-control" id="search-module" style="width: 150px; border-radius: 0;">
                                             <option value="all">全部模块</option>
                                             <option value="circle">圈子动态</option>
                                             <option value="errand">跑腿</option>
@@ -189,7 +438,7 @@
                                             <option value="lost-found">失物招领</option>
                                         </select>
                                     </div>
-                                    <button type="button" class="btn btn-primary" style="border-radius: 0 4px 4px 0; margin-left: -1px;">
+                                    <button type="button" class="btn btn-primary" id="search-btn" style="border-radius: 0 4px 4px 0; margin-left: -1px;">
                                         <i class="fa fa-search"></i> 搜索
                                     </button>
                                 </div>
@@ -198,7 +447,7 @@
                                 <button type="button" class="btn btn-white" id="multi-select-btn">
                                     <i class="fa fa-check-square-o"></i> 多选
                                 </button>
-                                <button type="button" class="btn btn-primary" style="margin-left: 10px;">
+                                <button type="button" class="btn btn-primary" id="add-tag-btn" style="margin-left: 10px;">
                                     <i class="fa fa-plus"></i> 添加标签
                                 </button>
                             </div>
@@ -206,7 +455,7 @@
 
                         <!-- 一键删除按钮 -->
                         <div class="batch-delete" id="batch-delete">
-                            <button type="button" class="btn btn-danger">
+                            <button type="button" class="btn btn-danger" id="batch-delete-btn">
                                 <i class="fa fa-trash"></i> 一键删除
                             </button>
                         </div>
@@ -251,62 +500,8 @@
                                         <th>操作</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- 标签行 -->
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">美食</span></td>
-                                        <td><span class="module-badge module-circle">圈子动态</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">学习</span></td>
-                                        <td><span class="module-badge module-circle">圈子动态</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">健身</span></td>
-                                        <td><span class="module-badge module-circle">圈子动态</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">快递代取</span></td>
-                                        <td><span class="module-badge module-errand">跑腿</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">外卖代送</span></td>
-                                        <td><span class="module-badge module-errand">跑腿</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">二手手机</span></td>
-                                        <td><span class="module-badge module-second-hand">二手集市</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">二手书籍</span></td>
-                                        <td><span class="module-badge module-second-hand">二手集市</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">失物招领</span></td>
-                                        <td><span class="module-badge module-lost-found">失物招领</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox-col"><input type="checkbox" class="tag-checkbox"></td>
-                                        <td><span class="tag-name">寻物启事</span></td>
-                                        <td><span class="module-badge module-lost-found">失物招领</span></td>
-                                        <td><button type="button" class="btn btn-white btn-edit" onclick="editTag(this)">编辑</button></td>
-                                    </tr>
+                                <tbody id="tag-tbody">
+                                    <!-- 标签行将通过JavaScript动态加载 -->
                                 </tbody>
                             </table>
                         </div>
@@ -314,18 +509,12 @@
                         <!-- 分页 -->
                         <div class="pagination-container">
                             <nav aria-label="Page navigation">
-                                <ul class="pagination">
-                                    <li class="disabled"><a href="#" data-page="prev">上一页</a></li>
-                                    <li class="active"><a href="#" data-page="1">1</a></li>
-                                    <li><a href="#" data-page="2">2</a></li>
-                                    <li><a href="#" data-page="3">3</a></li>
-                                    <li><a href="#" data-page="4">4</a></li>
-                                    <li><a href="#" data-page="5">5</a></li>
-                                    <li><a href="#" data-page="next">下一页</a></li>
+                                <ul class="pagination" id="tag-pagination">
+                                    <!-- 分页将通过JavaScript动态生成 -->
                                 </ul>
                             </nav>
                             <div style="margin-left: 20px;">
-                                <span>共 12 条记录</span>
+                                <span id="tag-count">共 0 条记录</span>
                             </div>
                         </div>
                     </div>
@@ -351,6 +540,7 @@
                         <div class="form-group">
                             <label for="tag-module">所属模块</label>
                             <select class="form-control" id="tag-module">
+                                <option value="">请选择模块</option>
                                 <option value="circle">圈子动态</option>
                                 <option value="errand">跑腿</option>
                                 <option value="second-hand">二手集市</option>
@@ -384,6 +574,7 @@
                         <div class="form-group">
                             <label for="add-tag-module">所属模块</label>
                             <select class="form-control" id="add-tag-module">
+                                <option value="">请选择模块</option>
                                 <option value="circle">圈子动态</option>
                                 <option value="errand">跑腿</option>
                                 <option value="second-hand">二手集市</option>
@@ -400,19 +591,46 @@
         </div>
     </div>
 
+    <!-- 自定义确认弹窗 -->
+    <div class="custom-confirm-overlay" id="confirm-overlay">
+        <div class="custom-confirm-dialog">
+            <div class="custom-confirm-header">
+                <h4 class="confirm-title" id="confirm-title">确认删除</h4>
+            </div>
+            <div class="custom-confirm-body">
+                <p id="confirm-message">确定要删除这个标签吗？</p>
+            </div>
+            <div class="custom-confirm-footer">
+                <button type="button" class="confirm-btn confirm-btn-secondary" id="confirm-cancel">取消</button>
+                <button type="button" class="confirm-btn confirm-btn-primary" id="confirm-ok">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast" style="display: none;">
+        <i id="toast-icon"></i>
+        <span class="toast-message" id="toast-message"></span>
+    </div>
+
     <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+    <script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
 
     <script>
+        let tags = [];
+        let currentPage = 1;
+        const pageSize = 10;
+        let editingTagId = null;
+
         $(document).ready(function() {
+            // 加载标签列表
+            loadTags();
+            
             // 多选按钮点击事件
             $('#multi-select-btn').on('click', function() {
-                // 切换多选框显示
                 $('.checkbox-col').toggleClass('visible');
-                // 切换一键删除按钮显示
                 $('#batch-delete').toggleClass('visible');
-                // 切换按钮图标
                 var $icon = $(this).find('i');
                 if ($icon.hasClass('fa-check-square-o')) {
                     $icon.removeClass('fa-check-square-o').addClass('fa-square-o');
@@ -423,59 +641,384 @@
                 }
             });
             
+            // 搜索按钮点击事件
+            $('#search-btn').on('click', function() {
+                currentPage = 1;
+                loadTags();
+            });
+            
+            // 搜索框回车事件
+            $('#search-tag-name').on('keypress', function(e) {
+                if (e.which === 13) {
+                    currentPage = 1;
+                    loadTags();
+                }
+            });
+            
             // 添加标签按钮点击事件
-            $('button:contains(添加标签)').on('click', function() {
+            $('#add-tag-btn').on('click', function() {
+                $('#add-tag-name').val('');
+                $('#add-tag-module').val('');
                 $('#add-modal').modal('show');
             });
             
             // 保存添加标签
             $('#save-add').on('click', function() {
-                // 这里可以添加保存逻辑
-                $('#add-modal').modal('hide');
-                // 可以添加保存成功的提示
+                const tagName = $('#add-tag-name').val().trim();
+                if (!tagName) {
+                    showToast('请输入标签名称', 'error');
+                    return;
+                }
+                
+                const module = $('#add-tag-module').val();
+                
+                $.ajax({
+                    url: '/admin/api/classification_label/add',
+                    type: 'POST',
+                    data: {
+                        tagName: tagName,
+                        module: module
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#add-modal').modal('hide');
+                            loadTags();
+                            showToast('添加成功', 'success');
+                        } else {
+                            showToast('添加失败：' + (response.message || '未知错误'), 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('添加失败，请稍后重试', 'error');
+                    }
+                });
+            });
+            
+            // 批量删除按钮点击事件
+            $('#batch-delete-btn').on('click', function() {
+                const selectedIds = [];
+                $('.tag-checkbox:checked').each(function() {
+                    selectedIds.push($(this).data('tag-id'));
+                });
+                
+                if (selectedIds.length === 0) {
+                    showToast('请选择要删除的标签', 'error');
+                    return;
+                }
+                
+                showConfirm('确认删除', '确定要删除选中的 ' + selectedIds.length + ' 个标签吗？', function() {
+                    $.ajax({
+                        url: '/admin/api/classification_label/batch_delete',
+                        type: 'POST',
+                        data: {
+                            tagIds: selectedIds.join(',')
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                loadTags();
+                                showToast('删除成功', 'success');
+                            } else {
+                                showToast('删除失败：' + (response.message || '未知错误'), 'error');
+                            }
+                        },
+                        error: function() {
+                            showToast('删除失败，请稍后重试', 'error');
+                        }
+                    });
+                });
             });
         });
 
         // 编辑标签函数
         function editTag(btn) {
-            // 找到当前行
-            var $row = $(btn).closest('tr');
-            // 获取当前标签信息
-            var tagName = $row.find('td:eq(1)').text();
-            var tagModuleText = $row.find('td:eq(2)').text();
-            
-            // 转换模块文本为对应的值
-            var tagModuleValue;
-            switch(tagModuleText) {
-                case '圈子动态':
-                    tagModuleValue = 'circle';
-                    break;
-                case '跑腿':
-                    tagModuleValue = 'errand';
-                    break;
-                case '二手集市':
-                    tagModuleValue = 'second-hand';
-                    break;
-                case '失物招领':
-                    tagModuleValue = 'lost-found';
-                    break;
-                default:
-                    tagModuleValue = 'circle';
+            const tagId = $(btn).data('tag-id');
+            const tag = tags.find(t => t.tagId === tagId);
+            if (!tag) {
+                showToast('标签不存在', 'error');
+                return;
             }
             
-            // 设置模态框表单值
-            $('#tag-name').val(tagName);
-            $('#tag-module').val(tagModuleValue);
+            editingTagId = tagId;
+            $('#tag-name').val(tag.name);
             
-            // 显示模态框
+            // 设置模块选择（如果有分类信息）
+            let moduleValue = '';
+            if (tag.categoryName) {
+                const categoryToModuleMap = {
+                    '动态': 'circle',
+                    '跑腿': 'errand',
+                    '二手集市': 'second-hand',
+                    '失物招领': 'lost-found'
+                };
+                moduleValue = categoryToModuleMap[tag.categoryName] || '';
+            }
+            $('#tag-module').val(moduleValue);
+            
             $('#edit-modal').modal('show');
         }
 
         // 保存编辑
         $('#save-edit').on('click', function() {
-            // 这里可以添加保存逻辑
-            $('#edit-modal').modal('hide');
-            // 可以添加保存成功的提示
+            const tagName = $('#tag-name').val().trim();
+            if (!tagName) {
+                showToast('请输入标签名称', 'error');
+                return;
+            }
+            
+            if (!editingTagId) {
+                showToast('编辑ID不存在', 'error');
+                return;
+            }
+            
+            const module = $('#tag-module').val();
+            
+            $.ajax({
+                url: '/admin/api/classification_label/update',
+                type: 'POST',
+                data: {
+                    tagId: editingTagId,
+                    tagName: tagName,
+                    module: module
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#edit-modal').modal('hide');
+                        editingTagId = null;
+                        loadTags();
+                        showToast('修改成功', 'success');
+                    } else {
+                        showToast('修改失败：' + (response.message || '未知错误'), 'error');
+                    }
+                },
+                error: function() {
+                    showToast('修改失败，请稍后重试', 'error');
+                }
+            });
+        });
+        
+        // 删除标签
+        function deleteTag(btn) {
+            const tagId = $(btn).data('tag-id');
+            const tag = tags.find(t => t.tagId === tagId);
+            const tagName = tag ? tag.name : '这个标签';
+            
+            showConfirm('确认删除', '确定要删除标签"' + tagName + '"吗？', function() {
+                $.ajax({
+                    url: '/admin/api/classification_label/delete',
+                    type: 'POST',
+                    data: {
+                        tagId: tagId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            loadTags();
+                            showToast('删除成功', 'success');
+                        } else {
+                            showToast('删除失败：' + (response.message || '未知错误'), 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('删除失败，请稍后重试', 'error');
+                    }
+                });
+            });
+        }
+        
+        // 显示确认弹窗
+        function showConfirm(title, message, onConfirm) {
+            $('#confirm-title').text(title);
+            $('#confirm-message').text(message);
+            $('#confirm-overlay').addClass('show');
+            
+            $('#confirm-ok').off('click').on('click', function() {
+                $('#confirm-overlay').removeClass('show');
+                if (onConfirm) {
+                    onConfirm();
+                }
+            });
+            
+            $('#confirm-cancel').off('click').on('click', function() {
+                $('#confirm-overlay').removeClass('show');
+            });
+            
+            // 点击遮罩层关闭
+            $('#confirm-overlay').off('click').on('click', function(e) {
+                if ($(e.target).hasClass('custom-confirm-overlay')) {
+                    $('#confirm-overlay').removeClass('show');
+                }
+            });
+        }
+        
+        // 显示Toast提示
+        function showToast(message, type) {
+            const $toast = $('#toast');
+            const $icon = $('#toast-icon');
+            const $message = $('#toast-message');
+            
+            $toast.removeClass('success error');
+            $toast.addClass(type);
+            
+            if (type === 'success') {
+                $icon.removeClass().addClass('fa fa-check-circle');
+            } else {
+                $icon.removeClass().addClass('fa fa-exclamation-circle');
+            }
+            
+            $message.text(message);
+            $toast.fadeIn(300);
+            
+            setTimeout(function() {
+                $toast.fadeOut(300);
+            }, 2000);
+        }
+        
+        // 加载标签列表
+        function loadTags() {
+            const tagName = $('#search-tag-name').val();
+            const module = $('#search-module').val();
+            
+            $.ajax({
+                url: '/admin/api/classification_label/list',
+                type: 'GET',
+                data: {
+                    tagName: tagName,
+                    module: module
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        tags = response.data || [];
+                        renderTags();
+                        updatePagination();
+                    } else {
+                        showToast('加载失败：' + (response.message || '未知错误'), 'error');
+                        $('#tag-tbody').html('<tr><td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">加载失败</td></tr>');
+                    }
+                },
+                error: function() {
+                    showToast('加载失败，请稍后重试', 'error');
+                    $('#tag-tbody').html('<tr><td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">加载失败</td></tr>');
+                }
+            });
+        }
+        
+        // 渲染标签列表
+        function renderTags() {
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = tags.slice(start, end);
+            
+            const $tbody = $('#tag-tbody');
+            $tbody.empty();
+            
+            if (pageData.length === 0) {
+                $tbody.append('<tr><td colspan="4" style="text-align: center; padding: 40px; color: #9ca3af;"><i class="fa fa-inbox" style="font-size: 48px; opacity: 0.3; margin-bottom: 10px; display: block;"></i>暂无标签数据</td></tr>');
+                return;
+            }
+            
+            pageData.forEach(function(tag) {
+                const $tr = $('<tr></tr>');
+                $tr.append('<td class="checkbox-col"><input type="checkbox" class="tag-checkbox" data-tag-id="' + tag.tagId + '"></td>');
+                $tr.append('<td><span class="tag-name">' + escapeHtml(tag.name || '') + '</span></td>');
+                
+                // 所属模块（如果有分类信息则显示，否则显示"未分类"）
+                let moduleHtml = '<span class="module-badge">未分类</span>';
+                if (tag.categoryName) {
+                    const moduleClass = getModuleClass(tag.categoryName);
+                    moduleHtml = '<span class="module-badge ' + moduleClass + '">' + escapeHtml(tag.categoryName) + '</span>';
+                }
+                $tr.append('<td>' + moduleHtml + '</td>');
+                
+                $tr.append('<td>' +
+                    '<button type="button" class="btn btn-white btn-edit" data-tag-id="' + tag.tagId + '" onclick="editTag(this)">编辑</button> ' +
+                    '<button type="button" class="btn btn-white" data-tag-id="' + tag.tagId + '" onclick="deleteTag(this)" style="margin-left: 5px;">删除</button>' +
+                    '</td>');
+                
+                $tbody.append($tr);
+            });
+            
+            $('#tag-count').text('共 ' + tags.length + ' 条记录');
+        }
+        
+        // 获取模块样式类
+        function getModuleClass(categoryName) {
+            const map = {
+                '动态': 'module-circle',
+                '跑腿': 'module-errand',
+                '二手集市': 'module-second-hand',
+                '失物招领': 'module-lost-found'
+            };
+            return map[categoryName] || '';
+        }
+        
+        // HTML转义函数
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(tags.length / pageSize);
+            const $pagination = $('#tag-pagination');
+            $pagination.empty();
+            
+            if (totalPages === 0) {
+                return;
+            }
+            
+            // 上一页
+            const prevDisabled = currentPage === 1 ? 'disabled' : '';
+            $pagination.append('<li class="' + prevDisabled + '"><a href="#" data-page="prev">上一页</a></li>');
+            
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                const active = i === currentPage ? 'active' : '';
+                $pagination.append('<li class="' + active + '"><a href="#" data-page="' + i + '">' + i + '</a></li>');
+            }
+            
+            // 下一页
+            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+            $pagination.append('<li class="' + nextDisabled + '"><a href="#" data-page="next">下一页</a></li>');
+            
+            // 分页点击事件
+            $pagination.find('a').on('click', function(e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                if (page === 'prev' && currentPage > 1) {
+                    currentPage--;
+                    renderTags();
+                    updatePagination();
+                } else if (page === 'next' && currentPage < totalPages) {
+                    currentPage++;
+                    renderTags();
+                    updatePagination();
+                } else if (typeof page === 'number') {
+                    currentPage = page;
+                    renderTags();
+                    updatePagination();
+                }
+            });
+        }
+        
+        // 编辑模态框关闭时清空数据
+        $('#edit-modal').on('hidden.bs.modal', function() {
+            $('#tag-name').val('');
+            $('#tag-module').val('');
+            editingTagId = null;
+        });
+        
+        // 添加模态框关闭时清空数据
+        $('#add-modal').on('hidden.bs.modal', function() {
+            $('#add-tag-name').val('');
+            $('#add-tag-module').val('');
         });
     </script>
 </body>

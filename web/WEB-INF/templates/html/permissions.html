@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="utf-8">
@@ -7,12 +7,12 @@
     <title>小宁论坛 - 权限管理</title>
     <meta name="keywords" content="小宁论坛,后台管理,权限管理">
     <meta name="description" content="小宁论坛后台管理系统 - 权限管理页面">
-    <link rel="shortcut icon" href="favicon.ico"> 
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"> 
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.css?v=4.4.0}" rel="stylesheet">
 
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
     <style>
         /* 分页样式统一为消息管理页面样式 */
         .pagination {
@@ -50,6 +50,177 @@
         .pagination li.disabled a:hover {
             background: white;
         }
+
+        /* ================= 自定义弹窗样式 ================= */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .custom-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-modal {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-modal-overlay.show .custom-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .custom-modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .custom-modal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .custom-modal-icon.success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .custom-modal-icon.error {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .custom-modal-icon.warning {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .custom-modal-icon.info {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .custom-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            flex: 1;
+        }
+
+        .custom-modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .custom-modal-close:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .custom-modal-body {
+            padding: 24px;
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .custom-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .custom-modal-btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+        }
+
+        .custom-modal-btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .custom-modal-btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .custom-modal-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .custom-modal-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* 确认对话框特殊样式 */
+        .custom-modal.confirm .custom-modal-body {
+            text-align: center;
+            padding: 32px 24px;
+        }
+
+        .custom-modal.confirm .custom-modal-footer {
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -59,21 +230,21 @@
             <div class="col-sm-12">
                 <div class="ibox">
                     <div class="ibox-content">
-                        <span class="text-muted small pull-right">最后更新：<i class="fa fa-clock-o"></i> 2025-12-14 12:00</span>
                         <h2>权限管理</h2>
                         <p>
                             管理用户评论权限
                         </p>
                         <div class="input-group">
-                            <input type="text" placeholder="查找用户" class="input form-control">
+                            <input type="text" id="searchInput" placeholder="查找用户" class="input form-control">
                             <span class="input-group-btn">
-                                <button type="button" class="btn btn btn-primary"> <i class="fa fa-search"></i> 搜索</button>
+                                <button type="button" id="searchBtn" class="btn btn btn-primary"> <i class="fa fa-search"></i> 搜索</button>
+                                <button type="button" id="resetBtn" class="btn btn btn-default"> <i class="fa fa-refresh"></i> 重置</button>
                             </span>
                         </div>
-                        <div class="clients-list">
+                        <div class="clients-list m-t-md">
                             <ul class="nav nav-tabs">
-                                <span class="pull-right small text-muted">1406 个用户</span>
-                                <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-users"></i> 评论权限</a>
+                                <span class="pull-right small text-muted" th:text="|${#lists.size(users)} 个用户|"></span>
+                                <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-users"></i> 用户权限</a>
                                 </li>
                             </ul>
                             <div class="tab-content">
@@ -85,168 +256,108 @@
                                                     <tr>
                                                         <th>头像</th>
                                                         <th>用户信息</th>
-                                                        <th>邮箱</th>
-                                                        <th>评论状态</th>
-                                                        <th>评论操作</th>
-                                                        <th>发布动态状态</th>
-                                                        <th>动态操作</th>
+                                                        <th>动态权限</th>
+                                                        <th>评论权限</th>
+                                                        <th>私信权限</th>
+                                                        <th>封禁权限</th>
+                                                        <th>封禁时间</th>
+                                                        <th>恢复权限</th>
+                                                        <th>操作</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="permissionsTableBody">
-                                                    <tr data-user-id="1">
-                                                        <td class="client-avatar"><img alt="image" src="img/a2.jpg"> </td>
+                                                    <tr th:each="user : ${users}" th:attr="data-user-id=${user.userId}">
+                                                        <td class="client-avatar"><img alt="image" th:src="@{/img/{avatar}(avatar=${user.avatar})}"> </td>
                                                         <td>
-                                                            <a href="#" class="client-link">袁岳</a>
+                                                            <a href="#" class="client-link" th:text="${user.username}"></a>
                                                             <br>
-                                                            <small class="text-muted">ID: 10001</small>
-                                                        </td>
-                                                        <td>gravida@qq.com</td>
-                                                        <td>
-                                                            <span class="label label-success comment-status">允许评论</span>
+                                                            <small class="text-muted" th:text="|真实姓名: ${user.realName}|"></small>
                                                         </td>
                                                         <td>
-                                                            <select class="form-control comment-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">禁止一天</option>
-                                                                <option value="ban3">禁止三天</option>
-                                                                <option value="banForever">永久禁止</option>
-                                                                <option value="restore">恢复权限</option>
+                                                            <span th:class="|label ${user.permission.canPost == 1 ? 'label-success' : (user.isPermanentBans?.post == true ? 'label-danger' : 'label-warning')} dynamic-status|" 
+                                                                  th:text="${user.permission.canPost == 1 ? '允许发布' : user.activeBans?.post ?: '禁止发布'}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span th:class="|label ${user.permission.canComment == 1 ? 'label-success' : (user.isPermanentBans?.comment == true ? 'label-danger' : 'label-warning')} comment-status|" 
+                                                                  th:text="${user.permission.canComment == 1 ? '允许评论' : user.activeBans?.comment ?: '禁止评论'}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span th:class="|label ${user.permission.canMessage == 1 ? 'label-success' : (user.isPermanentBans?.message == true ? 'label-danger' : 'label-warning')} message-status|" 
+                                                                  th:text="${user.permission.canMessage == 1 ? '允许私信' : user.activeBans?.message ?: '禁止私信'}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control ban-permission" style="border-radius: 4px;">
+                                                                <option value="">选择要封禁的权限</option>
+                                                                <option value="dynamic">动态权限</option>
+                                                                <option value="comment">评论权限</option>
+                                                                <option value="message">私信权限</option>
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <span class="label label-success dynamic-status">允许发布</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control dynamic-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
+                                                            <select class="form-control ban-time" style="border-radius: 4px;">
+                                                                <option value="">选择要封禁的时间</option>
                                                                 <option value="ban1">封禁一天</option>
                                                                 <option value="ban3">封禁三天</option>
                                                                 <option value="banForever">永久封禁</option>
-                                                                <option value="restore">恢复权限</option>
-                                                            </select>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-user-id="2">
-                                                        <td class="client-avatar"><img alt="image" src="img/a3.jpg"> </td>
-                                                        <td>
-                                                            <a href="#" class="client-link">王利锋</a>
-                                                            <br>
-                                                            <small class="text-muted">ID: 10002</small>
-                                                        </td>
-                                                        <td>rooney@sina.com</td>
-                                                        <td>
-                                                            <span class="label label-danger comment-status">永久禁止</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control comment-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">禁止一天</option>
-                                                                <option value="ban3">禁止三天</option>
-                                                                <option value="banForever">永久禁止</option>
-                                                                <option value="restore">恢复权限</option>
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <span class="label label-warning dynamic-status">禁止一天</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control dynamic-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">封禁一天</option>
-                                                                <option value="ban3">封禁三天</option>
-                                                                <option value="banForever">永久封禁</option>
-                                                                <option value="restore">恢复权限</option>
-                                                            </select>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-user-id="3">
-                                                        <td class="client-avatar"><img alt="image" src="img/a4.jpg"> </td>
-                                                        <td>
-                                                            <a href="#" class="client-link">张有为</a>
-                                                            <br>
-                                                            <small class="text-muted">ID: 10003</small>
-                                                        </td>
-                                                        <td>13209009485</td>
-                                                        <td>
-                                                            <span class="label label-success comment-status">允许评论</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control comment-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">禁止一天</option>
-                                                                <option value="ban3">禁止三天</option>
-                                                                <option value="banForever">永久禁止</option>
-                                                                <option value="restore">恢复权限</option>
+                                                            <select class="form-control restore-permission" style="border-radius: 4px;">
+                                                                <option value="">选择要恢复的权限</option>
+                                                                <option value="dynamic">动态权限</option>
+                                                                <option value="comment">评论权限</option>
+                                                                <option value="message">私信权限</option>
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <span class="label label-success dynamic-status">允许发布</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control dynamic-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">封禁一天</option>
-                                                                <option value="ban3">封禁三天</option>
-                                                                <option value="banForever">永久封禁</option>
-                                                                <option value="restore">恢复权限</option>
-                                                            </select>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-user-id="4">
-                                                        <td class="client-avatar"><img alt="image" src="img/a5.jpg"> </td>
-                                                        <td>
-                                                            <a href="#" class="client-link">李全福</a>
-                                                            <br>
-                                                            <small class="text-muted">ID: 10004</small>
-                                                        </td>
-                                                        <td>15709758904</td>
-                                                        <td>
-                                                            <span class="label label-success comment-status">允许评论</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control comment-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">禁止一天</option>
-                                                                <option value="ban3">禁止三天</option>
-                                                                <option value="banForever">永久禁止</option>
-                                                                <option value="restore">恢复权限</option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <span class="label label-info dynamic-status">禁止三天</span>
-                                                        </td>
-                                                        <td>
-                                                            <select class="form-control dynamic-select" style="border-radius: 4px;">
-                                                                <option value="">选择操作</option>
-                                                                <option value="ban1">封禁一天</option>
-                                                                <option value="ban3">封禁三天</option>
-                                                                <option value="banForever">永久封禁</option>
-                                                                <option value="restore">恢复权限</option>
-                                                            </select>
+                                                            <button type="button" class="btn btn-primary btn-xs execute-operation">执行操作</button>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                    <div id="paginationContainer" class="text-center m-t-md" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);"></div>
+                                    </div>
                                 </div>
                             </div>
 
                         </div>
+                        <div id="paginationContainer" class="text-center m-t-md"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <!-- 自定义弹窗 -->
+    <div id="customModalOverlay" class="custom-modal-overlay">
+        <div id="customModal" class="custom-modal">
+            <div class="custom-modal-header">
+                <div id="customModalIcon" class="custom-modal-icon">
+                    <i class="fa"></i>
+                </div>
+                <h3 id="customModalTitle" class="custom-modal-title"></h3>
+                <button class="custom-modal-close" onclick="closeCustomModal()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="custom-modal-body">
+                <p id="customModalMessage"></p>
+            </div>
+            <div class="custom-modal-footer">
+                <button id="customModalCancelBtn" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeCustomModal()" style="display: none;">取消</button>
+                <button id="customModalConfirmBtn" class="custom-modal-btn custom-modal-btn-primary" onclick="confirmCustomModal()">确定</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- 全局js -->
+    <script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+    <script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+
+    <script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
 
     <!-- 自定义js -->
-    <script src="js/content.js?v=1.0.0"></script>
+    <script th:src="@{/js/content.js?v=1.0.0}"></script>
 
     <script>
         $(function () {
@@ -257,138 +368,112 @@
     </script>
 
     <script>
+        // ================= 自定义弹窗功能 =================
+        let customModalCallback = null;
+
+        function showCustomModal(type, title, message, options) {
+            const overlay = $('#customModalOverlay');
+            const modal = $('#customModal');
+            const icon = $('#customModalIcon');
+            const titleEl = $('#customModalTitle');
+            const messageEl = $('#customModalMessage');
+            const cancelBtn = $('#customModalCancelBtn');
+            const confirmBtn = $('#customModalConfirmBtn');
+
+            // 设置图标和颜色
+            icon.removeClass('success error warning info');
+            let iconClass = 'fa-check-circle';
+            if (type === 'success') {
+                icon.addClass('success');
+                iconClass = 'fa-check-circle';
+            } else if (type === 'error') {
+                icon.addClass('error');
+                iconClass = 'fa-times-circle';
+            } else if (type === 'warning') {
+                icon.addClass('warning');
+                iconClass = 'fa-exclamation-triangle';
+            } else {
+                icon.addClass('info');
+                iconClass = 'fa-info-circle';
+            }
+            icon.find('i').attr('class', 'fa ' + iconClass);
+
+            // 设置标题和内容
+            titleEl.text(title);
+            messageEl.text(message);
+
+            // 设置按钮
+            if (options && options.showCancel) {
+                cancelBtn.show();
+                if (options.cancelText) {
+                    cancelBtn.text(options.cancelText);
+                }
+            } else {
+                cancelBtn.hide();
+            }
+
+            if (options && options.confirmText) {
+                confirmBtn.text(options.confirmText);
+            } else {
+                confirmBtn.text('确定');
+            }
+
+            // 保存回调函数
+            customModalCallback = options && options.onConfirm ? options.onConfirm : null;
+
+            // 如果是确认对话框，添加特殊样式
+            if (options && options.showCancel) {
+                modal.addClass('confirm');
+            } else {
+                modal.removeClass('confirm');
+            }
+
+            // 显示弹窗
+            overlay.addClass('show');
+
+            // 点击遮罩层关闭（仅非确认对话框）
+            if (!options || !options.showCancel) {
+                overlay.off('click').on('click', function(e) {
+                    if (e.target === overlay[0]) {
+                        closeCustomModal();
+                    }
+                });
+            }
+
+            // ESC键关闭
+            $(document).off('keydown.customModal').on('keydown.customModal', function(e) {
+                if (e.key === 'Escape') {
+                    closeCustomModal();
+                }
+            });
+        }
+
+        function closeCustomModal() {
+            $('#customModalOverlay').removeClass('show');
+            $(document).off('keydown.customModal');
+            customModalCallback = null;
+        }
+
+        function confirmCustomModal() {
+            if (customModalCallback) {
+                customModalCallback();
+            }
+            closeCustomModal();
+        }
+
+        // 替换原生alert
+        window.alert = function(message) {
+            showCustomModal('info', '提示', message);
+        };
+
         // 保存原始选项，用于恢复
-        let originalCommentOptions = [];
-        let originalDynamicOptions = [];
+        let originalPermissionOptions = [];
         
         // 分页相关变量
         let allUsers = [];
+        let originalUsers = [];
         let currentPage = 1;
-        const usersPerPage = 15;
-        
-        // 初始化：保存原始选项和用户数据
-        $(document).ready(function() {
-            // 保存所有用户数据
-            allUsers = $('#permissionsTableBody tr').map(function() {
-                return $(this).clone();
-            }).get();
-            
-            // 保存评论操作的原始选项（排除默认选项）
-            $('.comment-select').each(function() {
-                let options = [];
-                $(this).find('option').each(function() {
-                    let val = $(this).val();
-                    // 只保存非默认选项
-                    if (val !== '') {
-                        options.push({
-                            value: val,
-                            text: $(this).text()
-                        });
-                    }
-                });
-                originalCommentOptions.push(options);
-            });
-            
-            // 保存动态操作的原始选项（排除默认选项）
-            $('.dynamic-select').each(function() {
-                let options = [];
-                $(this).find('option').each(function() {
-                    let val = $(this).val();
-                    // 只保存非默认选项
-                    if (val !== '') {
-                        options.push({
-                            value: val,
-                            text: $(this).text()
-                        });
-                    }
-                });
-                originalDynamicOptions.push(options);
-            });
-            
-            // 初始化分页
-            renderPagination();
-            renderUsers();
-            
-            // 评论操作事件
-            $(document).on('change', '.comment-select', function() {
-                let $select = $(this);
-                let $row = $select.closest('tr');
-                let $status = $row.find('.comment-status');
-                let value = $select.val();
-                
-                // 更新状态显示
-                $status.removeClass('label-success label-danger label-warning label-info');
-                if (value === 'ban1') {
-                    $status.addClass('label-warning').text('禁止一天');
-                } else if (value === 'ban3') {
-                    $status.addClass('label-info').text('禁止三天');
-                } else if (value === 'banForever') {
-                    $status.addClass('label-danger').text('永久禁止');
-                } else if (value === 'restore') {
-                    $status.addClass('label-success').text('允许评论');
-                }
-                
-                // 重新构建选项，隐藏当前选中的选项
-                if (value) {
-                    let $options = $select.find('option');
-                    let rowIndex = $select.closest('tbody').find('tr').index($row);
-                    let userIndex = (currentPage - 1) * usersPerPage + rowIndex;
-                    
-                    // 清空当前选项
-                    $select.empty();
-                    
-                    // 添加默认选项
-                    $select.append('<option value="">选择操作</option>');
-                    
-                    // 添加原始选项，排除当前选中的选项
-                    originalCommentOptions[userIndex].forEach(function(option) {
-                        if (option.value !== value) {
-                            $select.append('<option value="' + option.value + '">' + option.text + '</option>');
-                        }
-                    });
-                }
-            });
-            
-            // 动态操作事件
-            $(document).on('change', '.dynamic-select', function() {
-                let $select = $(this);
-                let $row = $select.closest('tr');
-                let $status = $row.find('.dynamic-status');
-                let value = $select.val();
-                
-                // 更新状态显示
-                $status.removeClass('label-success label-danger label-warning label-info');
-                if (value === 'ban1') {
-                    $status.addClass('label-warning').text('禁止一天');
-                } else if (value === 'ban3') {
-                    $status.addClass('label-info').text('禁止三天');
-                } else if (value === 'banForever') {
-                    $status.addClass('label-danger').text('永久禁止');
-                } else if (value === 'restore') {
-                    $status.addClass('label-success').text('允许发布');
-                }
-                
-                // 重新构建选项，隐藏当前选中的选项
-                if (value) {
-                    let $options = $select.find('option');
-                    let rowIndex = $select.closest('tbody').find('tr').index($row);
-                    let userIndex = (currentPage - 1) * usersPerPage + rowIndex;
-                    
-                    // 清空当前选项
-                    $select.empty();
-                    
-                    // 添加默认选项
-                    $select.append('<option value="">选择操作</option>');
-                    
-                    // 添加原始选项，排除当前选中的选项
-                    originalDynamicOptions[userIndex].forEach(function(option) {
-                        if (option.value !== value) {
-                            $select.append('<option value="' + option.value + '">' + option.text + '</option>');
-                        }
-                    });
-                }
-            });
-        });
+        const usersPerPage = 10;
         
         // 渲染用户列表
         function renderUsers() {
@@ -438,6 +523,226 @@
             $pagination.html(paginationHtml);
         }
         
+        // 搜索用户
+        function searchUsers() {
+            const keyword = $('#searchInput').val().trim().toLowerCase();
+            if (!keyword) {
+                // 如果搜索关键词为空，显示所有用户
+                allUsers = originalUsers.slice();
+            } else {
+                // 根据用户名和真实姓名进行模糊搜索
+                allUsers = originalUsers.filter(function(userRow) {
+                    const username = userRow.find('.client-link').text().toLowerCase();
+                    const realName = userRow.find('.text-muted').text().replace('真实姓名: ', '').toLowerCase();
+                    return username.includes(keyword) || realName.includes(keyword);
+                });
+            }
+            // 重置当前页为第一页
+            currentPage = 1;
+            // 重新渲染用户列表和分页
+            renderUsers();
+            renderPagination();
+        }
+        
+        // 重置搜索
+        function resetSearch() {
+            // 清空搜索框
+            $('#searchInput').val('');
+            // 恢复所有用户
+            allUsers = originalUsers.slice();
+            // 重置当前页为第一页
+            currentPage = 1;
+            // 重新渲染用户列表和分页
+            renderUsers();
+            renderPagination();
+        }
+        
+        // 初始化：保存原始选项和用户数据
+        $(document).ready(function() {
+            // 保存所有用户数据
+            originalUsers = $('#permissionsTableBody tr').map(function() {
+                return $(this).clone();
+            }).get();
+            
+            // 初始化显示所有用户
+            allUsers = originalUsers.slice();
+            
+            // 初始化分页
+            renderPagination();
+            renderUsers();
+            
+            // 执行操作事件
+            $(document).on('click', '.execute-operation', function() {
+                let $row = $(this).closest('tr');
+                let userId = $row.data('user-id');
+                
+                // 获取三个下拉选的值
+                let banPermission = $row.find('.ban-permission').val();
+                let banTime = $row.find('.ban-time').val();
+                let restorePermission = $row.find('.restore-permission').val();
+                
+                // 检查是否有操作被选择
+                if (!banPermission && !restorePermission) {
+                    showCustomModal('warning', '提示', '请选择要执行的操作');
+                    return;
+                }
+                
+                // 处理封禁操作
+                if (banPermission && banTime) {
+                    let permissionValue = 0; // 0表示禁止
+                    let durationDays = 0;
+                    let reason = '违规操作'; // 可以根据需要修改
+                    let url;
+                    let data = {
+                        userId: userId,
+                        reason: reason
+                    };
+                    
+                    // 确定状态元素和封禁天数
+                    let $status;
+                    let statusText;
+                    let statusClass;
+                    
+                    if (banPermission === 'dynamic') {
+                        $status = $row.find('.dynamic-status');
+                        url = '/admin/permissions/updatePostPermission';
+                        data.canPost = permissionValue;
+                    } else if (banPermission === 'comment') {
+                        $status = $row.find('.comment-status');
+                        url = '/admin/permissions/updateCommentPermission';
+                        data.canComment = permissionValue;
+                    } else if (banPermission === 'message') {
+                        $status = $row.find('.message-status');
+                        url = '/admin/permissions/updateMessagePermission';
+                        data.canMessage = permissionValue;
+                    } else {
+                        showCustomModal('error', '错误', '无效的权限类型');
+                        return;
+                    }
+                    
+                    // 确定封禁天数
+                    if (banTime === 'ban1') {
+                        durationDays = 1;
+                        statusText = '封禁一天';
+                        statusClass = 'label-warning';
+                    } else if (banTime === 'ban3') {
+                        durationDays = 3;
+                        statusText = '封禁三天';
+                        statusClass = 'label-warning';
+                    } else if (banTime === 'banForever') {
+                        durationDays = 0; // 0表示永久
+                        statusText = '永久封禁';
+                        statusClass = 'label-danger';
+                    } else {
+                        showCustomModal('error', '错误', '无效的封禁时间');
+                        return;
+                    }
+                    
+                    data.durationDays = durationDays;
+                    
+                    // 发送AJAX请求更新权限
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        success: function(result) {
+                            if (result.success) {
+                                // 更新状态显示，根据是否为永久封禁设置不同的颜色
+                                $status.removeClass('label-success label-danger label-warning label-info');
+                                $status.addClass(statusClass).text(statusText);
+                                // 重置封禁相关下拉选
+                                $row.find('.ban-permission').val('');
+                                $row.find('.ban-time').val('');
+                                showCustomModal('success', '成功', '权限更新成功');
+                            } else {
+                                showCustomModal('error', '失败', '权限更新失败：' + result.message);
+                            }
+                        },
+                        error: function() {
+                            showCustomModal('error', '错误', '权限更新失败：网络错误');
+                        }
+                    });
+                }
+                
+                // 处理恢复操作
+                if (restorePermission) {
+                    let permissionValue = 1; // 1表示允许
+                    let durationDays = 0;
+                    let reason = '恢复权限';
+                    let url;
+                    let data = {
+                        userId: userId,
+                        reason: reason,
+                        durationDays: durationDays
+                    };
+                    
+                    // 确定状态元素
+                    let $status;
+                    let statusText = '允许发布';
+                    let statusClass = 'label-success';
+                    
+                    if (restorePermission === 'dynamic') {
+                        $status = $row.find('.dynamic-status');
+                        url = '/admin/permissions/updatePostPermission';
+                        data.canPost = permissionValue;
+                        statusText = '允许发布';
+                    } else if (restorePermission === 'comment') {
+                        $status = $row.find('.comment-status');
+                        url = '/admin/permissions/updateCommentPermission';
+                        data.canComment = permissionValue;
+                        statusText = '允许评论';
+                    } else if (restorePermission === 'message') {
+                        $status = $row.find('.message-status');
+                        url = '/admin/permissions/updateMessagePermission';
+                        data.canMessage = permissionValue;
+                        statusText = '允许私信';
+                    } else {
+                        showCustomModal('error', '错误', '无效的权限类型');
+                        return;
+                    }
+                    
+                    // 发送AJAX请求更新权限
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        success: function(result) {
+                            if (result.success) {
+                                // 更新状态显示，恢复为绿色成功色
+                                $status.removeClass('label-success label-danger label-warning label-info');
+                                $status.addClass('label-success').text(statusText);
+                                // 重置恢复权限下拉选
+                                $row.find('.restore-permission').val('');
+                                showCustomModal('success', '成功', '权限恢复成功');
+                            } else {
+                                showCustomModal('error', '失败', '权限恢复失败：' + result.message);
+                            }
+                        },
+                        error: function() {
+                            showCustomModal('error', '错误', '权限恢复失败：网络错误');
+                        }
+                    });
+                }
+            });
+            
+            // 搜索按钮点击事件
+            $('#searchBtn').on('click', function() {
+                searchUsers();
+            });
+            
+            // 重置按钮点击事件
+            $('#resetBtn').on('click', function() {
+                resetSearch();
+            });
+            
+            // 搜索框回车键事件
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) {
+                    searchUsers();
+                }
+            });
+        });
+        
         // 分页点击事件
         $(document).on('click', '#paginationContainer .pagination a', function(e) {
             e.preventDefault();
@@ -458,7 +763,7 @@
     </script>
 
     <script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
-    <!--统计代码，可删除-->
+    
 
 </body>
 

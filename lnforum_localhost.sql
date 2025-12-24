@@ -11,7 +11,7 @@
  Target Server Version : 80042 (8.0.42)
  File Encoding         : 65001
 
- Date: 23/12/2025 22:30:13
+ Date: 24/12/2025 14:59:37
 */
 
 SET NAMES utf8mb4;
@@ -39,8 +39,8 @@ INSERT INTO `category` VALUES (1, '动态', '普通校园动态', 1, 1, '2025-12
 INSERT INTO `category` VALUES (2, '跑腿', '代取快递、代送物品等跑腿服务', 2, 1, '2025-12-09 14:32:58');
 INSERT INTO `category` VALUES (3, '二手集市', '二手物品交易市场', 3, 1, '2025-12-09 14:32:58');
 INSERT INTO `category` VALUES (4, '失物招领', '寻找丢失物品和发布失物信息', 4, 1, '2025-12-09 14:32:58');
-INSERT INTO `category` VALUES (5, '招聘', '校园招聘和兼职信息', 5, 1, '2025-12-09 14:32:58');
-INSERT INTO `category` VALUES (6, '部门动态', '学校部门通知和公告', 6, 1, '2025-12-09 14:32:58');
+INSERT INTO `category` VALUES (5, '招聘', '校园招聘和兼职信息', 5, 0, '2025-12-09 14:32:58');
+INSERT INTO `category` VALUES (6, '部门动态', '学校部门通知和公告', 6, 0, '2025-12-09 14:32:58');
 
 -- ----------------------------
 -- Table structure for category_tag
@@ -71,8 +71,6 @@ INSERT INTO `category_tag` VALUES (4, 1, 7, 4, '2025-12-09 14:32:58');
 INSERT INTO `category_tag` VALUES (5, 1, 8, 5, '2025-12-09 14:32:58');
 INSERT INTO `category_tag` VALUES (6, 2, 9, 1, '2025-12-09 14:32:58');
 INSERT INTO `category_tag` VALUES (7, 3, 3, 1, '2025-12-09 14:32:58');
-INSERT INTO `category_tag` VALUES (8, 5, 4, 1, '2025-12-09 14:32:58');
-INSERT INTO `category_tag` VALUES (9, 5, 10, 2, '2025-12-09 14:32:58');
 INSERT INTO `category_tag` VALUES (10, 3, 5, 2, '2025-12-09 14:32:58');
 
 -- ----------------------------
@@ -173,7 +171,7 @@ CREATE TABLE `message`  (
   INDEX `message_ibfk_1`(`sender_id` ASC) USING BTREE,
   CONSTRAINT `message_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `message_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '消息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '消息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of message
@@ -185,10 +183,12 @@ INSERT INTO `message` VALUES (4, NULL, NULL, 1, '您的商品有人咨询', '用
 INSERT INTO `message` VALUES (5, 9, 7, 0, NULL, '同学，饭放楼下宿管桌子上了，记得趁热吃。', 0, NULL, NULL, 0, NULL, '2025-12-10 12:05:00');
 INSERT INTO `message` VALUES (6, 7, 8, 0, NULL, '我想在这个周末看琴，方便吗？', 0, NULL, NULL, 1, NULL, '2025-12-10 13:00:00');
 INSERT INTO `message` VALUES (7, NULL, NULL, 1, NULL, '您的跑腿订单已完成，请确认收货。', 0, NULL, NULL, 0, NULL, '2025-12-10 12:06:00');
-INSERT INTO `message` VALUES (8, NULL, NULL, 1, '元旦活动通知', '2026年元旦校园社区将举办线下联谊活动，欢迎所有用户参与！', 0, NULL, NULL, NULL, NULL, '2025-12-23 14:26:27');
+INSERT INTO `message` VALUES (8, NULL, NULL, 1, '元旦活动通知', '2026年元旦校园社区将举办线下联谊活动，欢迎所有用户参与！', 1, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133335_651dba1f.png', NULL, NULL, NULL, '2025-12-23 14:26:27');
 INSERT INTO `message` VALUES (9, 1, 7, 0, NULL, '已封禁用户1天', 0, NULL, '举报', 0, NULL, '2025-12-23 08:35:17');
 INSERT INTO `message` VALUES (10, 1, 6, 0, NULL, '未违规', 0, NULL, '举报', 0, NULL, '2025-12-23 08:35:30');
 INSERT INTO `message` VALUES (11, 1, 5, 0, NULL, '您的举报已处理（结果：已通过并采取相应措施）。反馈：已封禁用户1天', 0, NULL, '举报', 0, NULL, '2025-12-23 08:46:36');
+INSERT INTO `message` VALUES (12, 1, 6, 0, NULL, '', 1, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', '用户', 0, NULL, '2025-12-24 13:32:17');
+INSERT INTO `message` VALUES (13, 2, 1, 0, NULL, '', 1, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224134918_2d7f6a38.png', '用户', 1, '2025-12-24 13:50:32', '2025-12-24 13:49:21');
 
 -- ----------------------------
 -- Table structure for message_receiver
@@ -259,18 +259,18 @@ CREATE TABLE `post`  (
 -- ----------------------------
 -- Records of post
 -- ----------------------------
-INSERT INTO `post` VALUES (1, 2, 1, '今天图书馆人真多', '期末复习季，图书馆一座难求，大家加油！', NULL, NULL, NULL, NULL, NULL, NULL, 'lib1.jpg', NULL, NULL, 1, 156, 23, 8, 5, 0, '2025-12-09 09:30:00', '2025-12-09 09:30:00', '2025-12-23 20:59:15');
-INSERT INTO `post` VALUES (2, 3, 1, '考研倒计时30天', '最后一个月冲刺，研友们一起加油！', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 289, 45, 12, 18, 1, '2025-12-09 10:15:00', '2025-12-09 10:15:00', '2025-12-23 20:59:17');
-INSERT INTO `post` VALUES (3, 2, 2, '代取快递', '下午3-5点有时间，可代取中通快递，小件3元，大件5元', '微信: zhxm123', '2025-12-09 17:00:00', 5.00, NULL, '菜鸟驿站', '宿舍7号楼', NULL, NULL, NULL, 1, 78, 5, 3, 2, 0, '2025-12-09 11:20:00', '2025-12-09 11:20:00', '2025-12-23 20:59:18');
-INSERT INTO `post` VALUES (4, 3, 3, '出售考研资料', '2025年考研数学一全套资料，几乎全新', '电话: 13800138002', '2025-12-15 00:00:00', 80.00, '包含真题、模拟题、笔记', NULL, NULL, 'book1.jpg', 'book2.jpg', NULL, 1, 134, 12, 6, 7, 0, '2025-12-09 12:00:00', '2025-12-09 12:00:00', '2025-12-23 20:59:18');
-INSERT INTO `post` VALUES (5, 4, 4, '捡到一卡通', '在二食堂门口捡到一张学生卡，姓名:李华', '电话: 13800138003', NULL, NULL, '蓝色卡套，信息工程学院', NULL, NULL, 'card1.jpg', NULL, NULL, 1, 45, 3, 2, 1, 0, '2025-12-09 13:10:00', '2025-12-09 13:10:00', '2025-12-23 20:59:18');
-INSERT INTO `post` VALUES (6, 5, 5, '招聘研究助理', '计算机学院实验室招聘研究助理2名，要求熟悉Python', '邮箱: wang@university.edu', '2025-12-20 00:00:00', NULL, '每周工作10-15小时，有科研经验者优先', NULL, NULL, NULL, NULL, NULL, 1, 210, 18, 9, 15, 1, '2025-12-09 14:00:00', '2025-12-09 14:00:00', '2025-12-23 20:59:19');
-INSERT INTO `post` VALUES (7, 1, 6, '校园网络维护通知', '12月10日00:00-06:00校园网络维护，期间可能无法访问', NULL, '2025-12-10 06:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 320, 28, 5, 12, 0, '2025-12-09 14:30:00', '2025-12-09 14:30:00', '2025-12-23 20:59:19');
-INSERT INTO `post` VALUES (8, 8, 3, '【出】雅马哈吉他，九九新', '大一买的，没怎么弹过，送琴包和变调夹。', '微信: guitar_hero', NULL, 650.00, '型号F310，原木色', NULL, NULL, 'guitar1.jpg', NULL, NULL, 1, 0, 0, 0, 0, 0, '2025-12-23 09:16:37', '2025-12-10 09:00:00', '2025-12-23 20:59:19');
-INSERT INTO `post` VALUES (9, 7, 2, '求带二食堂黄焖鸡米饭', '有些感冒不想下楼，求同学帮忙带一份大份微辣的。', '手机同号', NULL, 3.00, NULL, '二食堂', '南区宿舍3号楼', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, '2025-12-23 09:16:53', '2025-12-10 11:30:00', '2025-12-23 20:59:23');
-INSERT INTO `post` VALUES (10, 2, 4, '操场捡到一个AirPods左耳', '在操场主席台附近的草坪上捡到的，请失主带另一只来配对。', NULL, NULL, NULL, 'AirPods Pro 一代', NULL, NULL, 'airpod.jpg', NULL, NULL, 4, 0, 0, 0, 0, 0, '2025-12-23 13:21:57', '2025-12-10 18:20:00', '2025-12-23 21:21:57');
-INSERT INTO `post` VALUES (11, 3, 1, '最近天气太冷了', '大家去图书馆记得多穿点，暖气好像不太足。', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 0, 0, 0, 0, 0, '2025-12-23 13:21:56', '2025-12-11 08:15:00', '2025-12-23 21:21:55');
-INSERT INTO `post` VALUES (12, 5, 2, '教职工公寓短租', '寒假期间短租，适合留校考研的同学，水电全免。', '电话: 138xxx', NULL, 1500.00, '一室一厅，有厨房', NULL, NULL, NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, '2025-12-23 13:21:53', '2025-12-11 10:00:00', '2025-12-23 21:21:52');
+INSERT INTO `post` VALUES (1, 2, 1, '今天图书馆人真多', '期末复习季，图书馆一座难求，大家加油！', NULL, NULL, NULL, NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, NULL, 1, 156, 23, 8, 5, 0, '2025-12-09 09:30:00', '2025-12-09 09:30:00', '2025-12-24 13:35:22');
+INSERT INTO `post` VALUES (2, 3, 1, '考研倒计时30天', '最后一个月冲刺，研友们一起加油！', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 289, 45, 12, 18, 1, '2025-12-09 10:15:00', '2025-12-09 10:15:00', '2025-12-24 13:35:23');
+INSERT INTO `post` VALUES (3, 2, 2, '代取快递', '下午3-5点有时间，可代取中通快递，小件3元，大件5元', '微信: zhxm123', '2025-12-09 17:00:00', 5.00, NULL, '菜鸟驿站', '宿舍7号楼', NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 1, 78, 5, 3, 2, 0, '2025-12-09 11:20:00', '2025-12-09 11:20:00', '2025-12-24 13:35:24');
+INSERT INTO `post` VALUES (4, 3, 3, '出售考研资料', '2025年考研数学一全套资料，几乎全新', '电话: 13800138002', '2025-12-15 00:00:00', 80.00, '包含真题、模拟题、笔记', NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 134, 12, 6, 7, 0, '2025-12-09 12:00:00', '2025-12-09 12:00:00', '2025-12-24 13:40:14');
+INSERT INTO `post` VALUES (5, 4, 4, '捡到一卡通', '在二食堂门口捡到一张学生卡，姓名:李华', '电话: 13800138003', NULL, NULL, '蓝色卡套，信息工程学院', NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 45, 3, 2, 1, 0, '2025-12-09 13:10:00', '2025-12-09 13:10:00', '2025-12-24 13:35:34');
+INSERT INTO `post` VALUES (6, 5, 5, '招聘研究助理', '计算机学院实验室招聘研究助理2名，要求熟悉Python', '邮箱: wang@university.edu', '2025-12-20 00:00:00', NULL, '每周工作10-15小时，有科研经验者优先', NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 210, 18, 9, 15, 1, '2025-12-09 14:00:00', '2025-12-09 14:00:00', '2025-12-24 13:35:35');
+INSERT INTO `post` VALUES (7, 1, 6, '校园网络维护通知', '12月10日00:00-06:00校园网络维护，期间可能无法访问', NULL, '2025-12-10 06:00:00', NULL, NULL, NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 320, 28, 5, 12, 0, '2025-12-09 14:30:00', '2025-12-09 14:30:00', '2025-12-24 13:35:36');
+INSERT INTO `post` VALUES (8, 8, 3, '【出】雅马哈吉他，九九新', '大一买的，没怎么弹过，送琴包和变调夹。', '微信: guitar_hero', NULL, 650.00, '型号F310，原木色', NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 1, 0, 0, 0, 0, 0, '2025-12-23 09:16:37', '2025-12-10 09:00:00', '2025-12-24 13:40:12');
+INSERT INTO `post` VALUES (9, 7, 2, '求带二食堂黄焖鸡米饭', '有些感冒不想下楼，求同学帮忙带一份大份微辣的。', '手机同号', NULL, 3.00, NULL, '二食堂', '南区宿舍3号楼', NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 0, 0, 0, 0, 0, '2025-12-23 09:16:53', '2025-12-10 11:30:00', '2025-12-24 13:35:38');
+INSERT INTO `post` VALUES (10, 2, 4, '操场捡到一个AirPods左耳', '在操场主席台附近的草坪上捡到的，请失主带另一只来配对。', NULL, NULL, NULL, 'AirPods Pro 一代', NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 4, 0, 0, 0, 0, 0, '2025-12-23 13:21:57', '2025-12-10 18:20:00', '2025-12-24 13:40:09');
+INSERT INTO `post` VALUES (11, 3, 1, '最近天气太冷了', '大家去图书馆记得多穿点，暖气好像不太足。', NULL, NULL, NULL, NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, NULL, 4, 0, 0, 0, 0, 0, '2025-12-23 13:21:56', '2025-12-11 08:15:00', '2025-12-24 13:35:40');
+INSERT INTO `post` VALUES (12, 5, 2, '教职工公寓短租', '寒假期间短租，适合留校考研的同学，水电全免。', '电话: 138xxx', NULL, 1500.00, '一室一厅，有厨房', NULL, NULL, NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', NULL, 1, 0, 0, 0, 0, 0, '2025-12-23 13:21:53', '2025-12-11 10:00:00', '2025-12-24 13:35:42');
 
 -- ----------------------------
 -- Table structure for post_tag
@@ -296,8 +296,6 @@ INSERT INTO `post_tag` VALUES (2, 2, 1);
 INSERT INTO `post_tag` VALUES (3, 2, 2);
 INSERT INTO `post_tag` VALUES (4, 4, 1);
 INSERT INTO `post_tag` VALUES (5, 4, 3);
-INSERT INTO `post_tag` VALUES (6, 6, 4);
-INSERT INTO `post_tag` VALUES (7, 6, 10);
 INSERT INTO `post_tag` VALUES (8, 8, 3);
 INSERT INTO `post_tag` VALUES (9, 9, 6);
 INSERT INTO `post_tag` VALUES (10, 10, 7);
@@ -343,13 +341,13 @@ CREATE TABLE `report`  (
 INSERT INTO `report` VALUES (1, 2, '帖子', NULL, 1, NULL, '其他', '这个帖子描述的情况不实，图书馆今天人很少', NULL, 1, 1, 0, '经核实，帖子内容属实', '2025-12-09 11:00:00', '2025-12-09 14:00:00');
 INSERT INTO `report` VALUES (2, 3, '评论', 10, NULL, NULL, '其他', '这个回复带有攻击性', NULL, 0, NULL, NULL, NULL, '2025-12-09 11:30:00', NULL);
 INSERT INTO `report` VALUES (3, 2, '帖子', NULL, 6, NULL, '垃圾信息', '这人一直在发兼职刷单广告', NULL, 0, NULL, NULL, NULL, '2025-12-11 15:00:00', NULL);
-INSERT INTO `report` VALUES (4, 2, '用户', NULL, NULL, 3, '垃圾信息', '一直发垃圾信息', NULL, 1, 1, 1, '已封禁用户1天', '2025-12-22 15:24:40', '2025-12-23 02:53:36');
-INSERT INTO `report` VALUES (5, 4, '用户', NULL, NULL, 3, '违法违规', '违法', NULL, 1, 1, 1, '已封禁用户1天', '2025-12-23 12:13:25', '2025-12-23 04:15:25');
-INSERT INTO `report` VALUES (6, 6, '用户', NULL, NULL, 4, '欺诈', '骗我', NULL, 1, 1, 0, '未违规', '2025-12-23 12:13:55', '2025-12-23 08:35:30');
+INSERT INTO `report` VALUES (4, 2, '用户', NULL, NULL, 3, '垃圾信息', '一直发垃圾信息', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 1, 1, 1, '已封禁用户1天', '2025-12-22 15:24:40', '2025-12-23 02:53:36');
+INSERT INTO `report` VALUES (5, 4, '用户', NULL, NULL, 3, '违法违规', '违法', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 1, 1, 1, '已封禁用户1天', '2025-12-23 12:13:25', '2025-12-23 04:15:25');
+INSERT INTO `report` VALUES (6, 6, '用户', NULL, NULL, 4, '欺诈', '骗我', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 1, 1, 0, '未违规', '2025-12-23 12:13:55', '2025-12-23 08:35:30');
 INSERT INTO `report` VALUES (7, 7, '帖子', NULL, 8, NULL, '欺诈', '怀疑这把吉他是假货', NULL, 1, 1, 1, '已封禁用户1天', '2025-12-23 15:10:00', '2025-12-23 08:35:17');
 INSERT INTO `report` VALUES (8, 8, '评论', 5, NULL, NULL, '其他', '这条评论有辱骂', NULL, 0, NULL, NULL, NULL, '2025-12-23 15:12:00', NULL);
 INSERT INTO `report` VALUES (9, 9, '帖子', NULL, 10, NULL, '侵权', '帖子图片涉嫌侵权', NULL, 0, NULL, NULL, NULL, '2025-12-23 15:15:00', NULL);
-INSERT INTO `report` VALUES (10, 2, '用户', NULL, NULL, 8, '欺诈', '怀疑账号出售假货', NULL, 0, NULL, NULL, NULL, '2025-12-23 15:18:00', NULL);
+INSERT INTO `report` VALUES (10, 2, '用户', NULL, NULL, 8, '欺诈', '怀疑账号出售假货', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/20251224133208_5bcdf8eb.png', 0, NULL, NULL, NULL, '2025-12-23 15:18:00', NULL);
 INSERT INTO `report` VALUES (11, 3, '评论', 11, NULL, NULL, '垃圾信息', '评论反复发广告', NULL, 0, NULL, NULL, NULL, '2025-12-23 15:20:00', NULL);
 INSERT INTO `report` VALUES (12, 5, '帖子', NULL, 12, NULL, '其他', '动态内容与事实不符', NULL, 1, 1, 1, '已封禁用户1天', '2025-12-23 15:22:00', '2025-12-23 08:46:36');
 
@@ -393,13 +391,11 @@ CREATE TABLE `tag`  (
 INSERT INTO `tag` VALUES (1, '考研', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (2, '学习', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (3, '二手', '2025-12-09 14:32:58');
-INSERT INTO `tag` VALUES (4, '兼职', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (5, '租房', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (6, '美食', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (7, '运动', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (8, '社团', '2025-12-09 14:32:58');
 INSERT INTO `tag` VALUES (9, '快递', '2025-12-09 14:32:58');
-INSERT INTO `tag` VALUES (10, '招聘', '2025-12-09 14:32:58');
 
 -- ----------------------------
 -- Table structure for trade_task
@@ -472,21 +468,22 @@ CREATE TABLE `user`  (
   INDEX `idx_phone`(`phone` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_role`(`role` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, 'admin', 'Admin User', 'admin123', '13800138000', NULL, 'admin_avatar.png', 0, NULL, NULL, 0, 0, 0, '2025-12-09 14:32:58', NULL);
-INSERT INTO `user` VALUES (2, '张小明', '张小明', '$2a$10$abc123', '13800138001', 'zhxm@example.com', 'avatar1.jpg', 1, '热爱学习的程序员', '北京市海淀区', 3, 0, 0, '2025-12-09 15:00:00', '2025-12-09 18:30:00');
-INSERT INTO `user` VALUES (3, '李小红', '李小红', '$2a$10$def456', '13800138002', 'lixh@example.com', 'avatar2.jpg', 2, '考研进行中', '北京市朝阳区', 3, 1, 0, '2025-12-09 15:05:00', '2025-12-09 19:20:00');
-INSERT INTO `user` VALUES (4, '跑腿小王', '王五', '$2a$10$ghi789', '13800138003', 'paitw@example.com', 'avatar3.jpg', 1, '专业跑腿，安全快捷', '北京市丰台区', 2, 0, 0, '2025-12-09 15:10:00', '2025-12-09 20:15:00');
-INSERT INTO `user` VALUES (5, '王老师', '王建国', '$2a$10$jkl012', '13800138004', 'wangls@example.com', 'avatar4.jpg', 1, '计算机系教师', '北京市西城区', 3, 0, 1, '2025-12-09 15:15:00', '2025-12-09 17:45:00');
-INSERT INTO `user` VALUES (6, '校园记者', '赵六', '$2a$10$mno345', '13800138005', 'xyjz@example.com', 'avatar5.jpg', 2, '校园新闻第一时间', '北京市东城区', 3, 0, 1, '2025-12-09 15:20:00', '2025-12-09 16:30:00');
-INSERT INTO `user` VALUES (7, 'freshman_li', '李华', '$2a$10$testpwd7', '13900000007', 'lihua@uni.edu', 'default_avatar.png', 1, '大一新生，请多关照', '南区宿舍3号楼', 3, 0, 0, '2025-12-22 09:30:49', NULL);
-INSERT INTO `user` VALUES (8, 'music_fan', '陈悦', '$2a$10$testpwd8', '13900000008', 'chenyue@uni.edu', 'default_avatar.png', 2, '吉他社副社长 | 寻找乐队伙伴', '北区宿舍A栋', 3, 0, 0, '2025-12-22 09:30:49', NULL);
-INSERT INTO `user` VALUES (9, 'runner_fast', '赵速', '$2a$10$testpwd9', '13900000009', 'zhaosu@uni.edu', 'default_avatar.png', 1, '全校接单，使命必达', '东区男生宿舍6栋', 2, 0, 0, '2025-12-22 09:30:49', NULL);
-INSERT INTO `user` VALUES (10, 'tech_admin', '系统管理员', '$2a$10$testpwd10', '13900000010', 'admin2@uni.edu', 'default_avatar.png', 1, '维护社区秩序', '行政楼202', 1, 0, 0, '2025-12-22 09:30:49', NULL);
+INSERT INTO `user` VALUES (1, 'admin', 'Admin User', 'admin123', '13800138000', NULL, 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400001.jpg', 0, NULL, NULL, 0, 0, 0, '2025-12-09 14:32:58', NULL);
+INSERT INTO `user` VALUES (2, '张小明', '张小明', '$2a$10$abc123', '13800138001', 'zhxm@example.com', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400002.jpg', 1, '热爱学习的程序员', '北京市海淀区', 3, 0, 0, '2025-12-09 15:00:00', '2025-12-09 18:30:00');
+INSERT INTO `user` VALUES (3, '李小红', '李小红', '$2a$10$def456', '13800138002', 'lixh@example.com', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400003.jpg', 2, '考研进行中', '北京市朝阳区', 3, 1, 0, '2025-12-09 15:05:00', '2025-12-09 19:20:00');
+INSERT INTO `user` VALUES (4, '跑腿小王', '王五', '$2a$10$ghi789', '13800138003', 'paitw@example.com', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400004.jpg', 1, '专业跑腿，安全快捷', '北京市丰台区', 2, 0, 0, '2025-12-09 15:10:00', '2025-12-09 20:15:00');
+INSERT INTO `user` VALUES (5, '王老师', '王建国', '$2a$10$jkl012', '13800138004', 'wangls@example.com', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400005.jpg', 1, '计算机系教师', '北京市西城区', 3, 0, 1, '2025-12-09 15:15:00', '2025-12-09 17:45:00');
+INSERT INTO `user` VALUES (6, '校园记者', '赵六', '$2a$10$mno345', '13800138005', 'xyjz@example.com', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400006.jpg', 2, '校园新闻第一时间', '北京市东城区', 3, 0, 1, '2025-12-09 15:20:00', '2025-12-09 16:30:00');
+INSERT INTO `user` VALUES (7, 'freshman_li', '李华', '$2a$10$testpwd7', '13900000007', 'lihua@uni.edu', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400007.jpg', 1, '大一新生，请多关照', '南区宿舍3号楼', 3, 0, 0, '2025-12-22 09:30:49', NULL);
+INSERT INTO `user` VALUES (8, 'music_fan', '陈悦', '$2a$10$testpwd8', '13900000008', 'chenyue@uni.edu', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400008.jpg', 2, '吉他社副社长 | 寻找乐队伙伴', '北区宿舍A栋', 3, 0, 0, '2025-12-22 09:30:49', NULL);
+INSERT INTO `user` VALUES (9, 'runner_fast', '赵速', '$2a$10$testpwd9', '13900000009', 'zhaosu@uni.edu', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400009.jpg', 1, '全校接单，使命必达', '东区男生宿舍6栋', 2, 0, 0, '2025-12-22 09:30:49', NULL);
+INSERT INTO `user` VALUES (10, 'tech_admin', '系统管理员', '$2a$10$testpwd10', '13900000010', 'admin2@uni.edu', 'https://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400010.jpg', 1, '维护社区秩序', '行政楼202', 1, 0, 0, '2025-12-22 09:30:49', NULL);
+INSERT INTO `user` VALUES (11, 'wang', '王', '123456', '123123413241', '12341232@qq.com', 'default_avatar.pnghttps://inforum.oss-cn-wulanchabu.aliyuncs.com/images/20251224/2025122400001.jpg', 1, '大学生', '宁夏大学', 3, 0, 0, '2025-12-24 03:38:34', NULL);
 
 -- ----------------------------
 -- Table structure for user_ban_history
@@ -512,16 +509,29 @@ CREATE TABLE `user_ban_history`  (
   INDEX `idx_end_time`(`end_time` ASC) USING BTREE,
   CONSTRAINT `user_ban_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `user_ban_history_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `user` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户封禁历史表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户封禁历史表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_ban_history
 -- ----------------------------
-INSERT INTO `user_ban_history` VALUES (1, 6, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 0, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '发布虚假广告信息', 7, '2025-12-09 15:30:00', '2025-12-16 15:30:00', 1, '2025-12-09 15:30:00');
-INSERT INTO `user_ban_history` VALUES (2, 3, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 0, \"can_like\": 0, \"can_post\": 0, \"can_sell\": 0, \"can_follow\": 0, \"can_comment\": 0, \"can_message\": 0, \"can_run_errand\": 0}', '举报原因：垃圾信息 - 一直发垃圾信息', 1, '2025-12-23 02:53:36', '2025-12-24 02:53:36', 1, '2025-12-23 02:53:36');
+INSERT INTO `user_ban_history` VALUES (1, 6, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 0, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '发布虚假广告信息', 7, '2025-12-09 15:30:00', '2025-12-16 15:30:00', 0, '2025-12-09 15:30:00');
+INSERT INTO `user_ban_history` VALUES (2, 3, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 0, \"can_like\": 0, \"can_post\": 0, \"can_sell\": 0, \"can_follow\": 0, \"can_comment\": 0, \"can_message\": 0, \"can_run_errand\": 0}', '举报原因：垃圾信息 - 一直发垃圾信息', 1, '2025-12-23 02:53:36', '2025-12-24 02:53:36', 0, '2025-12-23 02:53:36');
 INSERT INTO `user_ban_history` VALUES (3, 3, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 0, \"can_like\": 0, \"can_post\": 0, \"can_sell\": 0, \"can_follow\": 0, \"can_comment\": 0, \"can_message\": 0, \"can_run_errand\": 0}', '举报原因：违法违规 - 违法', 1, '2025-12-23 04:15:25', '2025-12-24 04:15:25', 1, '2025-12-23 04:15:25');
 INSERT INTO `user_ban_history` VALUES (4, 8, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 0, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '举报原因：欺诈 - 怀疑这把吉他是假货', 1, '2025-12-23 08:35:17', '2025-12-24 08:35:17', 1, '2025-12-23 08:35:17');
 INSERT INTO `user_ban_history` VALUES (5, 5, 1, '封禁', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 1, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '{\"can_buy\": 1, \"can_like\": 1, \"can_post\": 0, \"can_sell\": 1, \"can_follow\": 1, \"can_comment\": 1, \"can_message\": 1, \"can_run_errand\": 1}', '举报原因：其他 - 动态内容与事实不符', 1, '2025-12-23 08:46:36', '2025-12-24 08:46:36', 1, '2025-12-23 08:46:36');
+INSERT INTO `user_ban_history` VALUES (6, 1, 1, '封禁', '{\"canBuy\": 1, \"userId\": 1, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1765294190000, \"canRunErrand\": 1, \"permissionId\": 1}', '{\"canBuy\": 1, \"userId\": 1, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766572989000, \"canRunErrand\": 1, \"permissionId\": 1}', '违规操作', 1, '2025-12-24 02:43:10', '2025-12-25 02:43:10', 1, '2025-12-24 02:43:10');
+INSERT INTO `user_ban_history` VALUES (7, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1765294190000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766573045000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 1, '2025-12-24 02:44:06', '2025-12-25 02:44:06', 0, '2025-12-24 02:44:06');
+INSERT INTO `user_ban_history` VALUES (8, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766573045000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766573045000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 3, '2025-12-24 02:44:18', '2025-12-27 02:44:18', 0, '2025-12-24 02:44:18');
+INSERT INTO `user_ban_history` VALUES (9, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766573045000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766573045000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 3, '2025-12-24 02:57:43', '2025-12-27 02:57:43', 0, '2025-12-24 02:57:43');
+INSERT INTO `user_ban_history` VALUES (10, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574423000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574428000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 1, '2025-12-24 03:07:08', '2025-12-25 03:07:08', 0, '2025-12-24 03:07:08');
+INSERT INTO `user_ban_history` VALUES (11, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574428000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574428000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 3, '2025-12-24 03:07:15', '2025-12-27 03:07:15', 0, '2025-12-24 03:07:15');
+INSERT INTO `user_ban_history` VALUES (12, 4, 1, '封禁', '{\"canBuy\": 1, \"userId\": 4, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1765294190000, \"canRunErrand\": 1, \"permissionId\": 4}', '{\"canBuy\": 1, \"userId\": 4, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574935000, \"canRunErrand\": 1, \"permissionId\": 4}', '违规操作', 3, '2025-12-24 03:15:36', '2025-12-27 03:15:36', 1, '2025-12-24 03:15:36');
+INSERT INTO `user_ban_history` VALUES (13, 6, 1, '封禁', '{\"canBuy\": 1, \"userId\": 6, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1765294190000, \"canRunErrand\": 1, \"permissionId\": 6}', '{\"canBuy\": 1, \"userId\": 6, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766574952000, \"canRunErrand\": 1, \"permissionId\": 6}', '违规操作', 3, '2025-12-24 03:15:53', '2025-12-27 03:15:53', 1, '2025-12-24 03:15:53');
+INSERT INTO `user_ban_history` VALUES (14, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575088000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575950000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 1, '2025-12-24 03:32:30', '2025-12-25 03:32:30', 0, '2025-12-24 03:32:30');
+INSERT INTO `user_ban_history` VALUES (15, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575950000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575950000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 3, '2025-12-24 03:32:38', '2025-12-27 03:32:38', 0, '2025-12-24 03:32:38');
+INSERT INTO `user_ban_history` VALUES (16, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575950000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766575950000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 0, '2025-12-24 03:32:47', NULL, 0, '2025-12-24 03:32:47');
+INSERT INTO `user_ban_history` VALUES (17, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766585359000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766585586000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 1, '2025-12-24 06:13:07', '2025-12-25 06:13:07', 0, '2025-12-24 06:13:07');
+INSERT INTO `user_ban_history` VALUES (18, 2, 1, '封禁', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 1, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766585597000, \"canRunErrand\": 1, \"permissionId\": 2}', '{\"canBuy\": 1, \"userId\": 2, \"canLike\": 1, \"canPost\": 0, \"canSell\": 1, \"canFollow\": 1, \"canComment\": 1, \"canMessage\": 1, \"updateTime\": 1766585651000, \"canRunErrand\": 1, \"permissionId\": 2}', '违规操作', 1, '2025-12-24 06:14:12', '2025-12-25 06:14:12', 1, '2025-12-24 06:14:12');
 
 -- ----------------------------
 -- Table structure for user_permission
@@ -544,21 +554,22 @@ CREATE TABLE `user_permission`  (
   INDEX `idx_can_post`(`can_post` ASC) USING BTREE,
   INDEX `idx_can_comment`(`can_comment` ASC) USING BTREE,
   CONSTRAINT `user_permission_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户权限表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_permission
 -- ----------------------------
-INSERT INTO `user_permission` VALUES (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-09 15:29:50');
-INSERT INTO `user_permission` VALUES (2, 2, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-09 15:29:50');
-INSERT INTO `user_permission` VALUES (3, 3, 0, 0, 0, 0, 0, 0, 0, 0, '2025-12-23 12:15:24');
-INSERT INTO `user_permission` VALUES (4, 4, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-09 15:29:50');
-INSERT INTO `user_permission` VALUES (5, 5, 0, 1, 1, 1, 1, 1, 1, 1, '2025-12-23 16:46:36');
-INSERT INTO `user_permission` VALUES (6, 6, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-09 15:29:50');
+INSERT INTO `user_permission` VALUES (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 10:43:55');
+INSERT INTO `user_permission` VALUES (2, 2, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 14:14:15');
+INSERT INTO `user_permission` VALUES (3, 3, 1, 1, 0, 0, 1, 0, 0, 0, '2025-12-24 11:18:18');
+INSERT INTO `user_permission` VALUES (4, 4, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 11:18:22');
+INSERT INTO `user_permission` VALUES (5, 5, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 11:18:25');
+INSERT INTO `user_permission` VALUES (6, 6, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 11:18:28');
 INSERT INTO `user_permission` VALUES (8, 7, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-22 09:30:49');
-INSERT INTO `user_permission` VALUES (9, 8, 0, 1, 1, 1, 1, 1, 1, 1, '2025-12-23 16:35:17');
+INSERT INTO `user_permission` VALUES (9, 8, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 11:18:31');
 INSERT INTO `user_permission` VALUES (10, 9, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-22 09:30:49');
 INSERT INTO `user_permission` VALUES (11, 10, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-22 09:30:49');
+INSERT INTO `user_permission` VALUES (12, 11, 1, 1, 1, 1, 1, 1, 1, 1, '2025-12-24 11:38:34');
 
 -- ----------------------------
 -- Table structure for user_setting
@@ -577,7 +588,7 @@ CREATE TABLE `user_setting`  (
   PRIMARY KEY (`setting_id`) USING BTREE,
   UNIQUE INDEX `user_id`(`user_id` ASC) USING BTREE,
   CONSTRAINT `user_setting_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户设置表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户设置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_setting
@@ -592,6 +603,7 @@ INSERT INTO `user_setting` VALUES (9, 7, 0, 1, 1, 'zh-CN', '公开', '2025-12-22
 INSERT INTO `user_setting` VALUES (10, 8, 0, 1, 1, 'zh-CN', '公开', '2025-12-22 09:30:49', '2025-12-22 09:30:49');
 INSERT INTO `user_setting` VALUES (11, 9, 0, 1, 1, 'zh-CN', '公开', '2025-12-22 09:30:49', '2025-12-22 09:30:49');
 INSERT INTO `user_setting` VALUES (12, 10, 0, 1, 1, 'zh-CN', '公开', '2025-12-22 09:30:49', '2025-12-22 09:30:49');
+INSERT INTO `user_setting` VALUES (13, 11, 0, 1, 1, 'zh-CN', '公开', '2025-12-24 11:38:34', '2025-12-24 11:38:34');
 
 -- ----------------------------
 -- Triggers structure for table user
