@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.CategoryMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="CategoryResultMap" type="Category">
+        <id property="categoryId" column="category_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- 查询所有分类列表 -->
+    <select id="selectAllCategories" resultMap="CategoryResultMap">
+        SELECT 
+            category_id,
+            name,
+            description,
+            sort_order,
+            status,
+            create_time
+        FROM category
+        WHERE status = 1
+        ORDER BY sort_order ASC, category_id ASC
+    </select>
+
+    <!-- 根据ID查询分类 -->
+    <select id="selectCategoryById" resultMap="CategoryResultMap">
+        SELECT 
+            category_id,
+            name,
+            description,
+            sort_order,
+            status,
+            create_time
+        FROM category
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <!-- 根据名称查询分类 -->
+    <select id="selectCategoryByName" resultMap="CategoryResultMap">
+        SELECT 
+            category_id,
+            name,
+            description,
+            sort_order,
+            status,
+            create_time
+        FROM category
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
+</mapper>
+

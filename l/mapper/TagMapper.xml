@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.TagMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="TagResultMap" type="Tag">
+        <id property="tagId" column="tag_id"/>
+        <result property="name" column="name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+    </resultMap>
+
+    <!-- 查询所有标签列表（带分类信息） -->
+    <select id="selectAllTags" resultMap="TagResultMap">
+        SELECT 
+            t.tag_id,
+            t.name,
+            t.create_time,
+            c.category_id,
+            c.name as category_name
+        FROM tag t
+        LEFT JOIN category_tag ct ON t.tag_id = ct.tag_id
+        LEFT JOIN category c ON ct.category_id = c.category_id
+        <where>
+            <if test="tagName != null and tagName != ''">
+                AND t.name LIKE CONCAT('%', #{tagName}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND c.category_id = #{categoryId}
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
+    </select>
+
+    <!-- 根据ID查询标签 -->
+    <select id="selectTagById" resultMap="TagResultMap">
+        SELECT 
+            t.tag_id,
+            t.name,
+            t.create_time,
+            c.category_id,
+            c.name as category_name
+        FROM tag t
+        LEFT JOIN category_tag ct ON t.tag_id = ct.tag_id
+        LEFT JOIN category c ON ct.category_id = c.category_id
+        WHERE t.tag_id = #{tagId}
+        LIMIT 1
+    </select>
+
+    <!-- 根据名称查询标签 -->
+    <select id="selectTagByName" resultMap="TagResultMap">
+        SELECT 
+            tag_id,
+            name,
+            create_time
+        FROM tag
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
+    <!-- 插入标签 -->
+    <insert id="insertTag" parameterType="Tag" useGeneratedKeys="true" keyProperty="tagId">
+        INSERT INTO tag (
+            name,
+            create_time
+        ) VALUES (
+            #{name},
+            NOW()
+        )
+    </insert>
+
+    <!-- 更新标签 -->
+    <update id="updateTag" parameterType="Tag">
+        UPDATE tag
+        SET name = #{name}
+        WHERE tag_id = #{tagId}
+    </update>
+
+    <!-- 删除标签 -->
+    <delete id="deleteTag">
+        DELETE FROM tag
+        WHERE tag_id = #{tagId}
+    </delete>
+
+    <!-- 批量删除标签 -->
+    <delete id="batchDeleteTags">
+        DELETE FROM tag
+        WHERE tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+
+    <!-- 插入分类标签关联 -->
+    <insert id="insertCategoryTag">
+        INSERT INTO category_tag (
+            category_id,
+            tag_id,
+            create_time
+        ) VALUES (
+            #{categoryId},
+            #{tagId},
+            NOW()
+        )
+        ON DUPLICATE KEY UPDATE create_time = NOW()
+    </insert>
+
+    <!-- 删除标签的分类关联 -->
+    <delete id="deleteCategoryTagByTagId">
+        DELETE FROM category_tag
+        WHERE tag_id = #{tagId}
+    </delete>
+
+    <!-- 批量删除标签的分类关联 -->
+    <delete id="batchDeleteCategoryTags">
+        DELETE FROM category_tag
+        WHERE tag_id IN
+        <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+
+    <!-- 根据标签ID查询分类ID -->
+    <select id="selectCategoryIdByTagId" resultType="Integer">
+        SELECT category_id
+        FROM category_tag
+        WHERE tag_id = #{tagId}
+        LIMIT 1
+    </select>
+
+</mapper>
+
