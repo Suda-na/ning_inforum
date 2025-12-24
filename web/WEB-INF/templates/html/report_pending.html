@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -11,12 +11,12 @@
     <meta name="keywords" content="小宁论坛,后台管理,举报管理">
     <meta name="description" content="小宁论坛后台管理系统 - 举报管理页面">
 
-    <link rel="shortcut icon" href="favicon.ico"> 
-    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link th:href="@{/css/bootstrap.min.css?v=3.3.6}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.css?v=4.4.0}" rel="stylesheet">
 
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <link th:href="@{/css/animate.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css?v=4.1.0}" rel="stylesheet">
 
     <style>
         /* 调整社交动态样式 */
@@ -27,27 +27,27 @@
             overflow: hidden;
             background: #fff;
         }
-        
+
         .social-avatar {
             padding: 15px;
             border-bottom: 1px solid #f3f4f6;
         }
-        
+
         .social-avatar img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
         }
-        
+
         .social-body {
             padding: 15px;
         }
-        
+
         .social-body img {
             margin-top: 15px;
             border-radius: 4px;
         }
-        
+
         .social-footer {
             padding: 10px 15px;
             border-top: 1px solid #f3f4f6;
@@ -56,49 +56,49 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .stats {
             display: flex;
             gap: 20px;
         }
-        
+
         .stats span {
             color: #6b7280;
             font-size: 12px;
         }
-        
+
         .actions button {
             font-size: 12px;
             padding: 4px 12px;
             border-radius: 4px;
         }
-        
+
         .btn-ban {
             background-color: #ef4444;
             color: white;
             border: none;
             margin-right: 8px;
         }
-        
+
         .btn-no-ban {
             background-color: #10b981;
             color: white;
             border: none;
         }
-        
+
         /* 图表容器样式 */
         .chart-container {
             position: relative;
             height: 300px;
             margin-bottom: 20px;
         }
-        
+
         /* 时间间隔按钮样式 */
         .time-interval-buttons {
             margin-bottom: 15px;
             text-align: center;
         }
-        
+
         .time-interval-buttons button {
             margin: 0 5px;
             padding: 5px 15px;
@@ -107,13 +107,13 @@
             background-color: white;
             cursor: pointer;
         }
-        
+
         .time-interval-buttons button.active {
             background-color: #3b82f6;
             color: white;
             border-color: #3b82f6;
         }
-        
+
         /* 筛选区域样式 */
         .filter-section {
             margin: 20px 0;
@@ -122,7 +122,7 @@
             border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
-        
+
         /* 举报类型标签样式 */
         .report-type {
             display: inline-block;
@@ -132,22 +132,22 @@
             font-weight: bold;
             margin-right: 8px;
         }
-        
+
         .report-type.post {
             background-color: #dbeafe;
             color: #1e40af;
         }
-        
+
         .report-type.comment {
             background-color: #d1fae5;
             color: #065f46;
         }
-        
+
         .report-type.user {
             background-color: #fee2e2;
             color: #991b1b;
         }
-        
+
         /* 搜索栏样式 */
         .search-section {
             margin-bottom: 20px;
@@ -156,21 +156,21 @@
             border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
-        
+
         .search-row {
             display: flex;
             gap: 15px;
             align-items: center;
         }
-        
+
         .search-col {
             flex: 1;
         }
-        
+
         .search-btn {
             margin-left: 10px;
         }
-        
+
         /* 处理结果标签样式 */
         .process-result {
             display: inline-block;
@@ -179,22 +179,22 @@
             font-size: 10px;
             font-weight: bold;
         }
-        
+
         .process-result.ban {
             background-color: #fee2e2;
             color: #991b1b;
         }
-        
+
         .process-result.no-ban {
             background-color: #d1fae5;
             color: #065f46;
         }
-        
+
         .process-result.other {
             background-color: #fef3c7;
             color: #92400e;
         }
-        
+
         /* 举报列表行样式 */
         .report-row {
             display: flex;
@@ -205,21 +205,27 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
         }
-        
+
         .report-row-item {
             margin-right: 20px;
             flex: 1;
             min-width: 100px;
         }
-        
+
+        .report-row-item.status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .report-row-item.large {
             flex: 2;
         }
-        
+
         .report-row-item.small {
             flex: 0.5;
         }
-        
+
         .report-status {
             display: inline-block;
             padding: 2px 8px;
@@ -227,17 +233,17 @@
             font-size: 10px;
             font-weight: bold;
         }
-        
+
         .report-status.pending {
             background-color: #fef3c7;
             color: #92400e;
         }
-        
+
         .report-status.resolved {
             background-color: #d1fae5;
             color: #065f46;
         }
-        
+
         /* 悬浮框样式 */
         .detail-modal {
             display: none;
@@ -249,7 +255,7 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
         }
-        
+
         .detail-modal-content {
             background-color: #fefefe;
             margin: 10% auto;
@@ -259,8 +265,10 @@
             max-width: 800px;
             border-radius: 8px;
             position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        
+
         .close {
             color: #aaa;
             float: right;
@@ -268,31 +276,149 @@
             font-weight: bold;
             cursor: pointer;
         }
-        
+
         .close:hover,
         .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
         }
-        
+
         .modal-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
         }
-        
+
         .modal-header-content {
             display: flex;
             align-items: flex-start;
             margin-bottom: 20px;
         }
-        
+
         .modal-user-info {
             margin-left: 15px;
             flex: 1;
         }
-        
+
+        /* 举报原因样式 */
+        .report-reason {
+            color: #ef4444;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* 举报原因图片样式 */
+        .report-reason-images {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .report-reason-images img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* 动态图片容器样式 */
+        .post-images-container {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .post-images-container img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .post-images-container img:hover {
+            opacity: 0.8;
+        }
+
+        /* 举报图片样式 */
+        .report-image-container {
+            margin-top: 15px;
+        }
+
+        .report-image-container img {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .report-image-container img:hover {
+            opacity: 0.8;
+        }
+
+        /* 处理结果和操作按钮样式 */
+        .resolved-info {
+            margin-top: 20px;
+        }
+
+        .pending-actions {
+            margin-top: 20px;
+        }
+
+        /* 自定义下拉菜单样式 */
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .custom-dropdown-menu {
+            position: absolute;
+            bottom: 100%;
+            top: auto;
+            left: 0;
+            z-index: 1000;
+            display: none;
+            float: left;
+            min-width: 160px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px 0;
+            margin: 0 0 2px;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            -webkit-background-clip: padding-box;
+            background-clip: padding-box;
+            border: 1px solid #ccc;
+            border: 1px solid rgba(0,0,0,.15);
+            border-radius: 4px;
+            -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+            box-shadow: 0 6px 12px rgba(0,0,0,.175);
+        }
+
+        .custom-dropdown-menu li a {
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.42857143;
+            color: #333;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .custom-dropdown-menu li a:hover {
+            background-color: #f3f4f6;
+        }
+
         /* 分页样式统一为消息管理页面样式 */
         .pagination {
             display: flex;
@@ -333,768 +459,964 @@
 </head>
 
 <body class="gray-bg">
-    <div class="wrapper wrapper-content animated fadeInRight">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="ibox">
-                    <div class="ibox-content">
-                        <h3 class="m-b-sm">举报管理</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 图表时间间隔选择按钮 -->
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="time-interval-buttons">
-                    <button class="active" data-interval="day">日</button>
-                    <button data-interval="month">月</button>
-                    <button data-interval="year">年</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 折线图区域 -->
-        <div class="row">
-            <!-- 被举报动态图表 -->
-            <div class="col-sm-4">
-                <div class="ibox">
-                    <div class="ibox-content">
-                        <h5>被举报的动态</h5>
-                        <div class="chart-container">
-                            <canvas id="postsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 被举报评论图表 -->
-            <div class="col-sm-4">
-                <div class="ibox">
-                    <div class="ibox-content">
-                        <h5>被举报评论</h5>
-                        <div class="chart-container">
-                            <canvas id="commentsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 被举报用户图表 -->
-            <div class="col-sm-4">
-                <div class="ibox">
-                    <div class="ibox-content">
-                        <h5>被举报用户</h5>
-                        <div class="chart-container">
-                            <canvas id="usersChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 搜索和筛选区域 -->
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="search-section">
-                    <form class="search-form">
-                        <div class="search-row">
-                            <div class="search-col">
-                                <input type="text" class="form-control" placeholder="搜索关键词">
-                            </div>
-                            <div class="search-col" style="width: 150px;">
-                                <select class="form-control">
-                                    <option value="all">全部类型</option>
-                                    <option value="post">动态</option>
-                                    <option value="comment">评论</option>
-                                    <option value="user">用户</option>
-                                </select>
-                            </div>
-                            <div class="search-col" style="width: 150px;">
-                                <select class="form-control">
-                                    <option value="all">全部结果</option>
-                                    <option value="ban">已封禁</option>
-                                    <option value="no-ban">未封禁</option>
-                                    <option value="other">其他</option>
-                                </select>
-                            </div>
-                            <div class="search-col" style="width: 150px;">
-                                <select class="form-control">
-                                    <option value="all">全部状态</option>
-                                    <option value="pending">未处理</option>
-                                    <option value="resolved">已处理</option>
-                                </select>
-                            </div>
-                            <div class="search-col" style="width: 150px;">
-                                <input type="date" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-primary search-btn">搜索</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 举报内容列表 -->
-        <div class="row">
-            <div class="col-sm-12">
-                <!-- 表头 -->
-                <div class="report-row" style="font-weight: bold; background-color: #f9fafb; border: 2px solid #e5e7eb;">
-                    <div class="report-row-item">
-                        举报类型
-                    </div>
-                    <div class="report-row-item">
-                        举报人
-                    </div>
-                    <div class="report-row-item">
-                        被举报人
-                    </div>
-                    <div class="report-row-item large">
-                        举报原因
-                    </div>
-                    <div class="report-row-item">
-                        状态
-                    </div>
-                    <div class="report-row-item small">
-                        操作
-                    </div>
-                </div>
-                
-                <!-- 举报行1 - 动态 -->
-                <div class="report-row" data-report-id="1" data-report-type="post">
-                    <div class="report-row-item">
-                        <span class="report-type post">动态</span>
-                    </div>
-                    <div class="report-row-item">
-                        张三
-                    </div>
-                    <div class="report-row-item">
-                        李四
-                    </div>
-                    <div class="report-row-item large">
-                        举报原因：内容包含...
-                    </div>
-                    <div class="report-row-item">
-                        <span class="report-status pending">未处理</span>
-                    </div>
-                    <div class="report-row-item small">
-                        <button class="btn btn-primary btn-sm btn-view-detail" data-report-id="1">查看详情</button>
-                    </div>
-                </div>
-                
-                <!-- 举报行2 - 评论 -->
-                <div class="report-row" data-report-id="2" data-report-type="comment">
-                    <div class="report-row-item">
-                        <span class="report-type comment">评论</span>
-                    </div>
-                    <div class="report-row-item">
-                        王五
-                    </div>
-                    <div class="report-row-item">
-                        赵六
-                    </div>
-                    <div class="report-row-item large">
-                        举报原因：人身攻击...
-                    </div>
-                    <div class="report-row-item">
-                        <span class="report-status resolved">已处理</span>
-                    </div>
-                    <div class="report-row-item small">
-                        <button class="btn btn-primary btn-sm btn-view-detail" data-report-id="2">查看详情</button>
-                    </div>
-                </div>
-                
-                <!-- 举报行3 - 用户 -->
-                <div class="report-row" data-report-id="3" data-report-type="user">
-                    <div class="report-row-item">
-                        <span class="report-type user">用户</span>
-                    </div>
-                    <div class="report-row-item">
-                        孙七
-                    </div>
-                    <div class="report-row-item">
-                        周八
-                    </div>
-                    <div class="report-row-item large">
-                        举报原因：多次发布...
-                    </div>
-                    <div class="report-row-item">
-                        <span class="report-status pending">未处理</span>
-                    </div>
-                    <div class="report-row-item small">
-                        <button class="btn btn-primary btn-sm btn-view-detail" data-report-id="3">查看详情</button>
-                    </div>
-                </div>
-                
-                <!-- 举报行4 - 动态 -->
-                <div class="report-row" data-report-id="4" data-report-type="post">
-                    <div class="report-row-item">
-                        <span class="report-type post">动态</span>
-                    </div>
-                    <div class="report-row-item">
-                        吴九
-                    </div>
-                    <div class="report-row-item">
-                        郑十
-                    </div>
-                    <div class="report-row-item large">
-                        举报原因：未经允许...
-                    </div>
-                    <div class="report-row-item">
-                        <span class="report-status resolved">已处理</span>
-                    </div>
-                    <div class="report-row-item small">
-                        <button class="btn btn-primary btn-sm btn-view-detail" data-report-id="4">查看详情</button>
-                    </div>
-                </div>
-                
-                <!-- 动态生成的举报行将显示在这里 -->
-                <div id="reports-list"></div>
-            </div>
-        </div>
-        
-        <!-- 分页管理 -->
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="pagination-section" style="margin: 20px 0; text-align: center;">
-                    <ul class="pagination" id="reports-pagination" style="margin: 0;">
-                        <!-- 分页按钮将通过JavaScript动态生成 -->
-                    </ul>
-                    <div id="reports-page-info" style="margin-top: 10px; font-size: 12px; color: #6b7280;">
-                        显示第 1 到第 4 条，共 20 条记录
-                    </div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h3 class="m-b-sm">举报管理</h3>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- 详情悬浮框 -->
-    <div id="detailModal" class="detail-modal">
-        <div class="detail-modal-content" style="max-height: 80vh; overflow-y: auto; margin-top: 0; top: 0;">
-            <span class="close">&times;</span>
-            <div id="modalContent">
-                <!-- 动态详情 -->
-                <div id="postDetail" style="display: none;">
-                    <div class="modal-header-content">
-                        <img src="img/a1.jpg" class="modal-avatar">
-                        <div class="modal-user-info">
-                            <h4>张三</h4>
-                            <p>被举报时间：12月13日 10:30</p>
-                        </div>
-                    </div>
-                    <div class="social-feed-box">
-                        <div class="social-body">
-                            <p>今天天气真好，适合出去散步。刚买了新的相机，准备去公园拍点照片分享给大家。</p>
-                            <img src="img/p1.jpg" class="img-responsive">
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <p style="color: #ef4444;"><strong>举报原因：</strong>内容包含广告</p>
-                        <!-- 举报原因图片预留位置 -->
-                        <div class="report-reason-images" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <img src="img/report1.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                            <img src="img/report2.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px; display: none;" class="resolved-info">
-                        <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result ban">封禁1天</span></p>
-                        <p style="color: #6b7280; font-size: 12px;"><strong>处理时间：</strong>12月13日 11:00</p>
-                    </div>
-                    <div style="margin-top: 20px;" class="pending-actions">
-                        <button class="btn btn-success btn-sm">无违规</button>
-                        <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
-                            <button class="btn btn-danger btn-sm" style="position: relative;">
-                                封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
-                            </button>
-                            <ul class="custom-dropdown-menu post-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁动态权限3天</a></li>
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁动态权限7天</a></li>
-                            </ul>
-                        </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="time-interval-buttons">
+                <button class="active" data-interval="day">日</button>
+                <button data-interval="month">月</button>
+                <button data-interval="year">年</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h5>被举报的动态</h5>
+                    <div class="chart-container">
+                        <canvas id="postsChart"></canvas>
                     </div>
                 </div>
-                
-                <!-- 评论详情 -->
-                <div id="commentDetail" style="display: none;">
-                    <div class="modal-header-content">
-                        <img src="img/a2.jpg" class="modal-avatar">
-                        <div class="modal-user-info">
-                            <h4>李四</h4>
-                            <p>被举报时间：12月13日 09:15</p>
-                        </div>
-                    </div>
-                    <h5>动态内容</h5>
-                    <div class="social-feed-box" style="margin-bottom: 20px;">
-                        <div class="social-body">
-                            <p>今天天气真好，适合出去散步。刚买了新的相机，准备去公园拍点照片分享给大家。</p>
-                            <img src="img/p1.jpg" class="img-responsive">
-                        </div>
-                    </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="ibox">
+                <div class="ibox-content">
                     <h5>被举报评论</h5>
-                    <div class="social-feed-box">
-                        <div class="social-avatar">
-                            <a href="" class="pull-left">
-                                <img alt="image" src="img/a2.jpg" style="width: 30px; height: 30px;">
-                            </a>
-                            <div class="media-body">
-                                <a href="#" style="font-size: 12px;">李四</a>
-                                <small class="text-muted" style="font-size: 10px;">12月13日 09:15</small>
-                            </div>
-                        </div>
-                        <div class="social-body" style="padding: 10px;">
-                            <p style="font-size: 12px;">这个帖子写得真差，完全没有价值！</p>
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <p style="color: #ef4444;"><strong>举报原因：</strong>人身攻击</p>
-                        <!-- 举报原因图片预留位置 -->
-                        <div class="report-reason-images" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <img src="img/report3.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px;" class="resolved-info">
-                        <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result ban">封禁3天</span></p>
-                        <p style="color: #6b7280; font-size: 12px;"><strong>处理时间：</strong>12月13日 10:00</p>
-                    </div>
-                    <div style="margin-top: 20px;" class="pending-actions">
-                        <button class="btn btn-success btn-sm">无违规</button>
-                        <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
-                            <button class="btn btn-danger btn-sm" style="position: relative;">
-                                封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
-                            </button>
-                            <ul class="custom-dropdown-menu comment-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁评论权限3天</a></li>
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁评论权限7天</a></li>
-                            </ul>
-                        </div>
+                    <div class="chart-container">
+                        <canvas id="commentsChart"></canvas>
                     </div>
                 </div>
-                
-                <!-- 用户详情 -->
-                <div id="userDetail" style="display: none;">
-                    <div class="modal-header-content">
-                        <img src="img/a3.jpg" class="modal-avatar">
-                        <div class="modal-user-info">
-                            <h4>王五</h4>
-                            <p>被举报时间：12月12日 18:45</p>
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <p style="color: #ef4444;"><strong>举报原因：</strong>多次发布违规内容，包括</p>
-                        <ul style="margin-top: 10px; margin-bottom: 15px; color: #ef4444;">
-                            <li>发布虚假广告</li>
-                            <li>辱骂其他用户</li>
-                            <li>传播不良信息</li>
-                        </ul>
-                        <!-- 举报原因图片预留位置 -->
-                        <div class="report-reason-images" style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <img src="img/report4.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                            <img src="img/report5.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                            <img src="img/report6.jpg" alt="举报证据" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 20px; display: none;" class="resolved-info">
-                        <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result ban">账号封禁</span></p>
-                        <p style="color: #6b7280; font-size: 12px;"><strong>处理时间：</strong>12月13日 09:30</p>
-                    </div>
-                    <div style="margin-top: 20px;" class="pending-actions">
-                        <button class="btn btn-success btn-sm">无违规</button>
-                        <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
-                            <button class="btn btn-danger btn-sm" style="position: relative;">
-                                封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
-                            </button>
-                            <ul class="custom-dropdown-menu user-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁登录权限3天</a></li>
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">封禁登录权限7天</a></li>
-                                <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option">永久封禁</a></li>
-                            </ul>
-                        </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h5>被举报用户</h5>
+                    <div class="chart-container">
+                        <canvas id="usersChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="search-section">
+                <form class="search-form">
+                    <div class="search-row">
+                        <div class="search-col">
+                            <input type="text" class="form-control" placeholder="搜索关键词">
+                        </div>
+                        <div class="search-col" style="width: 150px;">
+                            <select class="form-control">
+                                <option value="all">全部类型</option>
+                                <option value="post">动态</option>
+                                <option value="comment">评论</option>
+                                <option value="user">用户</option>
+                            </select>
+                        </div>
+                        <div class="search-col" style="width: 150px;">
+                            <select class="form-control">
+                                <option value="all">全部结果</option>
+                                <option value="ban">已封禁</option>
+                                <option value="no-ban">未封禁</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="search-col" style="width: 150px;">
+                            <select class="form-control">
+                                <option value="all">全部状态</option>
+                                <option value="pending">未处理</option>
+                                <option value="resolved">已处理</option>
+                            </select>
+                        </div>
+                        <div class="search-col" style="width: 150px;">
+                            <input type="date" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary search-btn">搜索</button>
+                        <button type="button" class="btn btn-default search-btn" id="reset-search-btn" style="margin-left: 10px;">重置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-    <!-- 自定义js -->
-    <script src="js/content.js?v=1.0.0"></script>
-    
-    <script>
-        $(document).ready(function() {
-            // 初始化图表
-            const postsChart = initChart('postsChart', '被举报动态', getDayData(10), '#3b82f6');
-            const commentsChart = initChart('commentsChart', '被举报评论', getDayData(10), '#10b981');
-            const usersChart = initChart('usersChart', '被举报用户', getDayData(10), '#ef4444');
-            
-            // 图表数据
-            function getDayData(count) {
-                const labels = [];
-                const data = [];
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="report-row" style="font-weight: bold; background-color: #f9fafb; border: 2px solid #e5e7eb;">
+                <div class="report-row-item">
+                    举报类型
+                </div>
+                <div class="report-row-item">
+                    举报人
+                </div>
+                <div class="report-row-item">
+                    被举报人
+                </div>
+                <div class="report-row-item large">
+                    举报原因
+                </div>
+                <div class="report-row-item status">
+                    状态
+                </div>
+                <div class="report-row-item small">
+                    操作
+                </div>
+            </div>
+
+            <div id="initial-reports">
+                <div th:each="report : ${reports}" class="report-row" th:attr="data-report-id=${report.reportId}, data-report-type=${report.targetType}">
+                    <div class="report-row-item">
+                            <span th:switch="${report.targetType}" class="report-type">
+                                <span th:case="'帖子'" class="report-type post">动态</span>
+                                <span th:case="'评论'" class="report-type comment">评论</span>
+                                <span th:case="'用户'" class="report-type user">用户</span>
+                            </span>
+                    </div>
+                    <div class="report-row-item">
+                        <span th:text="${report.reporterName}"></span>
+                    </div>
+                    <div class="report-row-item">
+                        <span th:text="${report.targetName}"></span>
+                    </div>
+                    <div class="report-row-item large">
+                        <span th:text="${report.description}"></span>
+                    </div>
+                    <div class="report-row-item status">
+                            <span th:switch="${report.status}" class="report-status">
+                                <span th:case="0" class="report-status pending">未处理</span>
+                                <span th:case="1" class="report-status resolved">已处理</span>
+                            </span>
+                    </div>
+                    <div class="report-row-item small">
+                        <button class="btn btn-primary btn-sm btn-view-detail" th:attr="data-report-id=${report.reportId}">查看详情</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports-list"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="pagination-section" style="margin: 20px 0; text-align: center;">
+                <ul class="pagination" id="reports-pagination" style="margin: 0;">
+                </ul>
+                <div id="reports-page-info" style="margin-top: 10px; font-size: 12px; color: #6b7280;">
+                    显示第 1 到第 4 条，共 20 条记录
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal" class="detail-modal">
+    <div class="detail-modal-content" style="max-height: 80vh; overflow-y: auto; margin-top: 0; top: 0;">
+        <span class="close">&times;</span>
+        <div id="modalContent">
+            <div id="postDetail" style="display: none;">
+                <div class="modal-header-content">
+                    <img src="img/a1.jpg" class="modal-avatar" onerror="this.src='/img/profile.jpg'">
+                    <div class="modal-user-info">
+                        <h4></h4>
+                        <p></p>
+                    </div>
+                </div>
+                <div class="social-feed-box">
+                    <div class="social-body">
+                        <p></p>
+                        <!-- 动态图片区域（最多3张，横着排列） -->
+                        <div class="post-images-container"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p class="report-reason" style="color: #ef4444;"></p>
+                    <!-- 举报图片区域（1张，如果有就显示） -->
+                    <div class="report-image-container"></div>
+                </div>
+                <div style="margin-top: 20px; display: none;" class="resolved-info">
+                    <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result"></span></p>
+                </div>
+                <div style="margin-top: 20px;" class="pending-actions">
+                    <button class="btn btn-success btn-sm">无违规</button>
+                    <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
+                        <button class="btn btn-danger btn-sm" style="position: relative;">
+                            封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
+                        </button>
+                        <ul class="custom-dropdown-menu post-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="1">封禁动态权限1天</a></li>
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="3">封禁动态权限3天</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="commentDetail" style="display: none;">
+                <div class="modal-header-content">
+                    <img src="img/a2.jpg" class="modal-avatar" onerror="this.src='/img/profile.jpg'">
+                    <div class="modal-user-info">
+                        <h4></h4>
+                        <p></p>
+                    </div>
+                </div>
+                <h5>动态内容</h5>
+                <div class="social-feed-box" style="margin-bottom: 20px;">
+                    <div class="social-body">
+                        <p></p>
+                        <!-- 父动态图片区域（最多3张，横着排列） -->
+                        <div class="post-images-container"></div>
+                    </div>
+                </div>
+                <h5>被举报评论</h5>
+                <div class="social-feed-box">
+                    <div class="social-body" style="padding: 10px;">
+                        <p style="font-size: 12px;"></p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p class="report-reason" style="color: #ef4444;"></p>
+                    <!-- 举报图片区域（1张，如果有就显示） -->
+                    <div class="report-image-container"></div>
+                </div>
+                <div style="margin-top: 20px;" class="resolved-info">
+                    <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result"></span></p>
+                </div>
+                <div style="margin-top: 20px;" class="pending-actions">
+                    <button class="btn btn-success btn-sm">无违规</button>
+                    <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
+                        <button class="btn btn-danger btn-sm" style="position: relative;">
+                            封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
+                        </button>
+                        <ul class="custom-dropdown-menu comment-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="1">封禁评论权限1天</a></li>
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="3">封禁评论权限3天</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="userDetail" style="display: none;">
+                <div class="modal-header-content">
+                    <img src="img/a3.jpg" class="modal-avatar" onerror="this.src='/img/profile.jpg'">
+                    <div class="modal-user-info">
+                        <h4></h4>
+                        <p></p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p class="report-reason" style="color: #ef4444;"></p>
+                    <!-- 举报图片区域（1张，如果有就显示） -->
+                    <div class="report-image-container"></div>
+                </div>
+                <div style="margin-top: 20px; display: none;" class="resolved-info">
+                    <p style="color: #10b981;"><strong>处理结果：</strong> <span class="process-result"></span></p>
+                </div>
+                <div style="margin-top: 20px;" class="pending-actions">
+                    <button class="btn btn-success btn-sm">无违规</button>
+                    <div class="custom-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
+                        <button class="btn btn-danger btn-sm" style="position: relative;">
+                            封禁并违规处理 <span class="caret" style="margin-left: 5px;"></span>
+                        </button>
+                        <ul class="custom-dropdown-menu user-ban-options" style="position: absolute; bottom: 100%; top: auto; left: 0; z-index: 1000; display: none; float: left; min-width: 160px; max-height: 300px; overflow-y: auto; padding: 5px 0; margin: 0 0 2px; font-size: 14px; text-align: left; list-style: none; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #ccc; border: 1px solid rgba(0,0,0,.15); border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175); box-shadow: 0 6px 12px rgba(0,0,0,.175);">
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="1">封禁登录权限1天</a></li>
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="3">封禁登录权限3天</a></li>
+                            <li><a href="#" style="display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap;" class="ban-option" data-duration="0">永久封禁</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+<script th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:src="@{/js/content.js?v=1.0.0}"></script>
+
+<script>
+    // 分页相关变量
+    let currentPage = 1;
+    let pageSize = 10;
+    let allReports = [];
+
+    // 图表变量
+    let postsChart, commentsChart, usersChart;
+
+    $(document).ready(function() {
+        // 初始化图表（先使用空数据，等数据加载后再更新）
+        postsChart = initChart('postsChart', '被举报动态', { labels: [], data: [] }, '#3b82f6');
+        commentsChart = initChart('commentsChart', '被举报评论', { labels: [], data: [] }, '#10b981');
+        usersChart = initChart('usersChart', '被举报用户', { labels: [], data: [] }, '#ef4444');
+
+        // 加载初始数据（默认显示最近10天的数据）
+        loadChartData('day', 10);
+
+        // 图表数据函数 - 从后端获取数据
+        function loadChartData(interval, count) {
+            $.ajax({
+                url: '/admin/report/stats/chart',
+                type: 'GET',
+                data: {
+                    interval: interval,
+                    count: count
+                },
+                success: function(result) {
+                    console.log('=== 后端返回的原始数据 ===');
+                    console.log('interval:', interval, 'count:', count);
+                    console.log('posts:', result.posts);
+                    console.log('comments:', result.comments);
+                    console.log('users:', result.users);
+                    
+                    // 处理数据并填充缺失的日期
+                    const postsData = processChartData(result.posts || [], interval, count, 'post');
+                    const commentsData = processChartData(result.comments || [], interval, count, 'comment');
+                    const usersData = processChartData(result.users || [], interval, count, 'user');
+
+                    console.log('=== 处理后的数据 ===');
+                    console.log('postsData:', postsData);
+                    console.log('commentsData:', commentsData);
+                    console.log('usersData:', usersData);
+
+                    // 更新图表
+                    updateChart(postsChart, postsData);
+                    updateChart(commentsChart, commentsData);
+                    updateChart(usersChart, usersData);
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取统计数据失败:', error);
+                    // 如果获取失败，仍然生成对应时间范围的空数据，保证X轴渲染
+                    const emptyPosts = processChartData([], interval, count, 'post');
+                    const emptyComments = processChartData([], interval, count, 'comment');
+                    const emptyUsers = processChartData([], interval, count, 'user');
+                    updateChart(postsChart, emptyPosts);
+                    updateChart(commentsChart, emptyComments);
+                    updateChart(usersChart, emptyUsers);
+                }
+            });
+        }
+
+        // 处理图表数据，填充缺失的日期
+        function processChartData(serverData, interval, count, type) {
+            const labels = [];
+            const data = [];
+            const dataMap = {};
+
+            // 将服务器返回的数据转换为Map，方便查找
+            console.log('processChartData - serverData:', serverData, 'interval:', interval);
+            serverData.forEach(function(item) {
+                console.log('处理item:', item, '所有键:', Object.keys(item));
+                // MyBatis返回的Map键名可能是小写或大写，都要检查
+                const label = String(item.date_label || item.DATE_LABEL || item.dateLabel || 
+                                    (item['date_label']) || (item['DATE_LABEL']) || '').trim();
+                // count可能是BigDecimal类型，需要先转换为数字
+                const countValue = Number(item.count || item.COUNT || item.countValue || 
+                                          (item['count']) || (item['COUNT']) || 0);
+                console.log('映射: label="' + label + '", count=' + countValue);
+                if (label) {
+                    dataMap[label] = countValue;
+                }
+            });
+            console.log('构建的dataMap:', dataMap);
+
+            // 生成完整的日期标签和数据
+            if (interval === 'day') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // 设置为当天的开始时间
+                const todayTime = today.getTime();
+                const oneDayMs = 24 * 60 * 60 * 1000; // 一天的毫秒数
                 
                 for (let i = count - 1; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
-                    data.push(Math.floor(Math.random() * 20) + 1);
+                    // 计算日期：今天往前推 i 天
+                    const date = new Date(todayTime - i * oneDayMs);
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const label = `${month}/${day}`;
+                    labels.push(label);
+                    const count = dataMap[label] !== undefined ? dataMap[label] : 0;
+                    if (interval === 'day') {
+                        console.log('日期标签:', label, '在dataMap中查找:', dataMap[label], '最终值:', count);
+                    }
+                    data.push(count);
                 }
-                
-                return { labels, data };
-            }
-            
-            function getMonthData(count) {
-                const labels = [];
-                const data = [];
-                
+            } else if (interval === 'month') {
+                const today = new Date();
                 for (let i = count - 1; i >= 0; i--) {
-                    const date = new Date();
-                    date.setMonth(date.getMonth() - i);
-                    labels.push(`${date.getFullYear()}-${date.getMonth() + 1}`);
-                    data.push(Math.floor(Math.random() * 50) + 5);
+                    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const label = `${date.getFullYear()}-${month}`;
+                    labels.push(label);
+                    data.push(dataMap[label] || 0);
                 }
-                
-                return { labels, data };
-            }
-            
-            function getYearData(count) {
-                const labels = [];
-                const data = [];
-                
+            } else if (interval === 'year') {
                 for (let i = count - 1; i >= 0; i--) {
                     const year = new Date().getFullYear() - i;
-                    labels.push(year.toString());
-                    data.push(Math.floor(Math.random() * 200) + 20);
+                    const label = year.toString();
+                    labels.push(label);
+                    data.push(dataMap[label] || 0);
                 }
-                
-                return { labels, data };
             }
-            
-            // 初始化图表
-            function initChart(canvasId, label, chartData, color) {
-                const ctx = document.getElementById(canvasId).getContext('2d');
-                return new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: chartData.labels,
-                        datasets: [{
-                            label: label,
-                            data: chartData.data,
-                            borderColor: color,
-                            backgroundColor: color + '20',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
+
+            return { labels: labels, data: data };
+        }
+
+        // 初始化图表
+        function initChart(canvasId, label, chartData, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: label,
+                        data: chartData.data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
                             }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: false  // 不自动跳过标签，显示所有标签
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新图表
+        function updateChart(chart, chartData) {
+            chart.data.labels = chartData.labels;
+            chart.data.datasets[0].data = chartData.data;
+            chart.update();
+        }
+
+        // 时间间隔按钮点击事件
+        $('.time-interval-buttons button').on('click', function() {
+            $('.time-interval-buttons button').removeClass('active');
+            $(this).addClass('active');
+
+            const interval = $(this).data('interval');
+            let count;
+            
+            // 根据不同的时间间隔设置不同的数据点数量
+            if (interval === 'day') {
+                count = 10;
+            } else if (interval === 'month') {
+                count = 12;
+            } else if (interval === 'year') {
+                count = 5;
+            } else {
+                count = 10; // 默认值
+            }
+
+            // 从后端加载数据
+            loadChartData(interval, count);
+        });
+
+        // 初始化分页
+        initPagination();
+
+        // 重置搜索按钮点击事件
+        $('#reset-search-btn').on('click', function() {
+            $('.search-form')[0].reset();
+            // 重新加载初始数据
+            location.reload();
+        });
+
+        // 搜索表单提交事件
+        $('.search-form').on('submit', function(e) {
+            e.preventDefault();
+            const keyword = $(this).find('input[type="text"]').val().trim();
+            const type = $(this).find('select:eq(0)').val();
+            const result = $(this).find('select:eq(1)').val();
+            const status = $(this).find('select:eq(2)').val();
+            const date = $(this).find('input[type="date"]').val();
+
+            // 显示加载状态
+            $('#reports-list').html('<div class="report-row" style="text-align: center; padding: 20px;">搜索中...</div>');
+
+            $.ajax({
+                url: '/admin/reports/search',
+                type: 'POST',
+                data: {
+                    keyword: keyword,
+                    type: type,
+                    result: result,
+                    status: status,
+                    date: date
+                },
+                success: function(reports) {
+                    $('#reports-list').empty();
+                    $('#initial-reports').hide(); // 隐藏初始数据
+
+                    if (reports && reports.length > 0) {
+                        reports.forEach(function(report) {
+                            let reportTypeClass = '';
+                            let displayType = report.targetType;
+                            if (report.targetType === '帖子' || report.targetType === 'post') {
+                                reportTypeClass = 'post';
+                                displayType = '动态';
+                            } else if (report.targetType === '评论' || report.targetType === 'comment') {
+                                reportTypeClass = 'comment';
+                                displayType = '评论';
+                            } else if (report.targetType === '用户' || report.targetType === 'user') {
+                                reportTypeClass = 'user';
+                                displayType = '用户';
+                            }
+
+                            let statusClass = (report.status === 0) ? 'pending' : 'resolved';
+                            let statusText = (report.status === 0) ? '未处理' : '已处理';
+
+                            const reportRow = $('<div class="report-row" data-report-id="' + report.reportId + '" data-report-type="' + (report.targetType || '') + '">' +
+                                '<div class="report-row-item">' +
+                                '<span class="report-type ' + reportTypeClass + '">' + displayType + '</span>' +
+                                '</div>' +
+                                '<div class="report-row-item">' +
+                                '<span>' + (report.reporterName || '未知') + '</span>' +
+                                '</div>' +
+                                '<div class="report-row-item">' +
+                                '<span>' + (report.targetName || '未知') + '</span>' +
+                                '</div>' +
+                                '<div class="report-row-item large">' +
+                                '<span>' + (report.description || '无描述') + '</span>' +
+                                '</div>' +
+                                '<div class="report-row-item status">' +
+                                '<span class="report-status ' + statusClass + '">' + statusText + '</span>' +
+                                '</div>' +
+                                '<div class="report-row-item small">' +
+                                '<button class="btn btn-primary btn-sm btn-view-detail" data-report-id="' + report.reportId + '">查看详情</button>' +
+                                '</div>' +
+                                '</div>');
+
+                            $('#reports-list').append(reportRow);
+                        });
+                    } else {
+                        $('#reports-list').append('<div class="report-row" style="text-align: center; padding: 20px;">未找到符合条件的举报记录</div>');
+                    }
+
+                    // 更新全局数据并重置分页
+                    allReports = $('#reports-list .report-row').map(function() {
+                        return $(this).clone(true);
+                    }).get();
+
+                    currentPage = 1;
+                    loadReports();
+                    updatePagination();
+                    updatePendingReportsCount();
+                },
+                error: function(xhr, status, error) {
+                    console.error('搜索失败', error);
+                    $('#reports-list').html('<div class="report-row" style="text-align: center; padding: 20px; color: red;">搜索失败，请重试</div>');
+                }
+            });
+        });
+
+        // 查看详情按钮点击事件
+        $(document).on('click', '.btn-view-detail', function(e) {
+            e.preventDefault();
+            const $reportRow = $(this).closest('.report-row');
+            const reportId = $(this).attr('data-report-id');
+            // 从DOM或者数据中获取类型，备用
+            const rowTargetType = $reportRow.attr('data-report-type');
+
+            // 调用API获取真实举报详情
+            $.ajax({
+                url: '/admin/report/detail/' + reportId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(report) {
+                    if (!report) {
+                        alert("未获取到举报详情");
+                        return;
+                    }
+
+                    // 将关键信息存入模态框
+                    $('#detailModal').data('current-report-id', report.reportId);
+                    $('#detailModal').data('report-type', report.targetType);
+                    // targetId：数据库原始 target_id；targetUserId：实际被举报用户（动态作者/评论作者/用户）
+                    $('#detailModal').data('target-id', report.targetUserId || report.targetId);
+
+                    // 隐藏所有详情模板，准备显示对应的
+                    $('#modalContent > div').hide();
+
+                    // 格式化时间
+                    const timeStr = report.createTime ? new Date(report.createTime).toLocaleString() : '未知时间';
+                    const reportReasonHtml = '<strong>举报原因：</strong>' + (report.reportType || '') + ' - ' + (report.description || '无描述');
+
+                    // 辅助函数：填充动态图片（最多3张，横着排列）
+                    function fillPostImages($container, image1, image2, image3) {
+                        $container.empty();
+                        const images = [image1, image2, image3].filter(img => img && img.trim() !== '');
+                        images.forEach(function(imgUrl) {
+                            const $img = $('<img>').attr('src', imgUrl).attr('alt', '动态图片');
+                            $img.on('error', function() {
+                                $(this).hide();
+                            });
+                            $container.append($img);
+                        });
+                    }
+
+                    // 辅助函数：填充举报图片（1张，如果有就显示）
+                    function fillReportImage($container, imageUrl) {
+                        $container.empty();
+                        if (imageUrl && imageUrl.trim() !== '') {
+                            const $img = $('<img>').attr('src', imageUrl).attr('alt', '举报图片');
+                            $img.on('error', function() {
+                                $(this).hide();
+                            });
+                            $container.append($img);
+                        }
+                    }
+
+                    // 根据举报类型显示对应详情并填充数据
+                    if (report.targetType === '帖子' || report.targetType === 'post') {
+                        const $p = $('#postDetail');
+                        $p.show();
+                        $p.find('.modal-user-info h4').text(report.targetName || '未知用户');
+                        $p.find('.modal-user-info p').text('被举报时间：' + timeStr);
+                        $p.find('.social-body p').text(report.postContent || report.description || '无内容');
+                        // 填充动态图片
+                        fillPostImages($p.find('.post-images-container'), report.postImage1, report.postImage2, report.postImage3);
+                        $p.find('.report-reason').html(reportReasonHtml);
+                        // 填充举报图片
+                        fillReportImage($p.find('.report-image-container'), report.reportImage);
+                    } else if (report.targetType === '评论' || report.targetType === 'comment') {
+                        const $c = $('#commentDetail');
+                        $c.show();
+                        $c.find('.modal-user-info h4').text(report.targetName || '未知用户');
+                        $c.find('.modal-user-info p').text('被举报时间：' + timeStr);
+                        // 填充帖子上下文
+                        $c.find('.social-feed-box:first .social-body p').text(report.postContent || '无帖子关联内容');
+                        // 填充父动态图片
+                        fillPostImages($c.find('.social-feed-box:first .post-images-container'), report.postImage1, report.postImage2, report.postImage3);
+                        // 填充评论内容
+                        $c.find('.social-feed-box:last .social-body p').text(report.commentContent || report.description || '无评论内容');
+                        $c.find('.report-reason').html(reportReasonHtml);
+                        // 填充举报图片
+                        fillReportImage($c.find('.report-image-container'), report.reportImage);
+                    } else {
+                        // 默认为用户举报
+                        const $u = $('#userDetail');
+                        $u.show();
+                        $u.find('.modal-user-info h4').text(report.targetName || '未知用户');
+                        $u.find('.modal-user-info p').text('被举报时间：' + timeStr);
+                        $u.find('.report-reason').html(reportReasonHtml);
+                        // 填充举报图片
+                        fillReportImage($u.find('.report-image-container'), report.reportImage);
+                    }
+
+                    // 显示处理结果或操作按钮
+                    if (report.status === 1) {
+                        $('.resolved-info').show();
+                        $('.pending-actions').hide();
+                        const resText = (report.result === 1) ? '已封禁' : '未违规';
+                        $('.process-result').text(resText + (report.feedback ? (' (' + report.feedback + ')') : ''));
+                    } else {
+                        $('.resolved-info').hide();
+                        $('.pending-actions').show();
+                    }
+
+                    $('#detailModal').show();
+                },
+                error: function(xhr, status, error) {
+                    console.error('API调用失败', error);
+                    alert('获取详情失败，请检查网络或后端日志');
+                }
+            });
+        });
+
+        // 关闭模态框
+        $('.close').on('click', function() {
+            $('#detailModal').hide();
+        });
+
+        // 点击模态框外部关闭
+        $(window).on('click', function(event) {
+            if (event.target.id === 'detailModal') {
+                $('#detailModal').hide();
+            }
+        });
+
+        // 违规处理下拉菜单点击事件
+        $('.custom-dropdown button').on('click', function(e) {
+            e.stopPropagation();
+            const dropdownMenu = $(this).next('.custom-dropdown-menu');
+            $('.custom-dropdown-menu').not(dropdownMenu).hide();
+            dropdownMenu.toggle();
+        });
+
+        // 封禁选项点击事件
+        $(document).on('click', '#detailModal .ban-option', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const reportId = $('#detailModal').data('current-report-id');
+            if (reportId) {
+                const durationDays = $(this).data('duration');
+                // 确定封禁类型
+                let rawType = $('#detailModal').data('report-type');
+                let restrictionType = 'login'; // 默认
+                if (rawType === '帖子' || rawType === 'post') restrictionType = 'post';
+                else if (rawType === '评论' || rawType === 'comment') restrictionType = 'comment';
+                else if (rawType === '用户' || rawType === 'user') restrictionType = 'login';
+
+                $.ajax({
+                    url: '/admin/user/ban',
+                    type: 'POST',
+                    data: {
+                        userId: $('#detailModal').data('target-id'),
+                        adminId: 1, // TODO: 从session获取
+                        reason: $('#detailModal').find('.report-reason').text(),
+                        durationDays: durationDays,
+                        restrictionType: restrictionType
+                    },
+                    success: function(result) {
+                        if (result === 'success') {
+                            // 更新举报状态
+                            $.ajax({
+                                url: '/admin/report/process',
+                                type: 'POST',
+                                data: {
+                                    reportId: reportId,
+                                    adminId: 1,
+                                    result: 1,
+                                    feedback: '已封禁用户' + durationDays + '天'
+                                },
+                                success: function(result) {
+                                    if (result === 'success') {
+                                        const reportRow = $('[data-report-id="' + reportId + '"]');
+                                        if (reportRow.length > 0) {
+                                            const statusElement = reportRow.find('.report-status');
+                                            statusElement.removeClass('pending').addClass('resolved');
+                                            statusElement.text('已处理');
+                                        }
+                                        // 更新全局数据中对应的状态，防止翻页后重置
+                                        allReports.forEach(function($el){
+                                            if($el.attr('data-report-id') == reportId){
+                                                let $s = $el.find('.report-status');
+                                                $s.removeClass('pending').addClass('resolved').text('已处理');
+                                            }
+                                        });
+
+                                        loadReports();
+                                        updatePagination();
+                                        updatePendingReportsCount();
+                                        $('.custom-dropdown-menu').hide();
+                                        $('#detailModal').hide();
+                                    }
+                                }
+                            });
+                        } else {
+                            alert("封禁操作失败");
                         }
                     }
                 });
             }
-            
-            // 更新图表
-            function updateChart(chart, chartData) {
-                chart.data.labels = chartData.labels;
-                chart.data.datasets[0].data = chartData.data;
-                chart.update();
-            }
-            
-            // 时间间隔按钮点击事件
-            $('.time-interval-buttons button').on('click', function() {
-                // 更新按钮状态
-                $('.time-interval-buttons button').removeClass('active');
-                $(this).addClass('active');
-                
-                const interval = $(this).data('interval');
-                let chartData;
-                
-                // 根据时间间隔获取对应数据
-                if (interval === 'day') {
-                    chartData = getDayData(10);
-                } else if (interval === 'month') {
-                    chartData = getMonthData(12);
-                } else if (interval === 'year') {
-                    chartData = getYearData(5);
-                }
-                
-                // 更新所有图表
-                updateChart(postsChart, chartData);
-                updateChart(commentsChart, chartData);
-                updateChart(usersChart, chartData);
-            });
-            
-            // 搜索表单提交事件
-            $('.search-form').on('submit', function(e) {
-                e.preventDefault();
-                // 搜索逻辑
-            });
-            
-            // 查看详情按钮点击事件（使用事件委托以支持动态生成的元素）
-            $(document).on('click', '.btn-view-detail', function() {
-                const $reportRow = $(this).closest('.report-row');
-                const reportId = $(this).data('report-id');
-                const reportType = $reportRow.data('report-type');
-                const isResolved = $reportRow.find('.report-status').hasClass('resolved');
-                
-                // 将reportId存储到模态框中，以便后续处理使用
-                $('#detailModal').data('current-report-id', reportId);
-                
-                // 隐藏所有详情
-                $('#modalContent > div').hide();
-                
-                // 显示对应详情
-                if (reportType === 'post') {
-                    $('#postDetail').show();
-                } else if (reportType === 'comment') {
-                    $('#commentDetail').show();
-                } else if (reportType === 'user') {
-                    $('#userDetail').show();
-                }
-                
-                // 显示/隐藏处理结果和处理按钮
-                if (isResolved) {
-                    $('.resolved-info').show();
-                    $('.pending-actions').hide();
-                } else {
-                    $('.resolved-info').hide();
-                    $('.pending-actions').show();
-                }
-                
-                // 显示模态框
-                $('#detailModal').show();
-            });
-            
-            // 关闭模态框
-            $('.close').on('click', function() {
-                $('#detailModal').hide();
-            });
-            
-            // 点击模态框外部关闭
-            $(window).on('click', function(event) {
-                if (event.target.id === 'detailModal') {
-                    $('#detailModal').hide();
-                }
-            });
-            
-            // 违规处理下拉菜单点击事件
-            $('.custom-dropdown button').on('click', function(e) {
-                e.stopPropagation();
-                const dropdownMenu = $(this).next('.custom-dropdown-menu');
-                $('.custom-dropdown-menu').not(dropdownMenu).hide();
-                dropdownMenu.toggle();
-            });
-            
-            // 封禁选项点击事件（只在模态框内的选项上生效）
-            $(document).on('click', '#detailModal .ban-option', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // 阻止事件冒泡
-                // 从模态框获取当前查看的举报ID
-                const reportId = $('#detailModal').data('current-report-id');
-                if (reportId) {
-                    // 更新举报状态为已处理
-                    allReports.forEach(function(reportItem) {
-                        const itemId = reportItem.data('report-id');
-                        if (itemId == reportId) {
-                            const statusElement = reportItem.find('.report-status');
-                            statusElement.removeClass('pending').addClass('resolved');
-                            statusElement.text('已处理');
-                        }
-                    });
-                    // 重新加载列表并更新分页
-                    loadReports();
-                    updatePagination();
-                    // 更新未处理举报数量
-                    updatePendingReportsCount();
-                }
-                // 关闭下拉菜单
-                $('.custom-dropdown-menu').hide();
-                // 关闭模态框
-                $('#detailModal').hide();
-            });
-            
-            // 无违规按钮点击事件（只在模态框内的按钮上生效）
-            $(document).on('click', '#detailModal .pending-actions .btn-success.btn-sm', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // 阻止事件冒泡
-                // 从模态框获取当前查看的举报ID
-                const reportId = $('#detailModal').data('current-report-id');
-                if (reportId) {
-                    // 更新举报状态为已处理
-                    allReports.forEach(function(reportItem) {
-                        const itemId = reportItem.data('report-id');
-                        if (itemId == reportId) {
-                            const statusElement = reportItem.find('.report-status');
-                            statusElement.removeClass('pending').addClass('resolved');
-                            statusElement.text('已处理');
-                        }
-                    });
-                    // 重新加载列表并更新分页
-                    loadReports();
-                    updatePagination();
-                    // 更新未处理举报数量
-                    updatePendingReportsCount();
-                }
-                // 关闭模态框
-                $('#detailModal').hide();
-            });
-            
-            // 点击页面其他地方时隐藏所有下拉菜单（排除模态框内的点击）
-            $(document).on('click', function(e) {
-                if (!$(e.target).closest('#detailModal').length) {
-                    $('.custom-dropdown-menu').hide();
-                }
-            });
-            
-            // 点击下拉菜单内部时阻止事件冒泡
-            $(document).on('click', '.custom-dropdown-menu', function(e) {
-                e.stopPropagation();
-            });
-            
-            // 点击模态框内容区域时阻止关闭（避免点击内容时关闭模态框）
-            $(document).on('click', '#detailModal .detail-modal-content', function(e) {
-                e.stopPropagation();
-            });
-            
-            // 初始化分页
-            initPagination();
         });
 
-        // 分页相关变量
-        let currentPage = 1;
-        let pageSize = 10;
-        let allReports = [];
-
-        // 计算未处理举报数量
-        function getPendingReportsCount() {
-            let count = 0;
-            allReports.forEach(function(reportItem) {
-                const statusElement = reportItem.find('.report-status');
-                if (statusElement.hasClass('pending')) {
-                    count++;
-                }
-            });
-            return count;
-        }
-
-        // 更新未处理举报数量（用于更新index.html中的显示）
-        function updatePendingReportsCount() {
-            const pendingCount = getPendingReportsCount();
-            // 通过postMessage通知父窗口更新未处理举报数量
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'updatePendingReportsCount',
-                    count: pendingCount
-                }, '*');
-            }
-        }
-
-        // 初始化分页
-        function initPagination() {
-            // 保存所有举报数据（排除表头）
-            allReports = $('.report-row').not(':first').map(function() {
-                return $(this).clone(true);
-            }).get();
-
-            // 隐藏原始数据
-            $('.report-row').not(':first').hide();
-
-            // 加载举报列表和分页
-            loadReports();
-            updatePagination();
-            // 更新未处理举报数量
-            updatePendingReportsCount();
-            
-            // 监听来自父窗口的请求
-            window.addEventListener('message', function(event) {
-                if (event.data && event.data.type === 'getPendingReportsCount') {
-                    updatePendingReportsCount();
-                }
-            });
-        }
-
-        // 加载举报列表
-        function loadReports() {
-            const start = (currentPage - 1) * pageSize;
-            const end = start + pageSize;
-            const pageData = allReports.slice(start, end);
-
-            const $reportsList = $('#reports-list');
-            $reportsList.empty();
-
-            if (pageData.length === 0) {
-                $reportsList.append('<div class="report-row" style="text-align: center; padding: 20px;">暂无举报记录</div>');
-                return;
-            }
-
-            pageData.forEach(function(reportItem) {
-                $reportsList.append(reportItem);
-            });
-        }
-
-        // 更新分页
-        function updatePagination() {
-            const totalPages = Math.ceil(allReports.length / pageSize);
-            const $pagination = $('#reports-pagination');
-            $pagination.empty();
-
-            if (totalPages === 0) {
-                $('#reports-page-info').text('暂无记录');
-                return;
-            }
-
-            // 上一页
-            const $prev = $('<li class="' + (currentPage === 1 ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage - 1) + '">上一页</a></li>');
-            $pagination.append($prev);
-
-            // 页码
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    const $li = $('<li class="' + (i === currentPage ? 'active' : '') + '"><a href="#" data-page="' + i + '">' + i + '</a></li>');
-                    $pagination.append($li);
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    const $li = $('<li class="disabled"><a href="#">...</a></li>');
-                    $pagination.append($li);
-                }
-            }
-
-            // 下一页
-            const $next = $('<li class="' + (currentPage === totalPages ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage + 1) + '">下一页</a></li>');
-            $pagination.append($next);
-
-            // 更新分页信息
-            const startIdx = (currentPage - 1) * pageSize + 1;
-            const endIdx = Math.min(currentPage * pageSize, allReports.length);
-            $('#reports-page-info').text('显示第 ' + startIdx + ' 到第 ' + endIdx + ' 条，共 ' + allReports.length + ' 条记录');
-        }
-
-        // 分页点击事件
-        $(document).on('click', '#reports-pagination a', function(e) {
+        // 无违规按钮点击事件
+        $(document).on('click', '#detailModal .pending-actions .btn-success.btn-sm', function(e) {
             e.preventDefault();
-            if ($(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) {
-                return;
-            }
+            e.stopPropagation();
+            const reportId = $('#detailModal').data('current-report-id');
+            if (reportId) {
+                $.ajax({
+                    url: '/admin/report/process',
+                    type: 'POST',
+                    data: {
+                        reportId: reportId,
+                        adminId: 1,
+                        result: 0,
+                        feedback: '未违规'
+                    },
+                    success: function(result) {
+                        if (result === 'success') {
+                            const reportRow = $('[data-report-id="' + reportId + '"]');
+                            if (reportRow.length > 0) {
+                                const statusElement = reportRow.find('.report-status');
+                                statusElement.removeClass('pending').addClass('resolved');
+                                statusElement.text('已处理');
+                            }
+                            // 更新全局数据
+                            allReports.forEach(function($el){
+                                if($el.attr('data-report-id') == reportId){
+                                    let $s = $el.find('.report-status');
+                                    $s.removeClass('pending').addClass('resolved').text('已处理');
+                                }
+                            });
 
-            const page = parseInt($(this).data('page'), 10);
-            if (page) {
-                const totalPages = Math.ceil(allReports.length / pageSize);
-                if (page >= 1 && page <= totalPages) {
-                    currentPage = page;
-                    loadReports();
-                    updatePagination();
-                }
+                            loadReports();
+                            updatePagination();
+                            updatePendingReportsCount();
+                            $('#detailModal').hide();
+                        } else {
+                            alert("操作失败");
+                        }
+                    }
+                });
             }
         });
-    </script>
+
+        // 点击页面其他地方时隐藏所有下拉菜单
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#detailModal').length) {
+                $('.custom-dropdown-menu').hide();
+            }
+        });
+
+        // 点击下拉菜单内部时阻止事件冒泡
+        $(document).on('click', '.custom-dropdown-menu', function(e) {
+            e.stopPropagation();
+        });
+
+        // 点击模态框内容区域时阻止关闭
+        $(document).on('click', '#detailModal .detail-modal-content', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+    // 计算未处理举报数量
+    function getPendingReportsCount() {
+        let count = 0;
+        allReports.forEach(function(reportItem) {
+            const statusElement = reportItem.find('.report-status');
+            if (statusElement.hasClass('pending')) {
+                count++;
+            }
+        });
+        return count;
+    }
+
+    // 更新未处理举报数量
+    function updatePendingReportsCount() {
+        const pendingCount = getPendingReportsCount();
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+                type: 'updatePendingReportsCount',
+                count: pendingCount
+            }, '*');
+        }
+    }
+
+    // 初始化分页
+    function initPagination() {
+        // 保存所有初始举报数据
+        allReports = $('#initial-reports .report-row').map(function() {
+            return $(this).clone(true);
+        }).get();
+
+        // 隐藏初始数据，使用分页加载
+        $('#initial-reports').hide();
+
+        loadReports();
+        updatePagination();
+        updatePendingReportsCount();
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'getPendingReportsCount') {
+                updatePendingReportsCount();
+            }
+        });
+    }
+
+    // 加载当前页数据
+    function loadReports() {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageData = allReports.slice(start, end);
+
+        const $reportsList = $('#reports-list');
+        $reportsList.empty();
+
+        if (pageData.length === 0) {
+            $reportsList.append('<div class="report-row" style="text-align: center; padding: 20px;">暂无举报记录</div>');
+            return;
+        }
+
+        pageData.forEach(function(reportItem) {
+            $reportsList.append(reportItem);
+        });
+    }
+
+    // 更新分页控件
+    function updatePagination() {
+        const totalPages = Math.ceil(allReports.length / pageSize);
+        const $pagination = $('#reports-pagination');
+        $pagination.empty();
+
+        if (totalPages === 0) {
+            $('#reports-page-info').text('暂无记录');
+            return;
+        }
+
+        const $prev = $('<li class="' + (currentPage === 1 ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage - 1) + '">上一页</a></li>');
+        $pagination.append($prev);
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                const $li = $('<li class="' + (i === currentPage ? 'active' : '') + '"><a href="#" data-page="' + i + '">' + i + '</a></li>');
+                $pagination.append($li);
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                const $li = $('<li class="disabled"><a href="#">...</a></li>');
+                $pagination.append($li);
+            }
+        }
+
+        const $next = $('<li class="' + (currentPage === totalPages ? 'disabled' : '') + '"><a href="#" data-page="' + (currentPage + 1) + '">下一页</a></li>');
+        $pagination.append($next);
+
+        const startIdx = (currentPage - 1) * pageSize + 1;
+        const endIdx = Math.min(currentPage * pageSize, allReports.length);
+        $('#reports-page-info').text('显示第 ' + startIdx + ' 到第 ' + endIdx + ' 条，共 ' + allReports.length + ' 条记录');
+    }
+
+    // 分页按钮点击
+    $(document).on('click', '#reports-pagination a', function(e) {
+        e.preventDefault();
+        if ($(this).parent().hasClass('disabled') || $(this).parent().hasClass('active')) {
+            return;
+        }
+        const page = parseInt($(this).data('page'), 10);
+        if (page) {
+            const totalPages = Math.ceil(allReports.length / pageSize);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                loadReports();
+                updatePagination();
+            }
+        }
+    });
+</script>
 </body>
 
 </html>
