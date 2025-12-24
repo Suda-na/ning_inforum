@@ -6,6 +6,7 @@
         SELECT
         user_id AS userId,
         username,
+        real_name AS realName,
         password,
         phone,
         avatar,

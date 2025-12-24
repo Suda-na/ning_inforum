@@ -324,8 +324,27 @@
             var signature = btn.data('signature') === 'null' ? '' : btn.data('signature');
 
             $('#editUserId').val(id);
-            var avatarPath = (avatar === 'default_avatar.png' || !avatar) ? (ctxPath + 'img/default_avatar.png') : (ctxPath + 'upload/' + avatar);
-            $('#editAvatarPreview').attr('src', avatarPath);
+            var avatarPath;
+            if (!avatar || avatar === 'default_avatar.png') {
+                // 使用系统默认头像
+                avatarPath = ctxPath + 'img/default_avatar.png';
+            } else if (avatar.indexOf('http://') === 0 || avatar.indexOf('https://') === 0) {
+                // 已经是完整 URL
+                avatarPath = avatar;
+            } else if (avatar.indexOf('upload/') === 0 || avatar.indexOf('/upload/') === 0) {
+                // 已经带有 upload 路径前缀
+                avatarPath = ctxPath + avatar.replace(/^\//, '');
+            } else {
+                // 数据库存的是文件名，拼接为上传目录
+                avatarPath = ctxPath + 'upload/' + avatar;
+            }
+            $('#editAvatarPreview')
+                .attr('src', avatarPath)
+                .off('error')
+                .on('error', function() {
+                    this.onerror = null;
+                    this.src = ctxPath + 'img/default_avatar.png';
+                });
 
             $('#editUsername').val(username);
             $('#editRealName').val(realName);
