@@ -22,12 +22,27 @@ public interface MessageService {
     List<Map<String, Object>> getUsersWithPrivateMessages();
     
     /**
+     * 根据当前登录用户查询有私信的用户列表（包含未读数量）
+     * @param currentUserId 当前登录用户ID
+     * @return 用户列表（Map格式）
+     */
+    List<Map<String, Object>> getUsersWithPrivateMessagesByCurrentUser(Integer currentUserId);
+    
+    /**
      * 查询管理员与指定用户之间的私信记录
      * 只返回一端为管理员(角色0/1)的消息
      * @param userId 普通用户ID
      * @return 私信记录列表（按时间升序）
      */
     List<Message> getMessagesBetweenAdminAndUser(Integer userId);
+
+    /**
+     * 查询当前登录用户与指定用户之间的私信记录
+     * @param currentUserId 当前登录用户ID
+     * @param otherUserId 对方用户ID
+     * @return 私信记录列表（按时间升序）
+     */
+    List<Message> getMessagesBetweenUsers(Integer currentUserId, Integer otherUserId);
 
     /**
      * 管理员向用户发送私信
@@ -41,12 +56,37 @@ public interface MessageService {
     boolean addPrivateMessageByAdmin(Integer adminId, Integer receiverId, String content, Integer msgFormat, String imageUrl);
 
     /**
+     * 用户向其他用户发送私信
+     * @param senderId 发送者ID
+     * @param receiverId 接收者ID
+     * @param content 消息内容
+     * @param msgFormat 消息格式 0文本 1图片
+     * @param imageUrl 图片地址（可选）
+     * @return 是否发送成功
+     */
+    boolean addPrivateMessage(Integer senderId, Integer receiverId, String content, Integer msgFormat, String imageUrl);
+
+    /**
      * 将管理员与指定用户之间，发给管理员且未读的私信标记为已读
      * （is_read 从 0 改为 1，read_time 写当前时间）
      * @param adminId 管理员ID
      * @param userId 普通用户ID
      */
     void markPrivateMessagesAsRead(Integer adminId, Integer userId);
+    
+    /**
+     * 将当前登录用户与指定用户之间，发给当前用户的未读私信标记为已读
+     * @param currentUserId 当前登录用户ID
+     * @param otherUserId 对方用户ID
+     */
+    void markPrivateMessagesAsReadBetweenUsers(Integer currentUserId, Integer otherUserId);
+    
+    /**
+     * 统计当前登录用户的未读私信总数
+     * @param currentUserId 当前登录用户ID
+     * @return 未读私信总数
+     */
+    Integer getTotalUnreadCount(Integer currentUserId);
     
     /**
      * 添加系统通知

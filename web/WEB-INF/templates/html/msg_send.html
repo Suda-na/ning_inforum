@@ -455,23 +455,50 @@
         let currentPage = 1;
         const usersPerPage = 5;
         let filteredUsers = [];
-        let currentUserId = null;
+        let currentUserId = null;  // 当前选中的对话用户ID
+        let currentLoginUserId = null;  // 当前登录用户ID（从后端获取）
 
-        // 计算总未读数量
+        // 计算总未读数量（从用户列表）
         function getTotalUnreadCount() {
             return users.reduce((total, user) => total + (user.unread || 0), 0);
         }
 
+        // 从服务器获取总未读数量
+        function fetchTotalUnreadCount() {
+            $.ajax({
+                url: '/admin/api/msg_send/unreadCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const totalUnread = response.count || 0;
+                        // 通过postMessage通知父窗口更新未读数量
+                        if (window.parent && window.parent !== window) {
+                            window.parent.postMessage({
+                                type: 'updateUnreadCount',
+                                count: totalUnread
+                            }, '*');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取未读数量失败:', error);
+                    // 如果API调用失败，使用本地计算的未读数量
+                    const totalUnread = getTotalUnreadCount();
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'updateUnreadCount',
+                            count: totalUnread
+                        }, '*');
+                    }
+                }
+            });
+        }
+
         // 更新总未读数量（用于更新index.html中的显示）
         function updateUnreadCount() {
-            const totalUnread = getTotalUnreadCount();
-            // 通过postMessage通知父窗口更新未读数量
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'updateUnreadCount',
-                    count: totalUnread
-                }, '*');
-            }
+            // 优先从服务器获取准确的未读数量
+            fetchTotalUnreadCount();
         }
 
         // 初始化页面
@@ -795,16 +822,32 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
+                        // 从后端返回的currentUserId获取当前登录用户ID
+                        if (response.currentUserId) {
+                            currentLoginUserId = response.currentUserId;
+                        } else if (currentLoginUserId === null && response.data && response.data.length > 0) {
+                            // 如果后端没有返回currentUserId，尝试从消息中推断
+                            const firstMsg = response.data[0];
+                            if (firstMsg.senderId === userId) {
+                                currentLoginUserId = firstMsg.receiverId;
+                            } else if (firstMsg.receiverId === userId) {
+                                currentLoginUserId = firstMsg.senderId;
+                            }
+                        }
+                        
                         messages[userId] = (response.data || []).map(function(item) {
-                            // 判断是否为管理员：如果接收者是当前用户，则发送者是管理员；如果发送者是当前用户，则发送者是用户
-                            const isAdmin = item.receiverId === userId;
+                            // 判断消息是当前用户发送的还是接收的
+                            // 如果senderId等于currentLoginUserId，则是当前用户发送的
+                            const isSent = (item.senderId === currentLoginUserId);
                             
                             return {
                                 id: item.messageId,
                                 content: item.content || '',
                                 msgFormat: item.msgFormat || 0, // 0=文本，1=图片
                                 imageUrl: item.imageUrl || null,
-                                sender: isAdmin ? 'admin' : 'user',
+                                senderId: item.senderId,
+                                receiverId: item.receiverId,
+                                isSent: isSent,  // 是否是当前用户发送的
                                 time: item.createTime ? 
                                     new Date(item.createTime).toLocaleString('zh-CN', {
                                         year: 'numeric',
@@ -813,7 +856,8 @@
                                         hour: '2-digit',
                                         minute: '2-digit'
                                     }) : '',
-                                senderAvatar: item.senderAvatar || 'img/user.png'
+                                senderAvatar: item.senderAvatar || 'img/user.png',
+                                senderName: item.senderName || '用户'
                             };
                         });
                         renderMessages(userId);
@@ -844,10 +888,10 @@
             } else {
                 const currentUser = users.find(u => u.id === userId);
                 userMessages.forEach(msg => {
-                    const isSent = msg.sender === 'admin';
+                    const isSent = msg.isSent !== undefined ? msg.isSent : false;
                     // 使用从后端返回的senderAvatar，如果没有则使用默认头像
                     const avatar = isSent ? (msg.senderAvatar || 'img/user.png') : (msg.senderAvatar || currentUser?.avatar || 'img/user.png');
-                    const name = isSent ? '管理员' : (currentUser?.name || '用户');
+                    const name = isSent ? (msg.senderName || '我') : (currentUser?.name || '用户');
                     
                     // 判断消息类型：图片消息或文本消息
                     let messageContent = '';

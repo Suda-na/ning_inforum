@@ -28,11 +28,27 @@ public class MessageServiceImpl implements MessageService {
     }
     
     @Override
+    public List<Map<String, Object>> getUsersWithPrivateMessagesByCurrentUser(Integer currentUserId) {
+        if (currentUserId == null) {
+            return null;
+        }
+        return messageMapper.selectUsersWithPrivateMessagesByCurrentUser(currentUserId);
+    }
+    
+    @Override
     public List<Message> getMessagesBetweenAdminAndUser(Integer userId) {
         if (userId == null) {
             return null;
         }
         return messageMapper.selectMessagesBetweenAdminAndUser(userId);
+    }
+    
+    @Override
+    public List<Message> getMessagesBetweenUsers(Integer currentUserId, Integer otherUserId) {
+        if (currentUserId == null || otherUserId == null) {
+            return null;
+        }
+        return messageMapper.selectMessagesBetweenUsers(currentUserId, otherUserId);
     }
 
     @Override
@@ -46,6 +62,21 @@ public class MessageServiceImpl implements MessageService {
                 }
             }
             int result = messageMapper.insertPrivateMessageFromAdmin(adminId, receiverId, content, msgFormat, imageUrl);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean addPrivateMessage(Integer senderId, Integer receiverId, String content, Integer msgFormat, String imageUrl) {
+        try {
+            if (senderId == null || receiverId == null) {
+                return false;
+            }
+            // 使用相同的插入方法，因为私信的结构是一样的
+            int result = messageMapper.insertPrivateMessageFromAdmin(senderId, receiverId, content, msgFormat, imageUrl);
             return result > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +99,31 @@ public class MessageServiceImpl implements MessageService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Override
+    public void markPrivateMessagesAsReadBetweenUsers(Integer currentUserId, Integer otherUserId) {
+        if (currentUserId == null || otherUserId == null) {
+            return;
+        }
+        try {
+            messageMapper.updatePrivateMessagesReadBetweenUsers(currentUserId, otherUserId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @Override
+    public Integer getTotalUnreadCount(Integer currentUserId) {
+        if (currentUserId == null) {
+            return 0;
+        }
+        try {
+            return messageMapper.countUnreadPrivateMessages(currentUserId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
     }
     

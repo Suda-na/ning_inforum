@@ -433,7 +433,7 @@
                                         <select class="form-control" id="search-module" style="width: 150px; border-radius: 0;">
                                             <option value="all">全部模块</option>
                                             <option value="circle">圈子动态</option>
-                                            <option value="errand">跑腿</option>
+                                            <option value="errand">跑腿模块</option>
                                             <option value="second-hand">二手集市</option>
                                             <option value="lost-found">失物招领</option>
                                         </select>
@@ -542,7 +542,7 @@
                             <select class="form-control" id="tag-module">
                                 <option value="">请选择模块</option>
                                 <option value="circle">圈子动态</option>
-                                <option value="errand">跑腿</option>
+                                <option value="errand">跑腿模块</option>
                                 <option value="second-hand">二手集市</option>
                                 <option value="lost-found">失物招领</option>
                             </select>
@@ -576,7 +576,7 @@
                             <select class="form-control" id="add-tag-module">
                                 <option value="">请选择模块</option>
                                 <option value="circle">圈子动态</option>
-                                <option value="errand">跑腿</option>
+                                <option value="errand">跑腿模块</option>
                                 <option value="second-hand">二手集市</option>
                                 <option value="lost-found">失物招领</option>
                             </select>
@@ -745,8 +745,10 @@
             let moduleValue = '';
             if (tag.categoryName) {
                 const categoryToModuleMap = {
-                    '动态': 'circle',
-                    '跑腿': 'errand',
+                    '圈子动态': 'circle',
+                    '动态': 'circle',  // 兼容旧数据
+                    '跑腿模块': 'errand',
+                    '跑腿': 'errand',  // 兼容旧数据
                     '二手集市': 'second-hand',
                     '失物招领': 'lost-found'
                 };
@@ -924,8 +926,9 @@
                 // 所属模块（如果有分类信息则显示，否则显示"未分类"）
                 let moduleHtml = '<span class="module-badge">未分类</span>';
                 if (tag.categoryName) {
+                    const displayName = convertCategoryNameToDisplay(tag.categoryName);
                     const moduleClass = getModuleClass(tag.categoryName);
-                    moduleHtml = '<span class="module-badge ' + moduleClass + '">' + escapeHtml(tag.categoryName) + '</span>';
+                    moduleHtml = '<span class="module-badge ' + moduleClass + '">' + escapeHtml(displayName) + '</span>';
                 }
                 $tr.append('<td>' + moduleHtml + '</td>');
                 
@@ -940,11 +943,26 @@
             $('#tag-count').text('共 ' + tags.length + ' 条记录');
         }
         
+        // 将分类名称转换为前端显示名称
+        function convertCategoryNameToDisplay(categoryName) {
+            const displayMap = {
+                '动态': '圈子动态',
+                '圈子动态': '圈子动态',  // 如果已经是新名称，保持不变
+                '跑腿': '跑腿模块',
+                '跑腿模块': '跑腿模块',  // 如果已经是新名称，保持不变
+                '二手集市': '二手集市',
+                '失物招领': '失物招领'
+            };
+            return displayMap[categoryName] || categoryName;
+        }
+        
         // 获取模块样式类
         function getModuleClass(categoryName) {
             const map = {
-                '动态': 'module-circle',
-                '跑腿': 'module-errand',
+                '圈子动态': 'module-circle',
+                '动态': 'module-circle',  // 兼容旧数据
+                '跑腿模块': 'module-errand',
+                '跑腿': 'module-errand',  // 兼容旧数据
                 '二手集市': 'module-second-hand',
                 '失物招领': 'module-lost-found'
             };

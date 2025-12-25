@@ -975,8 +975,10 @@
 
         // 更新内容板块热度图
         function updateCategoryChart(data) {
-            // 定义4个分类，按照顺序
-            var categories = ['动态', '跑腿', '二手集市', '失物招领'];
+            // 定义4个分类，按照顺序（后端返回的原始名称）
+            var backendCategories = ['动态', '跑腿', '二手集市', '失物招领'];
+            // 前端显示的名称
+            var displayCategories = ['圈子动态', '跑腿模块', '二手集市', '失物招领'];
             var chartData = [];
             
             // 创建分类名称到数量的映射
@@ -994,13 +996,15 @@
                 });
             }
             
-            // 按照顺序生成图表数据
-            categories.forEach(function(categoryName) {
+            // 按照顺序生成图表数据，使用前端显示名称
+            for (var i = 0; i < backendCategories.length; i++) {
+                var backendName = backendCategories[i];
+                var displayName = displayCategories[i];
                 chartData.push({
-                    value: categoryMap[categoryName] || 0,
-                    name: categoryName
+                    value: categoryMap[backendName] || 0,
+                    name: displayName
                 });
-            });
+            }
             
             console.log('内容板块热度图数据:', chartData);
             console.log('分类映射:', categoryMap);
@@ -1023,8 +1027,8 @@
             // 默认值
             if (!chartData || chartData.length === 0) {
                 chartData = [
-                    { value: 0, name: '动态' },
-                    { value: 0, name: '跑腿' },
+                    { value: 0, name: '圈子动态' },
+                    { value: 0, name: '跑腿模块' },
                     { value: 0, name: '二手集市' },
                     { value: 0, name: '失物招领' }
                 ];

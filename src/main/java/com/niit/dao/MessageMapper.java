@@ -30,6 +30,13 @@ public interface MessageMapper {
     List<Map<String, Object>> selectUsersWithPrivateMessages();
     
     /**
+     * 根据当前登录用户查询有私信的用户列表（去重，包含未读数量）
+     * @param currentUserId 当前登录用户ID
+     * @return 用户列表（Map格式，包含未读消息数）
+     */
+    List<Map<String, Object>> selectUsersWithPrivateMessagesByCurrentUser(@Param("currentUserId") Integer currentUserId);
+    
+    /**
      * 查询指定用户之间的私信记录
      * 一端必须是管理员(角色0/1)，另一端为指定用户
      * @param userId 普通用户ID
@@ -38,11 +45,29 @@ public interface MessageMapper {
     List<Message> selectMessagesBetweenAdminAndUser(@Param("userId") Integer userId);
     
     /**
+     * 查询当前登录用户与指定用户之间的私信记录
+     * @param currentUserId 当前登录用户ID
+     * @param otherUserId 对方用户ID
+     * @return 私信记录列表（按时间升序）
+     */
+    List<Message> selectMessagesBetweenUsers(@Param("currentUserId") Integer currentUserId, 
+                                             @Param("otherUserId") Integer otherUserId);
+    
+    /**
      * 统计用户的未读私信数量
      * @param receiverId 接收者ID
      * @return 未读数量
      */
     Integer countUnreadPrivateMessages(@Param("receiverId") Integer receiverId);
+    
+    /**
+     * 统计当前登录用户与指定用户之间的未读私信数量
+     * @param currentUserId 当前登录用户ID
+     * @param otherUserId 对方用户ID
+     * @return 未读数量
+     */
+    Integer countUnreadPrivateMessagesBetweenUsers(@Param("currentUserId") Integer currentUserId,
+                                                    @Param("otherUserId") Integer otherUserId);
     
     /**
      * 插入管理员发送的私信
@@ -73,6 +98,15 @@ public interface MessageMapper {
      */
     int updatePrivateMessagesRead(@Param("adminId") Integer adminId,
                                   @Param("userId") Integer userId);
+    
+    /**
+     * 将当前登录用户与指定用户之间的未读私信标记为已读
+     * @param currentUserId 当前登录用户ID（作为接收者）
+     * @param otherUserId 对方用户ID（作为发送者）
+     * @return 影响行数
+     */
+    int updatePrivateMessagesReadBetweenUsers(@Param("currentUserId") Integer currentUserId,
+                                              @Param("otherUserId") Integer otherUserId);
     
     /**
      * 插入系统通知

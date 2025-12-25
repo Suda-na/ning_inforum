@@ -44,17 +44,30 @@ public class PrivateMessageController {
 
     /**
      * 查询有私信的用户列表（API接口）
+     * @param session HTTP会话，用于获取当前登录用户ID
      * @return 用户列表JSON
      */
     @RequestMapping("/api/msg_send/users")
     @ResponseBody
-    public Map<String, Object> getUsersWithPrivateMessages() {
+    public Map<String, Object> getUsersWithPrivateMessages(HttpSession session) {
         Map<String, Object> result = new HashMap<>();
         try {
-            List<Map<String, Object>> users = messageService.getUsersWithPrivateMessages();
+            // 获取当前登录用户
+            User loginUser = (User) session.getAttribute("loginUser");
+            Integer currentUserId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
+            
+            List<Map<String, Object>> users;
+            if (currentUserId != null) {
+                // 根据当前登录用户查询有私信的用户列表
+                users = messageService.getUsersWithPrivateMessagesByCurrentUser(currentUserId);
+            } else {
+                // 如果没有登录用户，使用旧的方法（向后兼容）
+                users = messageService.getUsersWithPrivateMessages();
+            }
+            
             result.put("success", true);
             result.put("data", users);
-            result.put("total", users.size());
+            result.put("total", users != null ? users.size() : 0);
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "查询失败：" + e.getMessage());
@@ -65,8 +78,8 @@ public class PrivateMessageController {
 
     /**
      * 查询指定用户之间的私信记录（API接口）
-     * @param userId 用户ID
-     * @param session HTTP会话，用于获取当前登录的管理员ID
+     * @param userId 对方用户ID
+     * @param session HTTP会话，用于获取当前登录用户ID
      * @return 私信记录列表JSON
      */
     @RequestMapping("/api/msg_send/messages")
@@ -74,14 +87,36 @@ public class PrivateMessageController {
     public Map<String, Object> getMessages(@RequestParam("userId") Integer userId, HttpSession session) {
         Map<String, Object> result = new HashMap<>();
         try {
-            List<Message> messages = messageService.getMessagesBetweenAdminAndUser(userId);
-            // 将该用户发给管理员的未读消息标记为已读（红点和未读数消除）
+            // 获取当前登录用户
             User loginUser = (User) session.getAttribute("loginUser");
-            Integer adminId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
-            messageService.markPrivateMessagesAsRead(adminId, userId);
+            Integer currentUserId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
+            
+            if (currentUserId == null) {
+                result.put("success", false);
+                result.put("message", "未登录或登录信息无效");
+                return result;
+            }
+            
+            List<Message> messages;
+            // 判断是否为管理员（角色0或1）
+            boolean isAdmin = loginUser.getRole() != null && (loginUser.getRole() == 0 || loginUser.getRole() == 1);
+            
+            if (isAdmin) {
+                // 管理员使用旧的方法（向后兼容）
+                messages = messageService.getMessagesBetweenAdminAndUser(userId);
+                // 将该用户发给管理员的未读消息标记为已读
+                messageService.markPrivateMessagesAsRead(currentUserId, userId);
+            } else {
+                // 普通用户使用新的方法
+                messages = messageService.getMessagesBetweenUsers(currentUserId, userId);
+                // 将对方发给当前用户的未读消息标记为已读
+                messageService.markPrivateMessagesAsReadBetweenUsers(currentUserId, userId);
+            }
+            
             result.put("success", true);
             result.put("data", messages);
-            result.put("total", messages.size());
+            result.put("total", messages != null ? messages.size() : 0);
+            result.put("currentUserId", currentUserId);  // 返回当前登录用户ID，方便前端判断
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "查询失败：" + e.getMessage());
@@ -251,11 +286,11 @@ public class PrivateMessageController {
     }
 
     /**
-     * 管理员发送私信
+     * 发送私信（支持管理员和普通用户）
      * @param userId 接收的用户ID
      * @param content 消息内容（可选，图片消息时可为空）
      * @param imageUrl 图片URL（可选，文本消息时为空）
-     * @param session HTTP会话，用于获取当前登录的管理员ID
+     * @param session HTTP会话，用于获取当前登录用户ID
      * @return 操作结果JSON
      */
     @RequestMapping("/api/msg_send/add")
@@ -272,10 +307,10 @@ public class PrivateMessageController {
                 return result;
             }
 
-            // 获取当前登录的管理员ID
+            // 获取当前登录用户ID
             User loginUser = (User) session.getAttribute("loginUser");
-            Integer adminId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
-            if (adminId == null) {
+            Integer currentUserId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
+            if (currentUserId == null) {
                 result.put("success", false);
                 result.put("message", "未登录或登录信息无效");
                 return result;
@@ -296,12 +331,56 @@ public class PrivateMessageController {
             int msgFormat = isImageMessage ? 1 : 0;
             String finalImageUrl = isImageMessage ? imageUrl.trim() : null;
 
-            boolean success = messageService.addPrivateMessageByAdmin(adminId, userId, finalContent, msgFormat, finalImageUrl);
+            // 判断是否为管理员（角色0或1）
+            boolean isAdmin = loginUser.getRole() != null && (loginUser.getRole() == 0 || loginUser.getRole() == 1);
+            boolean success;
+            
+            if (isAdmin) {
+                // 管理员使用旧的方法（向后兼容）
+                success = messageService.addPrivateMessageByAdmin(currentUserId, userId, finalContent, msgFormat, finalImageUrl);
+            } else {
+                // 普通用户使用新的方法
+                success = messageService.addPrivateMessage(currentUserId, userId, finalContent, msgFormat, finalImageUrl);
+            }
+            
             result.put("success", success);
             result.put("message", success ? "发送成功" : "发送失败，请稍后重试");
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "发送失败：" + e.getMessage());
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    /**
+     * 获取当前登录用户的未读私信总数（API接口）
+     * @param session HTTP会话，用于获取当前登录用户ID
+     * @return 未读私信总数JSON
+     */
+    @RequestMapping("/api/msg_send/unreadCount")
+    @ResponseBody
+    public Map<String, Object> getUnreadCount(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            // 获取当前登录用户
+            User loginUser = (User) session.getAttribute("loginUser");
+            Integer currentUserId = (loginUser != null && loginUser.getUserId() != null) ? loginUser.getUserId() : null;
+            
+            if (currentUserId == null) {
+                result.put("success", false);
+                result.put("message", "未登录或登录信息无效");
+                result.put("count", 0);
+                return result;
+            }
+            
+            Integer unreadCount = messageService.getTotalUnreadCount(currentUserId);
+            result.put("success", true);
+            result.put("count", unreadCount != null ? unreadCount : 0);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "查询失败：" + e.getMessage());
+            result.put("count", 0);
             e.printStackTrace();
         }
         return result;
