@@ -1,8 +1,10 @@
 package com.niit.controller;
 
 import com.niit.pojo.User;
-import com.niit.service.UserService;
 import com.niit.service.UserServiceChang;
+import com.niit.service.MessageService;
+import com.niit.service.PostService;
+import com.niit.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +19,15 @@ public class LoginController {
 
     @Autowired
     private UserServiceChang userService;
+    
+    @Autowired
+    private MessageService messageService;
+    
+    @Autowired
+    private PostService postService;
+    
+    @Autowired
+    private DashboardService dashboardService;
 
     @GetMapping("/login")
     public String loginPage(HttpSession session) {
@@ -56,6 +67,31 @@ public class LoginController {
             return "redirect:/login";
         }
         model.addAttribute("user", user);
+        
+        // 获取未读私信数量
+        try {
+            Integer unreadMessageCount = messageService.getTotalUnreadCount(user.getUserId());
+            model.addAttribute("unreadMessageCount", unreadMessageCount != null ? unreadMessageCount : 0);
+        } catch (Exception e) {
+            model.addAttribute("unreadMessageCount", 0);
+        }
+        
+        // 获取未审核帖子数量
+        try {
+            int pendingPostsCount = postService.countPostsByStatus(0);
+            model.addAttribute("pendingPostsCount", pendingPostsCount);
+        } catch (Exception e) {
+            model.addAttribute("pendingPostsCount", 0);
+        }
+        
+        // 获取未处理举报数量
+        try {
+            int pendingReportsCount = dashboardService.countPendingReports();
+            model.addAttribute("pendingReportsCount", pendingReportsCount);
+        } catch (Exception e) {
+            model.addAttribute("pendingReportsCount", 0);
+        }
+        
         return "index";
     }
 

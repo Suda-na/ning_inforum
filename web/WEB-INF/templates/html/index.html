@@ -174,13 +174,13 @@
                     </li>
 
                     <li>
-                        <a onclick="openTab('/admin/reports', '举报管理')"><i class="fa fa-flag"></i> <span class="nav-label">举报管理</span><span class="label label-danger pull-right" id="reports-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a>
+                        <a onclick="openTab('/admin/reports', '举报管理')"><i class="fa fa-flag"></i> <span class="nav-label">举报管理</span><span class="label label-danger pull-right" id="reports-pending-count" style="background:#ef4444; border:none; color:white;" th:style="${pendingReportsCount != null && pendingReportsCount > 0} ? '' : 'display:none;'" th:text="${pendingReportsCount != null ? pendingReportsCount : 0}">0</span></a>
                     </li>
 
                     <li>
                         <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">动态管理</span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
-                            <li><a onclick="openTab('/admin/allposts', '所有帖子')">所有帖子<span class="label label-danger pull-right" id="posts-pending-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                            <li><a onclick="openTab('/admin/allposts', '所有帖子')">所有帖子<span class="label label-danger pull-right" id="posts-pending-count" style="background:#ef4444; border:none; color:white;" th:style="${pendingPostsCount != null && pendingPostsCount > 0} ? '' : 'display:none;'" th:text="${pendingPostsCount != null ? pendingPostsCount : 0}">0</span></a></li>
                             <li><a onclick="openTab('/admin/classification_label', '分类标签管理')">分类标签管理</a></li>
                         </ul>
                     </li>
@@ -189,7 +189,7 @@
                         <a href="#"><i class="fa fa-envelope"></i> <span class="nav-label">消息管理</span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li><a onclick="openTab('/admin/msg_system', '系统通知')">系统通知</a></li>
-                            <li><a onclick="openTab('/admin/msg_send', '私信用户')">私信用户<span class="label label-danger pull-right" id="msg-unread-count" style="background:#ef4444; border:none; color:white; display:none;">0</span></a></li>
+                            <li><a onclick="openTab('/admin/msg_send', '私信用户')">私信用户<span class="label label-danger pull-right" id="msg-unread-count" style="background:#ef4444; border:none; color:white;" th:style="${unreadMessageCount != null && unreadMessageCount > 0} ? '' : 'display:none;'" th:text="${unreadMessageCount != null ? unreadMessageCount : 0}">0</span></a></li>
                         </ul>
                     </li>
 
@@ -232,7 +232,7 @@
                         <li class="J_tabCloseOther"><a>关闭其他</a></li>
                     </ul>
                 </div>
-                <a href="login.html" class="roll-nav roll-right J_tabExit"><i class="fa fa-sign-out"></i></a>
+                <a th:href="@{/logout}" class="roll-nav roll-right J_tabExit" style="cursor:pointer"><i class="fa fa-sign-out"></i></a >
             </div>
 
             <div class="row J_mainContent" id="content-main">
