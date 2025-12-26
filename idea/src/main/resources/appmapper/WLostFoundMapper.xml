@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.WLostFoundMapper">
+
+    <resultMap id="PostVOMap" type="PostVO">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="contactInfo" column="contact_info"/>
+    </resultMap>
+
+    <select id="selectLostFoundPosts" resultMap="PostVOMap" parameterType="map">
+        SELECT DISTINCT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.create_time,
+            p.item_info,
+            p.contact_info,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.category_id = #{categoryId} AND p.status = 1
+        <if test="type != null and type == 'lost'">
+            AND EXISTS (
+                SELECT 1 FROM post_tag pt
+                INNER JOIN tag t ON pt.tag_id = t.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name = '失物'
+            )
+        </if>
+        <if test="type != null and type == 'found'">
+            AND EXISTS (
+                SELECT 1 FROM post_tag pt
+                INNER JOIN tag t ON pt.tag_id = t.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name = '招领'
+            )
+        </if>
+        ORDER BY p.create_time DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="countLostFoundPosts" resultType="int" parameterType="map">
+        SELECT COUNT(DISTINCT p.post_id)
+        FROM post p
+        WHERE p.category_id = #{categoryId} AND p.status = 1
+        <if test="type != null and type == 'lost'">
+            AND EXISTS (
+                SELECT 1 FROM post_tag pt
+                INNER JOIN tag t ON pt.tag_id = t.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name = '失物'
+            )
+        </if>
+        <if test="type != null and type == 'found'">
+            AND EXISTS (
+                SELECT 1 FROM post_tag pt
+                INNER JOIN tag t ON pt.tag_id = t.tag_id
+                WHERE pt.post_id = p.post_id
+                AND t.name = '招领'
+            )
+        </if>
+    </select>
+
+    <!-- 根据ID查询失物招领详情 -->
+    <select id="selectLostFoundPostById" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.item_info,
+            p.contact_info,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.create_time,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.post_id = #{postId} AND p.category_id = 4 AND p.status = 1
+    </select>
+
+    <!-- 增加浏览量 -->
+    <update id="incrementViewCount">
+        UPDATE post
+        SET view_count = view_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+</mapper>

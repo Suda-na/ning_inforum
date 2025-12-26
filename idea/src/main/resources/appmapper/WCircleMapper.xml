@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.WCircleMapper">
+
+    <!-- PostVO结果集映射 -->
+    <resultMap id="PostVOMap" type="PostVO">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="deadline" column="deadline"/>
+        <result property="price" column="price"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="trendingLevel" column="trending_level"/>
+        <result property="reviewTime" column="review_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 根据条件查询帖子列表 -->
+    <select id="selectPostsByCondition" resultMap="PostVOMap" parameterType="map">
+        SELECT DISTINCT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.contact_info,
+            p.deadline,
+            p.price,
+            p.item_info,
+            p.start_point,
+            p.end_point,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.like_count,
+            p.comment_count,
+            p.favorite_count,
+            p.trending_level,
+            p.review_time,
+            p.create_time,
+            p.update_time,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        <if test="tagId != null">
+            LEFT JOIN post_tag pt ON p.post_id = pt.post_id
+        </if>
+        <where>
+            <!-- 只查询已通过的帖子 -->
+            AND p.status = 1
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+            <if test="tagId != null">
+                AND pt.tag_id = #{tagId}
+            </if>
+        </where>
+        <choose>
+            <when test="sortType == 'hottest'">
+                ORDER BY p.trending_level DESC, p.like_count DESC, p.comment_count DESC, p.create_time DESC
+            </when>
+            <when test="sortType == 'mostComments'">
+                ORDER BY p.comment_count DESC, p.create_time DESC
+            </when>
+            <otherwise>
+                ORDER BY p.create_time DESC
+            </otherwise>
+        </choose>
+        <if test="start != null and size != null">
+            LIMIT #{start}, #{size}
+        </if>
+    </select>
+
+    <!-- 根据条件统计帖子数量 -->
+    <select id="countPostsByCondition" resultType="int" parameterType="map">
+        SELECT COUNT(DISTINCT p.post_id)
+        FROM post p
+        <if test="tagId != null">
+            LEFT JOIN post_tag pt ON p.post_id = pt.post_id
+        </if>
+        <where>
+            AND p.status = 1
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+            <if test="tagId != null">
+                AND pt.tag_id = #{tagId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据ID查询帖子详情 -->
+    <select id="selectPostById" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.contact_info,
+            p.deadline,
+            p.price,
+            p.item_info,
+            p.start_point,
+            p.end_point,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.like_count,
+            p.comment_count,
+            p.favorite_count,
+            p.trending_level,
+            p.review_time,
+            p.create_time,
+            p.update_time,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.post_id = #{postId}
+    </select>
+
+    <!-- 根据帖子ID查询标签名称列表 -->
+    <select id="selectTagNamesByPostId" resultType="String">
+        SELECT t.name
+        FROM tag t
+        INNER JOIN post_tag pt ON t.tag_id = pt.tag_id
+        WHERE pt.post_id = #{postId}
+        ORDER BY pt.id
+    </select>
+
+    <!-- 根据帖子ID查询评论列表 -->
+    <select id="selectCommentsByPostId" resultType="map">
+        SELECT
+            i.interaction_id as id,
+            i.interaction_id as commentId,
+            i.user_id as userId,
+            u.username as author,
+            u.avatar as avatar,
+            i.comment_content as content,
+            i.parent_id as parentId,
+            i.comment_like_count as likeCount,
+            i.create_time as createTime
+        FROM interaction i
+        LEFT JOIN user u ON i.user_id = u.user_id
+        WHERE i.post_id = #{postId}
+        AND i.interaction_type = 'comment'
+        AND i.status = 1
+        AND (i.comment_status = '正常' OR i.comment_status IS NULL)
+        ORDER BY i.create_time ASC
+    </select>
+
+    <!-- 查询浏览量最高的帖子（只查询动态分类，不能是系统通知） -->
+    <select id="selectHotPosts" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.contact_info,
+            p.deadline,
+            p.price,
+            p.item_info,
+            p.start_point,
+            p.end_point,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.like_count,
+            p.comment_count,
+            p.favorite_count,
+            p.trending_level,
+            p.review_time,
+            p.create_time,
+            p.update_time,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.status = 1 AND p.category_id = 1
+        ORDER BY p.view_count DESC, p.create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 增加帖子浏览量 -->
+    <update id="incrementViewCount">
+        UPDATE post
+        SET view_count = view_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- 添加评论 -->
+    <!-- 直接插入新评论记录，允许多条评论 -->
+    <insert id="insertComment">
+        INSERT INTO interaction (post_id, user_id, interaction_type, comment_content, parent_id, comment_status, status, create_time)
+        VALUES (#{postId}, #{userId}, 'comment', #{content}, 
+        <choose>
+            <when test="parentId != null">#{parentId}</when>
+            <otherwise>NULL</otherwise>
+        </choose>
+        , '正常', 1, NOW())
+    </insert>
+
+    <!-- 获取最后插入的评论ID -->
+    <select id="getLastInsertCommentId" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <!-- 根据帖子ID和用户ID查询评论ID -->
+    <select id="getCommentIdByPostAndUser" resultType="Integer">
+        SELECT interaction_id
+        FROM interaction
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'comment'
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <!-- 更新帖子评论数 -->
+    <update id="incrementCommentCount">
+        UPDATE post
+        SET comment_count = comment_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- 检查用户是否已点赞（只查询status=1的） -->
+    <select id="checkLikeExists" resultType="Integer">
+        SELECT interaction_id
+        FROM interaction
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'like'
+        AND status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 检查是否存在点赞记录（包括status=0的） -->
+    <select id="checkLikeRecordExists" resultType="Integer">
+        SELECT interaction_id
+        FROM interaction
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'like'
+        LIMIT 1
+    </select>
+
+    <!-- 添加点赞 -->
+    <insert id="insertLike">
+        INSERT INTO interaction (post_id, user_id, interaction_type, status)
+        VALUES (#{postId}, #{userId}, 'like', 1)
+    </insert>
+
+    <!-- 恢复点赞（将status从0改为1） -->
+    <update id="restoreLike">
+        UPDATE interaction
+        SET status = 1
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'like'
+    </update>
+
+    <!-- 取消点赞 -->
+    <update id="deleteLike">
+        UPDATE interaction
+        SET status = 0
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'like'
+    </update>
+
+    <!-- 更新帖子点赞数 -->
+    <update id="updateLikeCount">
+        UPDATE post
+        SET like_count = like_count + #{increment}
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- 统计用户数量 -->
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE status = 0
+    </select>
+
+    <!-- 添加收藏 -->
+    <insert id="insertFavorite">
+        INSERT INTO interaction (post_id, user_id, interaction_type, status)
+        VALUES (#{postId}, #{userId}, 'favorite', 1)
+    </insert>
+
+    <!-- 检查用户是否已收藏 -->
+    <select id="checkFavoriteExists" resultType="Integer">
+        SELECT interaction_id
+        FROM interaction
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'favorite'
+        AND status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 更新帖子收藏数 -->
+    <update id="updateFavoriteCount">
+        UPDATE post
+        SET favorite_count = favorite_count + #{increment}
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- 检查是否存在收藏记录（包括status=0的） -->
+    <select id="checkFavoriteRecordExists" resultType="Integer">
+        SELECT interaction_id
+        FROM interaction
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'favorite'
+        LIMIT 1
+    </select>
+
+    <!-- 取消收藏（将status从1改为0） -->
+    <update id="deleteFavorite">
+        UPDATE interaction
+        SET status = 0
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'favorite'
+    </update>
+
+    <!-- 恢复收藏（将status从0改为1） -->
+    <update id="restoreFavorite">
+        UPDATE interaction
+        SET status = 1
+        WHERE post_id = #{postId}
+        AND user_id = #{userId}
+        AND interaction_type = 'favorite'
+    </update>
+
+    <!-- 根据用户ID查询收藏的帖子列表 -->
+    <select id="selectFavoritePostsByUserId" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.contact_info,
+            p.deadline,
+            p.price,
+            p.item_info,
+            p.start_point,
+            p.end_point,
+            p.image1,
+            p.image2,
+            p.image3,
+            p.status,
+            p.view_count,
+            p.like_count,
+            p.comment_count,
+            p.favorite_count,
+            p.trending_level,
+            p.review_time,
+            p.create_time,
+            p.update_time,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM interaction i
+        INNER JOIN post p ON i.post_id = p.post_id
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE i.user_id = #{userId}
+        AND i.interaction_type = 'favorite'
+        AND i.status = 1
+        AND p.status = 1
+        ORDER BY i.create_time DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <!-- 统计用户收藏的帖子数量 -->
+    <select id="countFavoritePostsByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM interaction i
+        INNER JOIN post p ON i.post_id = p.post_id
+        WHERE i.user_id = #{userId}
+        AND i.interaction_type = 'favorite'
+        AND i.status = 1
+        AND p.status = 1
+    </select>
+
+</mapper>
+

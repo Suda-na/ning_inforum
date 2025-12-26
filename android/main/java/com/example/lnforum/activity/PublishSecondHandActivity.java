@@ -1,0 +1,160 @@
+package com.example.lnforum.activity;
+
+import android.content.res.ColorStateList;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
+import com.example.lnforum.R;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
+public class PublishSecondHandActivity extends AppCompatActivity {
+
+    private final String[] tagOptions = new String[]{
+            "校园二手", "二手教材", "毕业甩卖", "数码闲置", "宿舍神器",
+            "考研资料", "服饰鞋包", "求购", "低价出物"
+    };
+
+    private EditText titleInput;
+    private EditText descInput;
+    private EditText priceInput;
+    private ChipGroup tagGroup;
+    private TextView selectedTagView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_publish_second_hand);
+
+        View root = findViewById(R.id.publish_second_root);
+        applyLightStatusBar(root);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            int bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            v.setPadding(0, top, 0, bottom);
+            return insets;
+        });
+
+        initViews();
+        setupChips();
+        setupActions();
+    }
+
+    private void initViews() {
+        titleInput = findViewById(R.id.input_title);
+        descInput = findViewById(R.id.input_desc);
+        priceInput = findViewById(R.id.input_price);
+        tagGroup = findViewById(R.id.tag_group);
+        selectedTagView = new TextView(this);
+    }
+
+    private void setupActions() {
+        ImageView back = findViewById(R.id.btn_back);
+        TextView publish = findViewById(R.id.btn_publish);
+        TextView publishBottom = findViewById(R.id.btn_publish_bottom);
+
+        View.OnClickListener publishAction = v -> handlePublish();
+        publish.setOnClickListener(publishAction);
+        publishBottom.setOnClickListener(publishAction);
+
+        back.setOnClickListener(v -> finish());
+    }
+
+    private void handlePublish() {
+        String title = titleInput.getText().toString().trim();
+        String desc = descInput.getText().toString().trim();
+        String price = priceInput.getText().toString().trim();
+        String tag = selectedTagView.getText().toString();
+
+        if (TextUtils.isEmpty(title)) {
+            Toast.makeText(this, "请输入标题", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(desc)) {
+            Toast.makeText(this, "请先填写描述信息", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(tag)) {
+            Toast.makeText(this, "请选择分类标签", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(price)) {
+            price = "0";
+        }
+
+        // 这里后续可以接入SSM和数据库
+        // 示例：提交数据到后端
+        // publishSecondHand(title, desc, price, tag);
+
+        Toast.makeText(this, "已提交发布，后续接入后端/数据库", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private void setupChips() {
+        if (tagGroup == null) {
+            return;
+        }
+        tagGroup.setSingleSelection(true);
+        tagGroup.setSelectionRequired(false);
+
+        int checkedBg = ContextCompat.getColor(this, R.color.primary_blue_light);
+        int normalBg = ContextCompat.getColor(this, R.color.background_white);
+        int checkedText = ContextCompat.getColor(this, android.R.color.white);
+        int normalText = ContextCompat.getColor(this, R.color.text_secondary);
+        int strokeColor = ContextCompat.getColor(this, R.color.divider);
+        int rippleColor = ContextCompat.getColor(this, R.color.primary_blue);
+        int chipPadding = (int) (getResources().getDisplayMetrics().density * 6);
+
+        ColorStateList bgColors = new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{checkedBg, normalBg}
+        );
+        ColorStateList textColors = new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{checkedText, normalText}
+        );
+
+        for (String tag : tagOptions) {
+            Chip chip = new Chip(this);
+            chip.setText(tag);
+            chip.setCheckable(true);
+            chip.setClickable(true);
+            chip.setChipBackgroundColor(bgColors);
+            chip.setTextColor(textColors);
+            chip.setChipStrokeColor(ColorStateList.valueOf(strokeColor));
+            chip.setChipStrokeWidth(1f);
+            chip.setRippleColor(ColorStateList.valueOf(rippleColor));
+            chip.setCheckedIconVisible(false);
+            chip.setPadding(chipPadding, 0, chipPadding, 0);
+            chip.setOnClickListener(v -> selectedTagView.setText(tag));
+            tagGroup.addView(chip);
+        }
+
+        if (tagGroup.getChildCount() > 0) {
+            Chip first = (Chip) tagGroup.getChildAt(0);
+            first.setChecked(true);
+            selectedTagView.setText(first.getText());
+        }
+    }
+
+    private void applyLightStatusBar(View root) {
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.background_white));
+        WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(root);
+        if (controller != null) {
+            controller.setAppearanceLightStatusBars(true);
+        }
+    }
+}
+
+
