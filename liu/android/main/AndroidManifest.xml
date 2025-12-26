@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/ic_launcher_background"
+        android:label="校园论坛"
+        android:roundIcon="@drawable/ic_launcher_background"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Android_Java2"
+        android:networkSecurityConfig="@xml/network_security_config">
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.CircleDetailActivity" />
+        <activity android:name=".activity.ChatActivity" />
+        <activity android:name=".activity.BlacklistActivity" />
+        <activity android:name=".activity.ContactAdminActivity" />
+        <activity android:name=".activity.UserProfileActivity" />
+        <activity
+            android:name=".activity.SearchActivity"
+            android:exported="true" />
+        <activity android:name=".activity.PublishCircleActivity" />
+        <activity android:name=".activity.PublishSecondHandActivity" />
+        <activity android:name=".activity.PublishLostFoundActivity" />
+        <activity android:name=".activity.PublishErrandActivity" />
+        <activity android:name=".activity.ErrandDetailActivity" />
+        <activity android:name=".activity.ReportActivity" />
+        <activity android:name=".activity.SecondHandDetailActivity" />
+        <activity android:name=".activity.LostFoundDetailActivity" />
+        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.RegisterActivity" />
+        <activity android:name=".activity.EditPasswordActivity" />
+        <activity android:name=".activity.EditSignatureActivity" />
+        <activity android:name=".activity.FollowListActivity" />
+
+    </application>
+
+</manifest>

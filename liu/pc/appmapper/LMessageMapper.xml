@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.LMessageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="MessageResultMap" type="com.niit.pojo.Message">
+        <id property="messageId" column="message_id"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="msgFormat" column="msg_format"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="relatedType" column="related_type"/>
+        <result property="isRead" column="is_read"/>
+        <result property="readTime" column="read_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="senderAvatar" column="sender_avatar"/>
+        <result property="receiverAvatar" column="receiver_avatar"/>
+    </resultMap>
+
+    <!-- 查询互关私信列表
+         返回与当前用户互相关注的用户之间的私信列表（按会话分组，返回最新一条消息）
+         互关条件：A关注B 且 B关注A（在follow表中，存在 (A->B) 和 (B->A) 两条记录，且status=1）
+    -->
+    <select id="selectMutualFollowMessages" resultType="java.util.Map">
+        SELECT 
+            other.user_id AS userId,
+            other.username AS username,
+            other.real_name AS realName,
+            other.avatar AS avatar,
+            CASE 
+                WHEN other.gender = 1 THEN '男'
+                WHEN other.gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender,
+            latest.content AS lastMessage,
+            latest.msg_format AS msgFormat,
+            latest.image_url AS imageUrl,
+            latest.create_time AS lastMessageTime,
+            CASE 
+                WHEN latest.sender_id = #{currentUserId} THEN CONCAT('我:', latest.content)
+                ELSE latest.content
+            END AS messagePreview,
+            IFNULL(unread.unread_count, 0) AS unreadCount
+        FROM (
+            -- 找出所有互关的用户ID
+            SELECT f1.following_id AS user_id
+            FROM follow f1
+            INNER JOIN follow f2 ON f1.following_id = f2.follower_id AND f1.follower_id = f2.following_id
+            WHERE f1.follower_id = #{currentUserId}
+              AND f1.status = 1
+              AND f2.status = 1
+        ) mutual_follows
+        INNER JOIN user other ON mutual_follows.user_id = other.user_id
+        LEFT JOIN (
+            -- 获取每个互关用户的最新一条消息（使用子查询获取最新消息）
+            SELECT 
+                m1.other_user_id,
+                m1.content,
+                m1.msg_format,
+                m1.image_url,
+                m1.sender_id,
+                m1.create_time
+            FROM (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    m.content,
+                    m.msg_format,
+                    m.image_url,
+                    m.sender_id,
+                    m.create_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId})
+            ) m1
+            INNER JOIN (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    MAX(m.create_time) AS max_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId})
+                GROUP BY 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END
+            ) m2 ON m1.other_user_id = m2.other_user_id AND m1.create_time = m2.max_time
+        ) latest ON latest.other_user_id = other.user_id
+        LEFT JOIN (
+            -- 统计未读消息数
+            SELECT 
+                sender_id AS other_user_id,
+                COUNT(*) AS unread_count
+            FROM message
+            WHERE message_type = 0
+              AND receiver_id = #{currentUserId}
+              AND is_read = 0
+            GROUP BY sender_id
+        ) unread ON unread.other_user_id = other.user_id
+        WHERE latest.create_time IS NOT NULL
+        ORDER BY latest.create_time DESC
+        LIMIT 100
+    </select>
+
+    <!-- 查询粉丝来信列表
+         返回关注了当前用户但当前用户未关注对方的用户发送的私信列表（按会话分组，返回最新一条消息）
+         粉丝条件：B关注A，但A未关注B（在follow表中，存在 (B->A) 记录，但不存在 (A->B) 记录，且status=1）
+    -->
+    <select id="selectFanMessages" resultType="java.util.Map">
+        SELECT 
+            other.user_id AS userId,
+            other.username AS username,
+            other.real_name AS realName,
+            other.avatar AS avatar,
+            CASE 
+                WHEN other.gender = 1 THEN '男'
+                WHEN other.gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender,
+            latest.content AS lastMessage,
+            latest.msg_format AS msgFormat,
+            latest.image_url AS imageUrl,
+            latest.create_time AS lastMessageTime,
+            CASE 
+                WHEN latest.sender_id = #{currentUserId} THEN CONCAT('我:', latest.content)
+                ELSE latest.content
+            END AS messagePreview,
+            IFNULL(unread.unread_count, 0) AS unreadCount
+        FROM (
+            -- 找出所有粉丝的用户ID（关注了当前用户，但当前用户未关注他们）
+            SELECT f1.follower_id AS user_id
+            FROM follow f1
+            WHERE f1.following_id = #{currentUserId}
+              AND f1.status = 1
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM follow f2 
+                  WHERE f2.follower_id = #{currentUserId} 
+                    AND f2.following_id = f1.follower_id 
+                    AND f2.status = 1
+              )
+        ) fans
+        INNER JOIN user other ON fans.user_id = other.user_id
+        LEFT JOIN (
+            -- 获取每个粉丝的最新一条消息（使用子查询获取最新消息）
+            SELECT 
+                m1.other_user_id,
+                m1.content,
+                m1.msg_format,
+                m1.image_url,
+                m1.sender_id,
+                m1.create_time
+            FROM (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    m.content,
+                    m.msg_format,
+                    m.image_url,
+                    m.sender_id,
+                    m.create_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId})
+            ) m1
+            INNER JOIN (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    MAX(m.create_time) AS max_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId})
+                GROUP BY 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END
+            ) m2 ON m1.other_user_id = m2.other_user_id AND m1.create_time = m2.max_time
+        ) latest ON latest.other_user_id = other.user_id
+        LEFT JOIN (
+            -- 统计未读消息数
+            SELECT 
+                sender_id AS other_user_id,
+                COUNT(*) AS unread_count
+            FROM message
+            WHERE message_type = 0
+              AND receiver_id = #{currentUserId}
+              AND is_read = 0
+            GROUP BY sender_id
+        ) unread ON unread.other_user_id = other.user_id
+        WHERE latest.create_time IS NOT NULL
+        ORDER BY latest.create_time DESC
+        LIMIT 100
+    </select>
+
+    <!-- 查询与指定用户之间的私信记录（用于查看具体会话） -->
+    <select id="selectMessagesBetweenUsers" resultMap="MessageResultMap">
+        SELECT 
+            m.message_id,
+            m.sender_id,
+            m.receiver_id,
+            m.message_type,
+            m.title,
+            m.content,
+            m.msg_format,
+            m.image_url,
+            m.related_type,
+            m.is_read,
+            m.read_time,
+            m.create_time,
+            sender.username as sender_name,
+            receiver.username as receiver_name,
+            sender.avatar as sender_avatar,
+            receiver.avatar as receiver_avatar
+        FROM message m
+        LEFT JOIN user sender ON m.sender_id = sender.user_id
+        LEFT JOIN user receiver ON m.receiver_id = receiver.user_id
+        WHERE m.message_type = 0 
+          AND (
+                (m.sender_id = #{currentUserId} AND m.receiver_id = #{otherUserId})
+             OR (m.receiver_id = #{currentUserId} AND m.sender_id = #{otherUserId})
+          )
+        ORDER BY m.create_time ASC
+        LIMIT 200
+    </select>
+
+    <!-- 插入私信消息 -->
+    <insert id="insertPrivateMessage">
+        INSERT INTO message (
+            sender_id,
+            receiver_id,
+            message_type,
+            content,
+            msg_format,
+            image_url,
+            related_type,
+            is_read,
+            create_time
+        ) VALUES (
+            #{senderId},
+            #{receiverId},
+            0,
+            #{content},
+            #{msgFormat, jdbcType=INTEGER},
+            #{imageUrl, jdbcType=VARCHAR},
+            '用户',
+            0,
+            NOW()
+        )
+    </insert>
+
+    <!-- 将当前登录用户与指定用户之间的未读私信标记为已读 -->
+    <update id="updateMessagesReadBetweenUsers">
+        UPDATE message
+        SET is_read = 1,
+            read_time = NOW()
+        WHERE message_type = 0
+          AND sender_id = #{otherUserId}
+          AND receiver_id = #{currentUserId}
+          AND is_read = 0
+    </update>
+
+    <!-- 统计当前用户的总未读私信数（所有is_read=0的私信） -->
+    <select id="countTotalUnreadMessages" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message
+        WHERE message_type = 0
+          AND receiver_id = #{currentUserId}
+          AND is_read = 0
+    </select>
+
+    <!-- 统计互关私信的未读消息数 -->
+    <select id="countMutualFollowUnreadMessages" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message m
+        WHERE m.message_type = 0
+          AND m.receiver_id = #{currentUserId}
+          AND m.is_read = 0
+          AND m.sender_id IN (
+              -- 找出所有互关的用户ID
+              SELECT f1.following_id
+              FROM follow f1
+              INNER JOIN follow f2 ON f1.following_id = f2.follower_id AND f1.follower_id = f2.following_id
+              WHERE f1.follower_id = #{currentUserId}
+                AND f1.status = 1
+                AND f2.status = 1
+          )
+    </select>
+
+    <!-- 统计粉丝来信的未读消息数 -->
+    <select id="countFanUnreadMessages" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message m
+        WHERE m.message_type = 0
+          AND m.receiver_id = #{currentUserId}
+          AND m.is_read = 0
+          AND m.sender_id IN (
+              -- 找出所有粉丝的用户ID（关注了当前用户，但当前用户未关注他们）
+              SELECT f1.follower_id
+              FROM follow f1
+              WHERE f1.following_id = #{currentUserId}
+                AND f1.status = 1
+                AND NOT EXISTS (
+                    SELECT 1 
+                    FROM follow f2 
+                    WHERE f2.follower_id = #{currentUserId} 
+                      AND f2.following_id = f1.follower_id 
+                      AND f2.status = 1
+                )
+          )
+    </select>
+
+    <!-- 查询管理员列表（用于联系管理员）
+         返回所有管理员（role IN (0,1)）的列表，包含最新消息和未读数
+    -->
+    <select id="selectAdminMessages" resultType="java.util.Map">
+        SELECT 
+            admin.user_id AS userId,
+            admin.username AS username,
+            admin.real_name AS realName,
+            admin.avatar AS avatar,
+            CASE 
+                WHEN admin.gender = 1 THEN '男'
+                WHEN admin.gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender,
+            CASE 
+                WHEN admin.role = 0 THEN '超级管理员'
+                WHEN admin.role = 1 THEN '管理员'
+                ELSE '未知'
+            END AS roleName,
+            latest.content AS lastMessage,
+            latest.msg_format AS msgFormat,
+            latest.image_url AS imageUrl,
+            latest.create_time AS lastMessageTime,
+            CASE 
+                WHEN latest.sender_id = #{currentUserId} THEN CONCAT('我:', latest.content)
+                ELSE latest.content
+            END AS messagePreview,
+            IFNULL(unread.unread_count, 0) AS unreadCount
+        FROM (
+            -- 找出所有管理员（role IN (0,1)）
+            SELECT user_id, username, real_name, avatar, gender, role
+            FROM user
+            WHERE role IN (0, 1)
+              AND status != 2
+            ORDER BY role ASC, user_id ASC
+        ) admin
+        LEFT JOIN (
+            -- 获取每个管理员的最新一条消息（使用子查询获取最新消息）
+            SELECT 
+                m1.other_user_id,
+                m1.content,
+                m1.msg_format,
+                m1.image_url,
+                m1.sender_id,
+                m1.create_time
+            FROM (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    m.content,
+                    m.msg_format,
+                    m.image_url,
+                    m.sender_id,
+                    m.create_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (
+                      (m.sender_id = #{currentUserId} AND m.receiver_id IN (SELECT user_id FROM user WHERE role IN (0, 1)))
+                      OR (m.receiver_id = #{currentUserId} AND m.sender_id IN (SELECT user_id FROM user WHERE role IN (0, 1)))
+                  )
+            ) m1
+            INNER JOIN (
+                SELECT 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END AS other_user_id,
+                    MAX(m.create_time) AS max_time
+                FROM message m
+                WHERE m.message_type = 0
+                  AND (
+                      (m.sender_id = #{currentUserId} AND m.receiver_id IN (SELECT user_id FROM user WHERE role IN (0, 1)))
+                      OR (m.receiver_id = #{currentUserId} AND m.sender_id IN (SELECT user_id FROM user WHERE role IN (0, 1)))
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN m.sender_id = #{currentUserId} THEN m.receiver_id
+                        ELSE m.sender_id
+                    END
+            ) m2 ON m1.other_user_id = m2.other_user_id AND m1.create_time = m2.max_time
+        ) latest ON latest.other_user_id = admin.user_id
+        LEFT JOIN (
+            -- 统计未读消息数
+            SELECT 
+                sender_id AS other_user_id,
+                COUNT(*) AS unread_count
+            FROM message
+            WHERE message_type = 0
+              AND receiver_id = #{currentUserId}
+              AND is_read = 0
+              AND sender_id IN (SELECT user_id FROM user WHERE role IN (0, 1))
+            GROUP BY sender_id
+        ) unread ON unread.other_user_id = admin.user_id
+        ORDER BY 
+            CASE WHEN latest.create_time IS NULL THEN 1 ELSE 0 END,
+            latest.create_time DESC, 
+            admin.role ASC, 
+            admin.user_id ASC
+        LIMIT 100
+    </select>
+
+    <!-- 统计联系管理员的未读消息数 -->
+    <select id="countAdminUnreadMessages" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message m
+        WHERE m.message_type = 0
+          AND m.receiver_id = #{currentUserId}
+          AND m.is_read = 0
+          AND m.sender_id IN (
+              SELECT user_id
+              FROM user
+              WHERE role IN (0, 1)
+                AND status != 2
+          )
+    </select>
+
+</mapper>
+

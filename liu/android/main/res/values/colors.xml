@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主题颜色 -->
+    <color name="blue">#03A9F4</color>
+    <color name="primary_blue">#4A90E2</color>
+    <color name="primary_blue_dark">#357ABD</color>
+    <color name="primary_blue_light">#6BA3E8</color>
+    
+    <!-- 导航栏颜色 -->
+    <color name="nav_selected">#4A90E2</color>
+    <color name="nav_unselected">#999999</color>
+    <color name="nav_background">#FFFFFF</color>
+    
+    <!-- 背景颜色 -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="background_white">#FFFFFF</color>
+    
+    <!-- 文本颜色 -->
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#999999</color>
+    
+    <!-- 其他颜色 -->
+    <color name="divider">#E0E0E0</color>
+    <color name="shadow">#1A000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- 霓虹风配色 -->
+    <color name="cyber_bg_start">#091228</color>
+    <color name="cyber_bg_mid">#1A284D</color>
+    <color name="cyber_bg_end">#2D1B4E</color>
+    <color name="neon_cyan">#00F0FF</color>
+    <color name="neon_pink">#FF003C</color>
+    <color name="glass_white">#1AFFFFFF</color>
+    <color name="glass_stroke">#33FFFFFF</color>
+    <color name="text_white_primary">#FFFFFF</color>
+    <color name="text_white_secondary">#B3FFFFFF</color>
+</resources>
