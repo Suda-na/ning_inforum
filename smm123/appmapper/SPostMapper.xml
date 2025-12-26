@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<mapper namespace="com.app.dao.SPostMapper">
+    
+    <!-- SPostVO结果集映射 -->
+    <resultMap id="SPostVOMap" type="com.app.pojo.SPostVO">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="deadline" column="deadline"/>
+        <result property="price" column="price"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="trendingLevel" column="trending_level"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isLiked" column="is_liked"/>
+        <result property="isFavorited" column="is_favorited"/>
+        <result property="isFollowed" column="is_followed"/>
+    </resultMap>
+
+    <!-- 根据ID查询帖子详情 -->
+    <select id="selectPostById" resultMap="SPostVOMap">
+        select p.post_id,
+               p.user_id,
+               p.category_id,
+               p.title,
+               p.content,
+               p.contact_info,
+               p.deadline,
+               p.price,
+               p.item_info,
+               p.start_point,
+               p.end_point,
+               p.image1,
+               p.image2,
+               p.image3,
+               p.status,
+               p.view_count,
+               p.like_count,
+               p.comment_count,
+               p.favorite_count,
+               p.trending_level,
+               p.create_time,
+               p.update_time,
+               u.username,
+               u.avatar,
+               c.name as category_name,
+               case when il_like.interaction_id is not null then 1 else 0 end as is_liked,
+               case when il_fav.interaction_id is not null then 1 else 0 end as is_favorited,
+               case when f.follow_id is not null then 1 else 0 end as is_followed
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        left join interaction il_like on p.post_id = il_like.post_id 
+            and il_like.user_id = #{currentUserId} 
+            and il_like.interaction_type = 'like' 
+            and il_like.status = 1
+        left join interaction il_fav on p.post_id = il_fav.post_id 
+            and il_fav.user_id = #{currentUserId} 
+            and il_fav.interaction_type = 'favorite' 
+            and il_fav.status = 1
+        left join follow f on f.follower_id = #{currentUserId} 
+            and f.following_id = p.user_id 
+            and f.status = 1
+        where p.post_id = #{postId} and p.status != 2
+    </select>
+
+    <!-- 查询帖子列表（分页） -->
+    <select id="selectPostList" resultMap="SPostVOMap" parameterType="map">
+        select p.post_id,
+               p.user_id,
+               p.category_id,
+               p.title,
+               p.content,
+               p.contact_info,
+               p.deadline,
+               p.price,
+               p.item_info,
+               p.start_point,
+               p.end_point,
+               p.image1,
+               p.image2,
+               p.image3,
+               p.status,
+               p.view_count,
+               p.like_count,
+               p.comment_count,
+               p.favorite_count,
+               p.trending_level,
+               p.create_time,
+               p.update_time,
+               u.username,
+               u.avatar,
+               c.name as category_name,
+               case when il_like.interaction_id is not null then 1 else 0 end as is_liked,
+               case when il_fav.interaction_id is not null then 1 else 0 end as is_favorited,
+               case when f.follow_id is not null then 1 else 0 end as is_followed
+        from post p
+        left join user u on p.user_id = u.user_id
+        left join category c on p.category_id = c.category_id
+        left join interaction il_like on p.post_id = il_like.post_id 
+            and il_like.user_id = #{currentUserId} 
+            and il_like.interaction_type = 'like' 
+            and il_like.status = 1
+        left join interaction il_fav on p.post_id = il_fav.post_id 
+            and il_fav.user_id = #{currentUserId} 
+            and il_fav.interaction_type = 'favorite' 
+            and il_fav.status = 1
+        left join follow f on f.follower_id = #{currentUserId} 
+            and f.following_id = p.user_id 
+            and f.status = 1
+        <where>
+            p.status = 1
+            <if test="categoryId != null">
+                and p.category_id = #{categoryId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (p.title like concat('%', #{keyword}, '%')
+                or p.content like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="trendingLevel != null">
+                and p.trending_level = #{trendingLevel}
+            </if>
+        </where>
+        order by 
+        <choose>
+            <when test="sortType == 'trending'">
+                p.trending_level desc, p.like_count desc, p.create_time desc
+            </when>
+            <when test="sortType == 'latest'">
+                p.create_time desc
+            </when>
+            <otherwise>
+                p.create_time desc
+            </otherwise>
+        </choose>
+        <if test="start != null and size != null">
+            limit #{start}, #{size}
+        </if>
+    </select>
+
+    <!-- 统计帖子数量 -->
+    <select id="countPosts" resultType="int" parameterType="map">
+        select count(*)
+        from post p
+        <where>
+            p.status = 1
+            <if test="categoryId != null">
+                and p.category_id = #{categoryId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (p.title like concat('%', #{keyword}, '%')
+                or p.content like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="trendingLevel != null">
+                and p.trending_level = #{trendingLevel}
+            </if>
+        </where>
+    </select>
+
+    <!-- 插入新帖子 -->
+    <insert id="insertPost" parameterType="map" useGeneratedKeys="true" keyProperty="postId">
+        insert into post (
+            user_id, category_id, title, content, contact_info, deadline,
+            price, item_info, start_point, end_point, image1, image2, image3,
+            status, view_count, like_count, comment_count, favorite_count,
+            trending_level, create_time, update_time
+        ) values (
+            #{userId}, #{categoryId}, #{title}, #{content}, #{contactInfo}, #{deadline},
+            #{price}, #{itemInfo}, #{startPoint}, #{endPoint}, #{image1}, #{image2}, #{image3},
+            0, 0, 0, 0, 0, 0, now(), now()
+        )
+    </insert>
+
+    <!-- 更新帖子查看次数 -->
+    <update id="updateViewCount">
+        update post set view_count = view_count + 1
+        where post_id = #{postId}
+    </update>
+
+    <!-- 插入帖子标签关联 -->
+    <insert id="insertPostTag">
+        insert into post_tag (post_id, tag_id)
+        values (#{postId}, #{tagId})
+        on duplicate key update post_id = post_id
+    </insert>
+
+    <!-- 根据帖子ID查询标签列表 -->
+    <select id="selectTagsByPostId" resultType="string">
+        select t.name
+        from tag t
+        inner join post_tag pt on t.tag_id = pt.tag_id
+        where pt.post_id = #{postId}
+        order by t.tag_id
+    </select>
+
+    <!-- 根据标签名称查询标签ID -->
+    <select id="selectTagIdByName" resultType="int">
+        select tag_id
+        from tag
+        where name = #{tagName}
+        limit 1
+    </select>
+</mapper>
+

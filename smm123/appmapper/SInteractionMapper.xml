@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<mapper namespace="com.app.dao.SInteractionMapper">
+    
+    <!-- SInteractionVO结果集映射 -->
+    <resultMap id="SInteractionVOMap" type="com.app.pojo.SInteractionVO">
+        <id property="interactionId" column="interaction_id"/>
+        <result property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="interactionType" column="interaction_type"/>
+        <result property="commentContent" column="comment_content"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="commentStatus" column="comment_status"/>
+        <result property="commentLikeCount" column="comment_like_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="isLiked" column="is_liked"/>
+    </resultMap>
+
+    <!-- 查询帖子的评论列表 -->
+    <select id="selectCommentsByPostId" resultMap="SInteractionVOMap">
+        select i.interaction_id,
+               i.post_id,
+               i.user_id,
+               i.interaction_type,
+               i.comment_content,
+               i.parent_id,
+               i.comment_status,
+               i.comment_like_count,
+               i.create_time,
+               u.username,
+               u.avatar,
+               case when il.interaction_id is not null then 1 else 0 end as is_liked
+        from interaction i
+        left join user u on i.user_id = u.user_id
+        left join interaction il on il.post_id = i.interaction_id
+            and il.user_id = #{currentUserId}
+            and il.interaction_type = 'like'
+            and il.status = 1
+            and il.comment_content is null
+        where i.post_id = #{postId}
+            and i.interaction_type = 'comment'
+            and i.status = 1
+            and (i.comment_status = '正常' or i.comment_status is null)
+        order by i.create_time asc
+    </select>
+
+    <!-- 插入互动（点赞、收藏、评论） -->
+    <insert id="insertInteraction" parameterType="map" useGeneratedKeys="true" keyProperty="interactionId">
+        insert into interaction (
+            post_id, user_id, interaction_type, comment_content, parent_id,
+            comment_status, comment_like_count, status, create_time, update_time
+        ) values (
+            #{postId}, #{userId}, #{interactionType}, #{commentContent}, #{parentId},
+            #{commentStatus}, 0, 1, now(), now()
+        )
+        on duplicate key update
+            status = 1,
+            comment_content = ifnull(#{commentContent}, comment_content),
+            update_time = now()
+    </insert>
+
+    <!-- 删除互动（取消点赞、取消收藏） -->
+    <update id="deleteInteraction">
+        update interaction set status = 0, update_time = now()
+        where post_id = #{postId}
+            and user_id = #{userId}
+            and interaction_type = #{interactionType}
+            and status = 1
+    </update>
+
+    <!-- 检查用户是否已点赞/收藏 -->
+    <select id="checkInteraction" resultType="int">
+        select count(*)
+        from interaction
+        where post_id = #{postId}
+            and user_id = #{userId}
+            and interaction_type = #{interactionType}
+            and status = 1
+    </select>
+
+    <!-- 更新帖子点赞数 -->
+    <update id="updatePostLikeCount">
+        update post set like_count = like_count + #{increment}
+        where post_id = #{postId}
+    </update>
+
+    <!-- 更新帖子收藏数 -->
+    <update id="updatePostFavoriteCount">
+        update post set favorite_count = favorite_count + #{increment}
+        where post_id = #{postId}
+    </update>
+
+    <!-- 更新帖子评论数 -->
+    <update id="updatePostCommentCount">
+        update post set comment_count = comment_count + #{increment}
+        where post_id = #{postId}
+    </update>
+</mapper>
+
