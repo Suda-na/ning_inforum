@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.UserMapper">
+
+    <select id="selectAdminList" resultType="com.niit.pojo.User">
+        SELECT
+        user_id AS userId,
+        username,
+        real_name AS realName,
+        password,
+        phone,
+        avatar,
+        role,
+        status,
+        signature,
+        create_time AS createTime
+        FROM user
+        WHERE status != 2
+        AND role IN (0, 1)
+        <if test="keyword != null and keyword != ''">
+            AND (username LIKE concat('%',#{keyword},'%') OR phone LIKE concat('%',#{keyword},'%'))
+        </if>
+        ORDER BY role ASC, create_time DESC
+    </select>
+
+    <insert id="insertUser" parameterType="com.niit.pojo.User">
+        INSERT INTO user (username, real_name, password, phone, role, status, create_time, signature, avatar)
+        VALUES (#{username}, #{realName}, #{password}, #{phone}, #{role}, 0, NOW(), #{signature}, 'default_avatar.png')
+    </insert>
+
+    <delete id="deleteUserById">
+        DELETE FROM user WHERE user_id = #{userId}
+    </delete>
+
+    <!-- ✅ 关键：不要 SELECT *，显式映射到 userId/realName/createTime -->
+    <select id="selectUserByUsername" resultType="com.niit.pojo.User">
+        SELECT
+            user_id AS userId,
+            username,
+            real_name AS realName,
+            password,
+            phone,
+            email,
+            avatar,
+            gender,
+            signature,
+            address,
+            role,
+            status,
+            create_time AS createTime
+        FROM user
+        WHERE username = #{username}
+            LIMIT 1
+    </select>
+
+    <update id="updateUser" parameterType="com.niit.pojo.User">
+        UPDATE user
+        <set>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="realName != null and realName != ''">real_name = #{realName},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="avatar != null and avatar != ''">avatar = #{avatar},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="selectUserById" resultType="com.niit.pojo.User">
+        SELECT
+            user_id AS userId,
+            username,
+            real_name AS realName,
+            password,
+            phone,
+            email,
+            avatar,
+            gender,
+            signature,
+            address,
+            role,
+            status,
+            create_time AS createTime
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.WTagMapper">
+
+    <!-- Tag结果集映射 -->
+    <resultMap id="TagResultMap" type="Tag">
+        <id property="tagId" column="tag_id"/>
+        <result property="name" column="name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+    </resultMap>
+
+    <!-- 根据分类ID查询标签列表 -->
+    <select id="selectTagsByCategory" resultMap="TagResultMap">
+        SELECT
+            t.tag_id,
+            t.name,
+            t.create_time,
+            c.category_id,
+            c.name as category_name
+        FROM tag t
+        INNER JOIN category_tag ct ON t.tag_id = ct.tag_id
+        INNER JOIN category c ON ct.category_id = c.category_id
+        <where>
+            <if test="categoryId != null">
+                AND c.category_id = #{categoryId}
+            </if>
+        </where>
+        ORDER BY ct.sort_order ASC, t.create_time DESC
+    </select>
+
+</mapper>
+

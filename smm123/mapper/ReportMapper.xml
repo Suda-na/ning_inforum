@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<mapper namespace="com.niit.dao.ReportMapper">
+    <!-- 结果集映射 -->
+    <resultMap id="ReportMap" type="Report">
+        <id property="reportId" column="report_id"/>
+        <result property="reporterId" column="reporter_id"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="reportType" column="report_type"/>
+        <result property="description" column="description"/>
+        <result property="reportImage" column="report_image"/>
+        <result property="status" column="status"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="result" column="result"/>
+        <result property="feedback" column="feedback"/>
+        <result property="createTime" column="create_time"/>
+        <result property="processTime" column="process_time"/>
+    </resultMap>
+
+    <!-- ReportVO结果集映射 -->
+    <resultMap id="ReportVOMap" type="ReportVO">
+        <id property="reportId" column="report_id"/>
+        <result property="reporterId" column="reporter_id"/>
+        <result property="reporterName" column="reporter_name"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="targetName" column="target_name"/>
+        <result property="targetUserId" column="target_user_id"/>
+        <result property="reportType" column="report_type"/>
+        <result property="description" column="description"/>
+        <result property="reportImage" column="report_image"/>
+        <result property="status" column="status"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="adminName" column="admin_name"/>
+        <result property="result" column="result"/>
+        <result property="feedback" column="feedback"/>
+        <result property="createTime" column="create_time"/>
+        <result property="processTime" column="process_time"/>
+        <!-- 动态内容字段 -->
+        <result property="postContent" column="post_content"/>
+        <result property="commentContent" column="comment_content"/>
+        <!-- 动态图片字段 -->
+        <result property="postImage1" column="post_image1"/>
+        <result property="postImage2" column="post_image2"/>
+        <result property="postImage3" column="post_image3"/>
+    </resultMap>
+
+    <!-- 根据ID查询举报信息 -->
+    <select id="selectByPrimaryKey" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(u_post.username, u_comment.username, u2.username) as target_name,
+               coalesce(p.user_id, i.user_id, u2.user_id) as target_user_id,
+               coalesce(p.user_id, i.user_id, u2.user_id) as target_user_id,
+               coalesce(p.user_id, i.user_id, u2.user_id) as target_user_id,
+               u3.username as admin_name,
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        where r.report_id = #{reportId}
+    </select>
+
+    <!-- 查询所有举报信息 -->
+    <select id="selectAll" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(u_post.username, u_comment.username, u2.username) as target_name,
+               u3.username as admin_name,   
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        order by r.create_time desc
+    </select>
+
+    <!-- 根据条件查询举报信息 -->
+    <select id="selectByCondition" parameterType="map" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(u_post.username, u_comment.username, u2.username) as target_name,
+               u3.username as admin_name,
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        <where>
+            <if test="reportId != null">
+                and r.report_id = #{reportId}
+            </if>
+            <if test="reporterId != null">
+                and r.reporter_id = #{reporterId}
+            </if>
+            <if test="targetType != null and targetType != '' and targetType != 'all'">
+                and r.target_type = #{targetType}
+            </if>
+            <if test="targetId != null">
+                and r.target_id = #{targetId}
+            </if>
+            <if test="reportType != null and reportType != ''">
+                and r.report_type = #{reportType}
+            </if>
+            <if test="status != null">
+                and r.status = #{status}
+            </if>
+            <if test="result != null">
+                and r.result = #{result}
+            </if>
+            <!-- 关键词搜索：在举报描述、举报人、被举报人、帖子内容、评论内容中搜索 -->
+            <if test="keyword != null and keyword != ''">
+                and (
+                    r.description like concat('%', #{keyword}, '%')
+                    or u1.username like concat('%', #{keyword}, '%')
+                    or u2.username like concat('%', #{keyword}, '%')
+                    or coalesce(p.content, p2.content) like concat('%', #{keyword}, '%')
+                    or i.comment_content like concat('%', #{keyword}, '%')
+                )
+            </if>
+            <!-- 日期筛选：按创建日期 -->
+            <if test="date != null and date != ''">
+                and date(r.create_time) = #{date}
+            </if>
+            <!-- 处理结果筛选 -->
+            <if test="resultFilter != null and resultFilter != '' and resultFilter != 'all'">
+                <choose>
+                    <when test="'ban'.equals(resultFilter)">
+                        and r.result = 1
+                    </when>
+                    <when test="'no-ban'.equals(resultFilter)">
+                        and r.result = 0
+                    </when>
+                    <when test="'other'.equals(resultFilter)">
+                        and (r.result is null or r.result not in (0, 1))
+                    </when>
+                </choose>
+            </if>
+        </where>
+        order by r.create_time desc
+    </select>
+
+    <!-- 插入举报信息 -->
+    <insert id="insert" parameterType="Report" useGeneratedKeys="true" keyProperty="reportId">
+        insert into report(
+            reporter_id,
+            target_type,
+            target_id,
+            report_type,
+            description,
+            report_image,
+            status,
+            admin_id,
+            result,
+            feedback,
+            create_time,
+            process_time
+        ) values (
+            #{reporterId},
+            #{targetType},
+            #{targetId},
+            #{reportType},
+            #{description},
+            #{reportImage},
+            #{status},
+            #{adminId},
+            #{result},
+            #{feedback},
+            #{createTime},
+            #{processTime}
+        )
+    </insert>
+
+    <!-- 更新举报信息 -->
+    <update id="updateByPrimaryKey" parameterType="Report">
+        update report
+        <set>
+            <if test="reporterId != null">
+                reporter_id = #{reporterId},
+            </if>
+            <if test="targetType != null and targetType != ''">
+                target_type = #{targetType},
+            </if>
+            <if test="targetId != null">
+                target_id = #{targetId},
+            </if>
+            <if test="reportType != null and reportType != ''">
+                report_type = #{reportType},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="reportImage != null and reportImage != ''">
+                report_image = #{reportImage},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="adminId != null">
+                admin_id = #{adminId},
+            </if>
+            <if test="result != null">
+                result = #{result},
+            </if>
+            <if test="feedback != null and feedback != ''">
+                feedback = #{feedback},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="processTime != null">
+                process_time = #{processTime},
+            </if>
+        </set>
+        where report_id = #{reportId}
+    </update>
+
+    <!-- 删除举报信息 -->
+    <delete id="deleteByPrimaryKey">
+        delete from report where report_id = #{reportId}
+    </delete>
+
+    <!-- 根据状态查询举报信息 -->
+    <select id="selectByStatus" parameterType="int" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(u_post.username, u_comment.username, u2.username) as target_name,
+               u3.username as admin_name,
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        where r.status = #{status}
+        order by r.create_time desc
+    </select>
+
+    <!-- 根据目标类型查询举报信息 -->
+    <select id="selectByTargetType" parameterType="string" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(
+                   case when r.target_type = '用户' then u2.username else null end,
+                   case when r.target_type = '帖子' then u_post.username else null end,
+                   case when r.target_type = '评论' then u_comment.username else null end
+               ) as target_name,
+               u3.username as admin_name,
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_type = '用户' and r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        where r.target_type = #{targetType}
+        order by r.create_time desc
+    </select>
+
+    <!-- 根据举报类型查询举报信息 -->
+    <select id="selectByReportType" parameterType="string" resultMap="ReportVOMap">
+        select r.*, 
+               u1.username as reporter_name,
+               coalesce(
+                   case when r.target_type = '用户' then u2.username else null end,
+                   case when r.target_type = '帖子' then u_post.username else null end,
+                   case when r.target_type = '评论' then u_comment.username else null end
+               ) as target_name,
+               u3.username as admin_name,
+               coalesce(p.content, p2.content) as post_content,
+               i.comment_content as comment_content,
+               coalesce(p.image1, p2.image1) as post_image1,
+               coalesce(p.image2, p2.image2) as post_image2,
+               coalesce(p.image3, p2.image3) as post_image3
+        from report r
+        left join user u1 on r.reporter_id = u1.user_id
+        left join user u2 on r.target_type = '用户' and r.target_id = u2.user_id
+        left join user u3 on r.admin_id = u3.user_id
+        left join post p on r.post_id = p.post_id
+        left join user u_post on p.user_id = u_post.user_id
+        left join interaction i on r.interaction = i.interaction_id
+        left join user u_comment on i.user_id = u_comment.user_id
+        left join post p2 on i.post_id = p2.post_id
+        where r.report_type = #{reportType}
+        order by r.create_time desc
+    </select>
+
+    <!-- 统计举报数量 -->
+    <select id="countAll" resultType="int">
+        select count(*) from report
+    </select>
+
+    <!-- 根据状态统计举报数量 -->
+    <select id="countByStatus" parameterType="int" resultType="int">
+        select count(*) from report where status = #{status}
+    </select>
+
+    <!-- 按日期统计举报数量（按目标类型分组） -->
+    <select id="countReportsByDate" resultType="map">
+        <choose>
+            <when test="interval != null and interval == 'day'">
+                select DATE_FORMAT(create_time, '%m/%d') as date_label,
+                       DATE(create_time) as date_value,
+                       count(*) as count
+                from report
+                where DATE(create_time) >= DATE_SUB(CURDATE(), INTERVAL #{count} DAY)
+                  and DATE(create_time) &lt;= CURDATE()
+                  <if test="targetType != null and targetType != ''">
+                      and target_type = #{targetType}
+                  </if>
+                group by DATE(create_time), DATE_FORMAT(create_time, '%m/%d')
+                order by date_value asc
+            </when>
+            <when test="interval != null and interval == 'month'">
+                select DATE_FORMAT(create_time, '%Y-%m') as date_label,
+                       DATE_FORMAT(create_time, '%Y-%m') as date_value,
+                       count(*) as count
+                from report
+                where create_time >= DATE_SUB(CURDATE(), INTERVAL #{count} MONTH)
+                  <if test="targetType != null and targetType != ''">
+                      and target_type = #{targetType}
+                  </if>
+                group by DATE_FORMAT(create_time, '%Y-%m')
+                order by date_value asc
+            </when>
+            <when test="interval != null and interval == 'year'">
+                select DATE_FORMAT(create_time, '%Y') as date_label,
+                       DATE_FORMAT(create_time, '%Y') as date_value,
+                       count(*) as count
+                from report
+                where create_time >= DATE_SUB(CURDATE(), INTERVAL #{count} YEAR)
+                  <if test="targetType != null and targetType != ''">
+                      and target_type = #{targetType}
+                  </if>
+                group by DATE_FORMAT(create_time, '%Y')
+                order by date_value asc
+            </when>
+            <otherwise>
+                select DATE_FORMAT(create_time, '%m/%d') as date_label,
+                       DATE(create_time) as date_value,
+                       count(*) as count
+                from report
+                where DATE(create_time) >= DATE_SUB(CURDATE(), INTERVAL #{count} DAY)
+                  and DATE(create_time) &lt;= CURDATE()
+                  <if test="targetType != null and targetType != ''">
+                      and target_type = #{targetType}
+                  </if>
+                group by DATE(create_time), DATE_FORMAT(create_time, '%m/%d')
+                order by date_value asc
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

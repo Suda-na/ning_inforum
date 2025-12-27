@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.SystemSettingMapper">
+
+    <resultMap id="BaseResultMap" type="com.niit.pojo.SystemSetting">
+        <id column="id" property="id"/>
+        <result column="site_name" property="siteName"/>
+        <result column="icp_code" property="icpCode"/>
+        <result column="site_status" property="siteStatus"/>
+        <result column="allow_register" property="allowRegister"/>
+        <result column="sensitive_words" property="sensitiveWords"/>
+        <result column="max_image_size" property="maxImageSize"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectSetting" resultMap="BaseResultMap">
+        SELECT * FROM system_setting WHERE id = 1
+    </select>
+
+    <update id="updateSetting" parameterType="com.niit.pojo.SystemSetting">
+        UPDATE system_setting
+        SET site_name = #{siteName},
+            icp_code = #{icpCode},
+            site_status = #{siteStatus},
+            allow_register = #{allowRegister},
+            sensitive_words = #{sensitiveWords},
+            max_image_size = #{maxImageSize}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

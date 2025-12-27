@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niit.dao.MessageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="MessageResultMap" type="Message">
+        <id property="messageId" column="message_id"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="messageType" column="message_type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="msgFormat" column="msg_format"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="relatedType" column="related_type"/>
+        <result property="isRead" column="is_read"/>
+        <result property="readTime" column="read_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="senderAvatar" column="sender_avatar"/>
+        <result property="receiverAvatar" column="receiver_avatar"/>
+    </resultMap>
+
+    <!-- 查询系统通知列表 -->
+    <select id="selectSystemNotifications" resultMap="MessageResultMap">
+        SELECT 
+            m.message_id,
+            m.sender_id,
+            m.receiver_id,
+            m.message_type,
+            m.title,
+            m.content,
+            m.msg_format,
+            m.image_url,
+            m.related_type,
+            m.is_read,
+            m.read_time,
+            m.create_time,
+            '系统管理员' as sender_name,
+            CASE 
+                WHEN COUNT(mr.receiver_id) = 0 THEN '所有用户'
+                WHEN COUNT(mr.receiver_id) = 1 THEN MAX(u.username)
+                ELSE CONCAT(COUNT(mr.receiver_id), '个用户')
+            END as receiver_name,
+            NULL as sender_avatar,
+            MAX(u.avatar) as receiver_avatar
+        FROM message m
+        LEFT JOIN message_receiver mr ON m.message_id = mr.message_id
+        LEFT JOIN user u ON mr.receiver_id = u.user_id
+        WHERE m.message_type = 1
+        GROUP BY m.message_id, m.sender_id, m.receiver_id, m.message_type, 
+                 m.title, m.content, m.msg_format, m.image_url, m.related_type, 
+                 m.is_read, m.read_time, m.create_time
+        ORDER BY m.create_time DESC
+        LIMIT 200
+    </select>
+
+    <!-- 根据接收者ID查询私信列表 -->
+    <select id="selectPrivateMessagesByReceiverId" resultMap="MessageResultMap">
+        SELECT 
+            m.message_id,
+            m.sender_id,
+            m.receiver_id,
+            m.message_type,
+            m.title,
+            m.content,
+            m.msg_format,
+            m.image_url,
+            m.related_type,
+            m.is_read,
+            m.read_time,
+            m.create_time,
+            sender.username as sender_name,
+            receiver.username as receiver_name,
+            sender.avatar as sender_avatar,
+            receiver.avatar as receiver_avatar
+        FROM message m
+        LEFT JOIN user sender ON m.sender_id = sender.user_id
+        LEFT JOIN user receiver ON m.receiver_id = receiver.user_id
+        WHERE m.message_type = 0 
+          AND m.receiver_id = #{receiverId}
+        ORDER BY m.create_time DESC
+    </select>
+
+    <!-- 查询有私信的用户列表（去重，包含未读数量）
+         只展示与任一管理员(角色0/1)有过私信往来的普通用户 -->
+    <select id="selectUsersWithPrivateMessages" resultType="java.util.Map">
+        SELECT 
+            u.user_id    AS senderId,
+            u.username   AS senderName,
+            u.real_name  AS realName,
+            CASE 
+                WHEN u.gender = 1 THEN '男'
+                WHEN u.gender = 2 THEN '女'
+                ELSE '未知'
+            END         AS gender,
+            u.email      AS email,
+            u.phone      AS phone,
+            u.avatar     AS senderAvatar,
+            IFNULL((
+                SELECT COUNT(*)
+                FROM message m2
+                JOIN user recv ON m2.receiver_id = recv.user_id
+                WHERE m2.message_type = 0
+                  AND m2.is_read = 0
+                  AND recv.role IN (0,1)      -- 管理员作为接收者
+                  AND m2.sender_id = u.user_id
+            ), 0) AS unreadCount
+        FROM user u
+        WHERE u.role NOT IN (0,1)           -- 排除管理员自身，只保留普通用户
+          AND EXISTS (
+              SELECT 1
+              FROM message m
+              JOIN user us1 ON m.sender_id = us1.user_id
+              JOIN user us2 ON m.receiver_id = us2.user_id
+        WHERE m.message_type = 0
+                AND (
+                      (us1.role IN (0,1) AND us2.user_id = u.user_id)  -- 管理员发给该用户
+                   OR (us2.role IN (0,1) AND us1.user_id = u.user_id)  -- 该用户发给管理员
+                )
+          )
+        ORDER BY senderId ASC
+        LIMIT 100
+    </select>
+
+    <!-- 根据当前登录用户查询有私信的用户列表（去重，包含未读数量） -->
+    <select id="selectUsersWithPrivateMessagesByCurrentUser" resultType="java.util.Map">
+        SELECT 
+            other.user_id    AS senderId,
+            other.username   AS senderName,
+            other.real_name  AS realName,
+            CASE 
+                WHEN other.gender = 1 THEN '男'
+                WHEN other.gender = 2 THEN '女'
+                ELSE '未知'
+            END         AS gender,
+            other.email      AS email,
+            other.phone      AS phone,
+            other.avatar     AS senderAvatar,
+            IFNULL((
+                SELECT COUNT(*)
+                FROM message m2
+                WHERE m2.message_type = 0
+                  AND m2.is_read = 0
+                  AND m2.receiver_id = #{currentUserId}
+                  AND m2.sender_id = other.user_id
+            ), 0) AS unreadCount
+        FROM user other
+        WHERE other.user_id != #{currentUserId}
+          AND EXISTS (
+              SELECT 1
+              FROM message m
+              WHERE m.message_type = 0
+                AND (
+                      (m.sender_id = #{currentUserId} AND m.receiver_id = other.user_id)
+                   OR (m.receiver_id = #{currentUserId} AND m.sender_id = other.user_id)
+                )
+          )
+        ORDER BY senderId ASC
+        LIMIT 100
+    </select>
+
+    <!-- 查询指定用户之间的私信记录（管理员与某个用户） -->
+    <select id="selectMessagesBetweenAdminAndUser" resultMap="MessageResultMap">
+        SELECT 
+            m.message_id,
+            m.sender_id,
+            m.receiver_id,
+            m.message_type,
+            m.title,
+            m.content,
+            m.msg_format,
+            m.image_url,
+            m.related_type,
+            m.is_read,
+            m.read_time,
+            m.create_time,
+            sender.username as sender_name,
+            receiver.username as receiver_name,
+            sender.avatar as sender_avatar,
+            receiver.avatar as receiver_avatar
+        FROM message m
+        LEFT JOIN user sender ON m.sender_id = sender.user_id
+        LEFT JOIN user receiver ON m.receiver_id = receiver.user_id
+        WHERE m.message_type = 0 
+          AND (
+                (sender.role IN (0,1) AND receiver.user_id = #{userId})
+             OR (receiver.role IN (0,1) AND sender.user_id = #{userId})
+          )
+        ORDER BY m.create_time ASC
+        LIMIT 200
+    </select>
+
+    <!-- 查询当前登录用户与指定用户之间的私信记录 -->
+    <select id="selectMessagesBetweenUsers" resultMap="MessageResultMap">
+        SELECT 
+            m.message_id,
+            m.sender_id,
+            m.receiver_id,
+            m.message_type,
+            m.title,
+            m.content,
+            m.msg_format,
+            m.image_url,
+            m.related_type,
+            m.is_read,
+            m.read_time,
+            m.create_time,
+            sender.username as sender_name,
+            receiver.username as receiver_name,
+            sender.avatar as sender_avatar,
+            receiver.avatar as receiver_avatar
+        FROM message m
+        LEFT JOIN user sender ON m.sender_id = sender.user_id
+        LEFT JOIN user receiver ON m.receiver_id = receiver.user_id
+        WHERE m.message_type = 0 
+          AND (
+                (m.sender_id = #{currentUserId} AND m.receiver_id = #{otherUserId})
+             OR (m.receiver_id = #{currentUserId} AND m.sender_id = #{otherUserId})
+          )
+        ORDER BY m.create_time ASC
+        LIMIT 200
+    </select>
+
+    <!-- 统计用户的未读私信数量 -->
+    <select id="countUnreadPrivateMessages" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message
+        WHERE message_type = 0 
+        AND receiver_id = #{receiverId}
+        AND is_read = 0
+    </select>
+
+    <!-- 统计当前登录用户与指定用户之间的未读私信数量 -->
+    <select id="countUnreadPrivateMessagesBetweenUsers" resultType="Integer">
+        SELECT COUNT(*)
+        FROM message
+        WHERE message_type = 0 
+        AND receiver_id = #{currentUserId}
+        AND sender_id = #{otherUserId}
+        AND is_read = 0
+    </select>
+
+    <!-- 将指定用户发给管理员的未读私信标记为已读 -->
+    <update id="updatePrivateMessagesRead">
+        UPDATE message
+        SET is_read = 1,
+            read_time = NOW()
+        WHERE message_type = 0
+          AND sender_id = #{userId}
+          AND receiver_id = #{adminId}
+          AND is_read = 0
+    </update>
+
+    <!-- 将当前登录用户与指定用户之间的未读私信标记为已读 -->
+    <update id="updatePrivateMessagesReadBetweenUsers">
+        UPDATE message
+        SET is_read = 1,
+            read_time = NOW()
+        WHERE message_type = 0
+          AND sender_id = #{otherUserId}
+          AND receiver_id = #{currentUserId}
+          AND is_read = 0
+    </update>
+
+    <!-- 插入系统通知 -->
+    <insert id="insertSystemNotification" parameterType="Message" useGeneratedKeys="true" keyProperty="messageId">
+        INSERT INTO message (
+            sender_id,
+            receiver_id,
+            message_type,
+            title,
+            content,
+            msg_format,
+            image_url,
+            related_type,
+            is_read,
+            create_time
+        ) VALUES (
+            NULL,
+            #{receiverId},
+            1,
+            #{title},
+            #{content},
+            #{msgFormat, jdbcType=INTEGER},
+            #{imageUrl, jdbcType=VARCHAR},
+            #{relatedType, jdbcType=VARCHAR},
+            0,
+            NOW()
+        )
+    </insert>
+
+    <!-- 插入管理员发送的私信 -->
+    <insert id="insertPrivateMessageFromAdmin">
+        INSERT INTO message (
+            sender_id,
+            receiver_id,
+            message_type,
+            content,
+            msg_format,
+            image_url,
+            related_type,
+            is_read,
+            create_time
+        ) VALUES (
+            #{adminId},
+            #{receiverId},
+            0,
+            #{content},
+            #{msgFormat, jdbcType=INTEGER},
+            #{imageUrl, jdbcType=VARCHAR},
+            '用户',
+            0,
+            NOW()
+        )
+    </insert>
+
+    <!-- 查询所有用户ID -->
+    <select id="selectAllUserIds" resultType="Integer">
+        SELECT user_id
+        FROM user
+    </select>
+
+    <!-- 查询一个默认管理员ID -->
+    <select id="selectDefaultAdminId" resultType="Integer">
+        SELECT user_id
+        FROM user
+        WHERE role IN (0,1)
+        ORDER BY role ASC, user_id ASC
+        LIMIT 1
+    </select>
+
+    <!-- 查询用户列表（用于选择接收者，排除管理员） -->
+    <select id="selectAllUsers" resultType="java.util.Map">
+        SELECT 
+            user_id as userId,
+            username,
+            email,
+            phone,
+            real_name as realName,
+            CASE 
+                WHEN gender = 1 THEN '男'
+                WHEN gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender
+        FROM user
+        WHERE role NOT IN (0, 1)
+        ORDER BY user_id ASC
+    </select>
+
+    <!-- 查询系统通知的接收用户列表 -->
+    <select id="selectNotificationReceivers" resultType="java.util.Map">
+        SELECT 
+            u.user_id as userId,
+            u.username,
+            u.real_name as realName,
+            u.email,
+            CASE 
+                WHEN u.gender = 1 THEN '男'
+                WHEN u.gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender,
+            u.phone
+        FROM user u
+        WHERE 
+            <if test="receiverId == null">
+                <!-- receiverId为null，表示发送给所有人，返回所有用户 -->
+                1 = 1
+            </if>
+            <if test="receiverId != null">
+                <!-- receiverId不为null，返回指定用户 -->
+                u.user_id = #{receiverId}
+            </if>
+        ORDER BY u.user_id ASC
+    </select>
+
+    <!-- 更新系统通知 -->
+    <update id="updateSystemNotification" parameterType="Message">
+        UPDATE message
+        SET
+            title = #{title},
+            content = #{content},
+            msg_format = #{msgFormat},
+            image_url = #{imageUrl},
+            receiver_id = #{receiverId}
+        WHERE message_id = #{messageId}
+          AND message_type = 1
+    </update>
+
+    <!-- 删除系统通知 -->
+    <delete id="deleteSystemNotification" parameterType="int">
+        DELETE FROM message
+        WHERE message_id = #{messageId}
+          AND message_type = 1
+    </delete>
+
+    <!-- ========== 多接收者支持SQL ========== -->
+    
+    <!-- 批量插入消息接收者关联记录 -->
+    <insert id="insertMessageReceivers">
+        INSERT INTO message_receiver (message_id, receiver_id, is_read, create_time)
+        VALUES
+        <foreach collection="receiverIds" item="receiverId" separator=",">
+            (#{messageId}, #{receiverId}, 0, NOW())
+        </foreach>
+    </insert>
+    
+    <!-- 查询某个消息的所有接收者 -->
+    <select id="selectMessageReceivers" resultType="java.util.Map">
+        SELECT 
+            u.user_id as userId,
+            u.username,
+            u.real_name as realName,
+            CASE 
+                WHEN u.gender = 1 THEN '男'
+                WHEN u.gender = 2 THEN '女'
+                ELSE '未知'
+            END AS gender,
+            u.email,
+            u.phone,
+            mr.is_read as isRead,
+            mr.read_time as readTime
+        FROM message_receiver mr
+        JOIN user u ON mr.receiver_id = u.user_id
+        WHERE mr.message_id = #{messageId}
+        ORDER BY u.user_id ASC
+    </select>
+    
+    <!-- 删除某个消息的指定接收者 -->
+    <delete id="deleteMessageReceivers">
+        DELETE FROM message_receiver
+        WHERE message_id = #{messageId}
+          AND receiver_id IN
+          <foreach collection="receiverIds" item="receiverId" open="(" separator="," close=")">
+              #{receiverId}
+          </foreach>
+    </delete>
+    
+    <!-- 为某个消息添加新的接收者（忽略已存在的） -->
+    <insert id="addMessageReceivers">
+        INSERT INTO message_receiver (message_id, receiver_id, is_read, create_time)
+        VALUES
+        <foreach collection="receiverIds" item="receiverId" separator=",">
+            (#{messageId}, #{receiverId}, 0, NOW())
+        </foreach>
+        ON DUPLICATE KEY UPDATE message_id = message_id
+    </insert>
+    
+    <!-- 删除某个消息的所有接收者关联 -->
+    <delete id="deleteAllMessageReceivers">
+        DELETE FROM message_receiver
+        WHERE message_id = #{messageId}
+    </delete>
+
+</mapper>
+
