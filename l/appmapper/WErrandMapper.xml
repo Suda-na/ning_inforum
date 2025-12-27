@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.WErrandMapper">
+
+    <!-- PostVO结果集映射 -->
+    <resultMap id="PostVOMap" type="PostVO">
+        <id property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="price" column="price"/>
+        <result property="itemInfo" column="item_info"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="image1" column="image1"/>
+        <result property="image2" column="image2"/>
+        <result property="image3" column="image3"/>
+    </resultMap>
+
+    <!-- 查询跑腿订单列表 -->
+    <select id="selectErrandOrders" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.start_point,
+            p.end_point,
+            p.price,
+            p.item_info,
+            p.contact_info,
+            p.status,
+            p.create_time,
+            p.image1,
+            p.image2,
+            p.image3,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.category_id = 2
+        <if test="statusList != null and statusList.size() > 0">
+            AND p.status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        ORDER BY p.create_time DESC
+        LIMIT #{start}, #{size}
+    </select>
+
+    <!-- 统计跑腿订单数量 -->
+    <select id="countErrandOrders" resultType="int">
+        SELECT COUNT(*)
+        FROM post p
+        WHERE p.category_id = 2
+        <if test="statusList != null and statusList.size() > 0">
+            AND p.status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 根据ID查询跑腿订单详情 -->
+    <select id="selectErrandOrderById" resultMap="PostVOMap">
+        SELECT
+            p.post_id,
+            p.user_id,
+            p.category_id,
+            p.title,
+            p.content,
+            p.start_point,
+            p.end_point,
+            p.price,
+            p.item_info,
+            p.contact_info,
+            p.status,
+            p.create_time,
+            p.image1,
+            p.image2,
+            p.image3,
+            u.username,
+            u.avatar,
+            c.name as category_name
+        FROM post p
+        LEFT JOIN user u ON p.user_id = u.user_id
+        LEFT JOIN category c ON p.category_id = c.category_id
+        WHERE p.post_id = #{postId} AND p.category_id = 2
+    </select>
+
+    <!-- 增加浏览量 -->
+    <update id="incrementViewCount">
+        UPDATE post
+        SET view_count = view_count + 1
+        WHERE post_id = #{postId}
+    </update>
+
+</mapper>

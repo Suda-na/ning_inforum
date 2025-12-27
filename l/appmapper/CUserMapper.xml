@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.CUserMapper">
+
+    <select id="findByUsername" resultType="com.app.pojo.CUser">
+        SELECT user_id as userId, username, real_name as realName, password, phone,
+               email, avatar, gender, signature, address
+        FROM user
+        WHERE username = #{username}
+           OR phone = #{username}
+           OR email = #{username}
+    </select>
+
+    <select id="findByPhone" resultType="com.app.pojo.CUser">
+        SELECT user_id as userId, username, real_name as realName, password, phone,
+               email, avatar, gender, signature, address
+        FROM user WHERE phone = #{phone}
+    </select>
+
+    <select id="findById" resultType="com.app.pojo.CUser">
+        SELECT user_id as userId, username, real_name as realName, password, phone,
+               email, avatar, gender, signature, address
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertCUser" parameterType="com.app.pojo.CUser" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO user (username, real_name, password, phone, create_time, status, role, avatar)
+        VALUES (#{username}, #{realName}, #{password}, #{phone}, NOW(), 0, 3, 'default_avatar.png')
+    </insert>
+
+    <update id="updateCUser" parameterType="com.app.pojo.CUser">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 获取关注/粉丝列表 -->
+    <select id="selectRelationList" resultType="com.app.pojo.CUser">
+        SELECT u.user_id as userId, u.username, u.real_name as realName, u.phone,
+               u.email, u.avatar, u.gender, u.signature, u.address
+        FROM user u
+        <if test="type == 0">
+            <!-- 关注列表：查询当前用户关注的人 -->
+            INNER JOIN follow f ON u.user_id = f.following_id
+            WHERE f.follower_id = #{userId} AND f.status = 1
+        </if>
+        <if test="type == 1">
+            <!-- 粉丝列表：查询关注当前用户的人 -->
+            INNER JOIN follow f ON u.user_id = f.follower_id
+            WHERE f.following_id = #{userId} AND f.status = 1
+        </if>
+        ORDER BY f.follow_id DESC
+    </select>
+
+    <!-- 插入关注关系 -->
+    <insert id="insertFollow">
+        INSERT INTO follow (follower_id, following_id, status)
+        VALUES (#{followerId}, #{followingId}, 1)
+        ON DUPLICATE KEY UPDATE status = 1
+    </insert>
+
+    <!-- 删除关注关系（取消关注/移除粉丝） -->
+    <update id="deleteFollow">
+        UPDATE follow
+        SET status = 0
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
+    </update>
+
+    <!-- 检查是否已关注 -->
+    <select id="checkFollowExists" resultType="Integer">
+        SELECT follow_id
+        FROM follow
+        WHERE follower_id = #{followerId} AND following_id = #{followingId} AND status = 1
+        LIMIT 1
+    </select>
+
+    <!-- 统计关注数 -->
+    <select id="countFollowing" resultType="Integer">
+        SELECT COUNT(*)
+        FROM follow
+        WHERE follower_id = #{userId} AND status = 1
+    </select>
+
+    <!-- 统计粉丝数 -->
+    <select id="countFans" resultType="Integer">
+        SELECT COUNT(*)
+        FROM follow
+        WHERE following_id = #{userId} AND status = 1
+    </select>
+
+    <!-- 统计获赞与收藏数（获赞数+收藏数） -->
+    <select id="countLikes" resultType="Integer">
+        SELECT 
+            (SELECT COUNT(*)
+             FROM interaction i1
+             INNER JOIN post p1 ON i1.post_id = p1.post_id
+             WHERE p1.user_id = #{userId} AND i1.interaction_type = 'like' AND i1.status = 1)
+            +
+            (SELECT COUNT(*)
+             FROM interaction i2
+             WHERE i2.user_id = #{userId} AND i2.interaction_type = 'favorite' AND i2.status = 1)
+    </select>
+
+</mapper>
+
+

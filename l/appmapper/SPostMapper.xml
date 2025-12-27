@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，对应dao接口 -->
+<!-- SPostMapper：仅包含发布功能 -->
+<mapper namespace="com.app.dao.SPostMapper">
+
+    <!-- 插入新帖子 -->
+    <insert id="insertPost" parameterType="map" useGeneratedKeys="true" keyProperty="postId">
+        insert into post (
+            user_id, category_id, title, content, contact_info, deadline,
+            price, item_info, start_point, end_point, image1, image2, image3,
+            status, view_count, like_count, comment_count, favorite_count,
+            trending_level, create_time, update_time
+        ) values (
+            #{userId}, #{categoryId}, #{title}, #{content}, #{contactInfo}, #{deadline},
+            #{price}, #{itemInfo}, #{startPoint}, #{endPoint}, #{image1}, #{image2}, #{image3},
+            0, 0, 0, 0, 0, 0, now(), now()
+        )
+    </insert>
+
+    <!-- 插入帖子标签关联 -->
+    <insert id="insertPostTag">
+        insert into post_tag (post_id, tag_id)
+        values (#{postId}, #{tagId})
+        on duplicate key update post_id = post_id
+    </insert>
+
+    <!-- 根据标签名称查询标签ID -->
+    <select id="selectTagIdByName" resultType="java.lang.Integer">
+        select tag_id
+        from tag
+        where name = #{tagName}
+        limit 1
+    </select>
+</mapper>
+
